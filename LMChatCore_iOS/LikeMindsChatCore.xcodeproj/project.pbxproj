@@ -12,7 +12,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		F4C8F7002B5E86010012A1CF /* LMChatCore_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LMChatCore_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4C8F7002B5E86010012A1CF /* LikeMindsChatCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LikeMindsChatCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4C8F7032B5E86010012A1CF /* LMChatCore_iOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LMChatCore_iOS.h; sourceTree = "<group>"; };
 		F4C8F7042B5E86010012A1CF /* LMChatCore_iOS.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = LMChatCore_iOS.docc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -39,7 +39,7 @@
 		F4C8F7012B5E86010012A1CF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F4C8F7002B5E86010012A1CF /* LMChatCore_iOS.framework */,
+				F4C8F7002B5E86010012A1CF /* LikeMindsChatCore.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -91,9 +91,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		F4C8F6FF2B5E86010012A1CF /* LMChatCore_iOS */ = {
+		F4C8F6FF2B5E86010012A1CF /* LikeMindsChatCore */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F4C8F7092B5E86010012A1CF /* Build configuration list for PBXNativeTarget "LMChatCore_iOS" */;
+			buildConfigurationList = F4C8F7092B5E86010012A1CF /* Build configuration list for PBXNativeTarget "LikeMindsChatCore" */;
 			buildPhases = (
 				F4C8F6FB2B5E86010012A1CF /* Headers */,
 				F4C8F6FC2B5E86010012A1CF /* Sources */,
@@ -104,9 +104,9 @@
 			);
 			dependencies = (
 			);
-			name = LMChatCore_iOS;
+			name = LikeMindsChatCore;
 			productName = LMChatCore_iOS;
-			productReference = F4C8F7002B5E86010012A1CF /* LMChatCore_iOS.framework */;
+			productReference = F4C8F7002B5E86010012A1CF /* LikeMindsChatCore.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -123,7 +123,7 @@
 					};
 				};
 			};
-			buildConfigurationList = F4C8F6FA2B5E86010012A1CF /* Build configuration list for PBXProject "LMChatCore_iOS" */;
+			buildConfigurationList = F4C8F6FA2B5E86010012A1CF /* Build configuration list for PBXProject "LikeMindsChatCore" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -136,7 +136,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F4C8F6FF2B5E86010012A1CF /* LMChatCore_iOS */,
+				F4C8F6FF2B5E86010012A1CF /* LikeMindsChatCore */,
 			);
 		};
 /* End PBXProject section */
@@ -355,7 +355,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F4C8F6FA2B5E86010012A1CF /* Build configuration list for PBXProject "LMChatCore_iOS" */ = {
+		F4C8F6FA2B5E86010012A1CF /* Build configuration list for PBXProject "LikeMindsChatCore" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F4C8F7072B5E86010012A1CF /* Debug */,
@@ -364,7 +364,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F4C8F7092B5E86010012A1CF /* Build configuration list for PBXNativeTarget "LMChatCore_iOS" */ = {
+		F4C8F7092B5E86010012A1CF /* Build configuration list for PBXNativeTarget "LikeMindsChatCore" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F4C8F70A2B5E86010012A1CF /* Debug */,
