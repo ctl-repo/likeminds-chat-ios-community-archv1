@@ -168,6 +168,18 @@ open class LMChatAttachmentViewController: LMViewController {
         initializeHideKeyboard(zoomableImageViewContainer)
         initializeHideKeyboard(videoImageViewContainer)
         initializeHideKeyboard(audioPlayer)
+        let attText = GetAttributedTextWithRoutes.getAttributedText(from: LMSharedPreferences.getString(forKey: viewModel?.chatroomId ?? "NA") ?? "")
+        if !attText.string.isEmpty {
+            bottomMessageBoxView.inputTextView.attributedText = attText
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {[weak self] in
+                self?.bottomMessageBoxView.inputTextView.becomeFirstResponder()
+            }
+        }
+    }
+    
+    open override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        bottomMessageBoxView.inputTextView.mentionDelegate?.contentHeightChanged()
     }
     
     func openPicker() {
@@ -258,7 +270,7 @@ open class LMChatAttachmentViewController: LMViewController {
     
     open override func setupAppearance() {
         super.setupAppearance()
-        view.backgroundColor = Appearance.shared.colors.white
+        view.backgroundColor = backgroundColor
     }
     
     @objc
@@ -328,6 +340,7 @@ open class LMChatAttachmentViewController: LMViewController {
         LMEditImageViewController.showEditImageVC(parentVC: self, image: image, editModel: editModel) { [weak self] resImage, editModel in
             self?.zoomableImageViewContainer.configure(with: resImage)
             self?.viewModel?.selectedMedia?.photo = resImage
+            self?.mediaCollectionView.reloadData()
         }
     }
 }
@@ -456,8 +469,8 @@ extension LMChatAttachmentViewController: LMAttachmentBottomMessageDelegate {
 extension LMChatAttachmentViewController: MediaPickerDelegate {
     
     func mediaPicker(_ picker: UIViewController, didFinishPicking results: [MediaPickerModel]) {
+        picker.dismiss(animated: true)
         guard !results.isEmpty || !(viewModel?.mediaCellData ?? []).isEmpty else {
-            picker.dismiss(animated: true)
             cancelEditing(nil)
             return
         }
