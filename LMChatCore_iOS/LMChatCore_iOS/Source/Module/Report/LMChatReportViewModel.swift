@@ -45,7 +45,7 @@ public final class LMChatReportViewModel {
     }
     
     public static func createModule(reportContentId: ReportContentID) throws -> LMChatReportViewController {
-        guard LMChatMain.isInitialized else { throw LMChatError.chatNotInitialized }
+        guard LMChatCore.isInitialized else { throw LMChatError.chatNotInitialized }
         
         let viewcontroller = LMCoreComponents.shared.reportScreen.init()
         let viewmodel = Self.init(delegate: viewcontroller, reportContentId: reportContentId)
@@ -103,17 +103,7 @@ public final class LMChatReportViewModel {
                 return
             }
             
-            let title = "\(contentType.rawValue) is reported for review"
-            let message = "Our team will look into your feedback and will take appropriate action on this \(contentType.rawValue)"
-            DispatchQueue.main.async {
-                let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-                
-                alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
-                    self?.delegate?.popViewController(animated: true)
-                })
-                (self.delegate as? UIViewController)?.present(alert, animated: true)
-            }
-            
+            self.delegate?.didReceivedReportContent(reason: reasonName)
         }
     }
 

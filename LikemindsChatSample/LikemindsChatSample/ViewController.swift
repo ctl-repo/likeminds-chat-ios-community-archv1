@@ -10,12 +10,28 @@ import LikeMindsChat
 import LikeMindsChatUI
 import LikeMindsChatCore
 
+extension UIViewController {
+    var window: UIWindow? {
+        if #available(iOS 13, *) {
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let delegate = windowScene.delegate as? SceneDelegate, let window = delegate.window else { return nil }
+            return window
+        }
+        return nil
+    }
+}
+
 class ViewController: LMViewController {
     
     @IBOutlet weak var apiKeyField: UITextField?
     @IBOutlet weak var userIdField: UITextField?
     @IBOutlet weak var userNameField: UITextField?
     @IBOutlet weak var loginButton: UIButton?
+    
+    static func createViewController() -> ViewController {
+        let main : UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        return main.instantiateViewController(withIdentifier: "LoginViewController") as! ViewController
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,10 +40,10 @@ class ViewController: LMViewController {
     
     func moveToNextScreen() {
         self.showHideLoaderView(isShow: false, backgroundColor: .clear)
-        guard let homefeedvc = try? LMChatHomeFeedViewModel.createModule() else { return }
+        let homefeedvc = ChatFeedViewModel.createModule()
         let navigation = UINavigationController(rootViewController: homefeedvc)
         navigation.modalPresentationStyle = .overFullScreen
-        self.present(navigation, animated: false)
+        self.window?.rootViewController = navigation
     }
     
     // MARK: setupViews
@@ -73,9 +89,9 @@ class ViewController: LMViewController {
     }
     
     func callInitiateApi(userId: String, username: String, apiKey: String) {
-        LMChatMain.shared.configure(apiKey: apiKey)
+        LMChatCore.shared.configure(apiKey: apiKey)
         self.showHideLoaderView(isShow: true, backgroundColor: .clear)
-        try? LMChatMain.shared.initiateUser(username: username, userId: userId, deviceId: UIDevice.current.identifierForVendor?.uuidString ?? "") {[weak self] success, error in
+        try? LMChatCore.shared.initiateUser(username: username, userId: userId, deviceId: UIDevice.current.identifierForVendor?.uuidString ?? "") {[weak self] success, error in
             guard success else {
                 self?.showAlert(message: error ?? "")
                 return

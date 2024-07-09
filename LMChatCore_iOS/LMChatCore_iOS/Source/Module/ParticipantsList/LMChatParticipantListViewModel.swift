@@ -42,7 +42,7 @@ public class LMChatParticipantListViewModel {
     }
     
     public static func createModule(withChatroomId chatroomId: String, isSecretChatroom isSecret: Bool = false) throws -> LMChatParticipantListViewController {
-        guard LMChatMain.isInitialized else { throw LMChatError.chatNotInitialized }
+        guard LMChatCore.isInitialized else { throw LMChatError.chatNotInitialized }
         let viewController = LMCoreComponents.shared.participantListScreen.init()
         viewController.viewModel = LMChatParticipantListViewModel(viewController, chatroomId: chatroomId, isSecret: isSecret)
         return viewController
@@ -73,7 +73,7 @@ public class LMChatParticipantListViewModel {
             pageNo += 1
             participants.append(contentsOf: participantsData)
             participantsContentModels.append(contentsOf: participantsData.compactMap({
-                .init(name: $0.name ?? "", designationDetail: nil, profileImageUrl: $0.imageUrl, customTitle: $0.customTitle)
+                .init(id: $0.sdkClientInfo?.uuid, name: $0.name ?? "", designationDetail: nil, profileImageUrl: $0.imageUrl, customTitle: $0.customTitle)
             }))
             delegate?.reloadData(with: participantsContentModels)
             isAllParticipantLoaded = (totalParticipantCount == participants.count)
@@ -124,7 +124,7 @@ public class LMChatParticipantListViewModel {
             
             participants.append(contentsOf: participantsData)
             participantsContentModels.append(contentsOf: participantsData.compactMap({
-                .init(name: $0.name ?? "", designationDetail: nil, profileImageUrl: $0.imageUrl, customTitle: $0.customTitle)
+                .init(id: $0.sdkClientInfo?.uuid, name: $0.name ?? "", designationDetail: nil, profileImageUrl: $0.imageUrl, customTitle: $0.customTitle)
             }))
             
             delegate?.reloadData(with: participantsContentModels)
