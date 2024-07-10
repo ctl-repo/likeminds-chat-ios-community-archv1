@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import LikeMindsChat
+import LikeMindsChatData
 import LikeMindsChatUI
 
 public protocol LMHomeFeedViewModelProtocol: AnyObject {
@@ -27,7 +27,7 @@ public class LMChatHomeFeedViewModel {
     }
     
     public static func createModule() throws -> LMChatHomeFeedViewController {
-        guard LMChatMain.isInitialized else { throw LMChatError.chatNotInitialized }
+        guard LMChatCore.isInitialized else { throw LMChatError.chatNotInitialized }
         
         let viewController = LMCoreComponents.shared.homeFeedScreen.init()
         viewController.viewModel = LMChatHomeFeedViewModel(viewController)

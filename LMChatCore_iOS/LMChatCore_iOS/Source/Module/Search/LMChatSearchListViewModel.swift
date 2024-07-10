@@ -5,7 +5,7 @@
 //  Created by Devansh Mohata on 16/04/24.
 //
 
-import LikeMindsChat
+import LikeMindsChatData
 import Foundation
 import LikeMindsChatUI
 
@@ -52,7 +52,7 @@ final public class LMChatSearchListViewModel {
     }
     
     public static func createModule() throws -> LMChatSearchListViewController {
-        guard LMChatMain.isInitialized else { throw LMChatError.chatNotInitialized }
+        guard LMChatCore.isInitialized else { throw LMChatError.chatNotInitialized }
         
         let viewcontroller = LMCoreComponents.shared.searchListScreen.init()
         let viewmodel = LMChatSearchListViewModel(delegate: viewcontroller)

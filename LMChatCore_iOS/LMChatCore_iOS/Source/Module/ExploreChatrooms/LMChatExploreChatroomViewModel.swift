@@ -6,7 +6,7 @@
 //
 
 import LikeMindsChatUI
-import LikeMindsChat
+import LikeMindsChatData
 
 public protocol LMChatExploreChatroomViewModelProtocol: AnyObject {
     func updateExploreChatroomsData(with data: [LMChatExploreChatroomView.ContentModel])
@@ -51,7 +51,7 @@ public final class LMChatExploreChatroomViewModel {
     }
     
     public static func createModule() throws -> LMExploreChatroomListView {
-        guard LMChatMain.isInitialized else { throw LMChatError.chatNotInitialized }
+        guard LMChatCore.isInitialized else { throw LMChatError.chatNotInitialized }
         
         let viewController = LMCoreComponents.shared.exploreChatroomListScreen.init()
         let viewmodel = LMChatExploreChatroomViewModel(delegate: viewController)

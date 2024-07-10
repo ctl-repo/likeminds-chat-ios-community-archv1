@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         registerForPushNotifications(application: application)
         return true
     }
-
+    
     // MARK: UISceneSession Lifecycle
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
@@ -44,7 +44,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        LMChatMain.shared.didReceieveNotification(userInfo: response.notification.request.content.userInfo)
+        LMChatCore.shared.didReceieveNotification(userInfo: response.notification.request.content.userInfo)
     }
     
     
@@ -68,4 +68,4 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 //        print("Firebase registration token: \(String(describing: fcmToken))")
 //    }
 //    
-//}
+// }

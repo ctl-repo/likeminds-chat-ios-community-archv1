@@ -7,7 +7,7 @@
 
 import Foundation
 import LikeMindsChatUI
-import LikeMindsChat
+import LikeMindsChatData
 
 public protocol LMMessageListViewModelProtocol: LMBaseViewControllerProtocol {
     func reloadChatMessageList()
@@ -55,7 +55,7 @@ public final class LMChatMessageListViewModel {
     
     
     public static func createModule(withChatroomId chatroomId: String, conversationId: String?) throws -> LMChatMessageListViewController {
-        guard LMChatMain.isInitialized else { throw LMChatError.chatNotInitialized }
+        guard LMChatCore.isInitialized else { throw LMChatError.chatNotInitialized }
         
         let viewcontroller = LMCoreComponents.shared.messageListScreen.init()
         let viewmodel = Self.init(delegate: viewcontroller, chatroomExtra: (chatroomId, conversationId, nil))

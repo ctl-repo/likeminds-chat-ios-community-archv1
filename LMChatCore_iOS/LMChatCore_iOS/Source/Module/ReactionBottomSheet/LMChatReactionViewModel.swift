@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import LikeMindsChat
+import LikeMindsChatData
 import LikeMindsChatUI
 
 protocol ReactionViewModelProtocol: AnyObject {
@@ -38,7 +38,7 @@ final public class LMChatReactionViewModel {
     }
     
     public static func createModule(reactions: [Reaction], selected: String?, conversationId: String?, chatroomId: String?) throws -> LMChatReactionViewController? {
-        guard LMChatMain.isInitialized else { throw LMChatError.chatNotInitialized }
+        guard LMChatCore.isInitialized else { throw LMChatError.chatNotInitialized }
         
         let vc = LMCoreComponents.shared.reactionListScreen.init()
         

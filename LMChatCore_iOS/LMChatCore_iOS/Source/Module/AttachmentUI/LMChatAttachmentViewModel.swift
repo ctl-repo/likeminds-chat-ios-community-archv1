@@ -7,7 +7,7 @@
 
 import Foundation
 import LikeMindsChatUI
-import LikeMindsChat
+import LikeMindsChatData
 
 public protocol LMChatAttachmentViewModelProtocol: LMBaseViewControllerProtocol {
 }
@@ -34,7 +34,7 @@ public final class LMChatAttachmentViewModel {
     }
     
     public static func createModule(delegate: LMChatAttachmentViewDelegate?, chatroomId: String?, sourceType: LMAttachmentSourceType) throws -> LMChatAttachmentViewController {
-        guard LMChatMain.isInitialized else { throw LMChatError.chatNotInitialized }
+        guard LMChatCore.isInitialized else { throw LMChatError.chatNotInitialized }
         
         let viewcontroller = LMCoreComponents.shared.attachmentMessageScreen.init()
         viewcontroller.delegate = delegate
@@ -46,7 +46,7 @@ public final class LMChatAttachmentViewModel {
     }
     
     public static func createModuleWithData(mediaData: [MediaPickerModel], delegate: LMChatAttachmentViewDelegate?, chatroomId: String?, mediaType: MediaType) throws -> LMChatAttachmentViewController {
-        guard LMChatMain.isInitialized else { throw LMChatError.chatNotInitialized }
+        guard LMChatCore.isInitialized else { throw LMChatError.chatNotInitialized }
         
         let viewcontroller = LMCoreComponents.shared.attachmentMessageScreen.init()
         viewcontroller.delegate = delegate
