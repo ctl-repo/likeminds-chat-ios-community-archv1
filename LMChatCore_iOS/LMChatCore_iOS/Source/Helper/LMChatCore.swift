@@ -33,6 +33,8 @@ public class LMChatCore {
     static private(set) var isInitialized: Bool = false
     // Callbacks for accessToken and refreshToken strategy
     private(set) var coreCallback: LMChatCoreCallback?
+
+    public static var analytics: LMChatAnalyticsProtocol? = LMChatAnalyticsTracker()
     
     var deviceId: String?
     
