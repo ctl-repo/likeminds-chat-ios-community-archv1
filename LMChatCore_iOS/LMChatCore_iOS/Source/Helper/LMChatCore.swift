@@ -278,27 +278,6 @@ public class LMChatCore {
     
 }
 
-// MARK: LMFeedAnalyticsProtocol
-public protocol LMChatAnalyticsProtocol {
-    func trackEvent(for eventName: LMChatAnalyticsEventName, eventProperties: [String: AnyHashable])
-}
-
-final class LMChatAnalyticsTracker: LMChatAnalyticsProtocol {
-    public func trackEvent(for eventName: LMChatAnalyticsEventName, eventProperties: [String : AnyHashable]) {
-        let track = """
-            ========Event Tracker========
-        Event Name: \(eventName)
-        Event Properties: \(eventProperties)
-            =============================
-        """
-        print(track)
-    }
-}
-
-public struct LMChatAnalyticsEventName {
-    
-}
-
 
 extension LMChatCore: LMChatSDKCallback {
     /// Callback function invoked when the access token has expired and been successfully refreshed.
