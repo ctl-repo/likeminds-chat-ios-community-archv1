@@ -104,6 +104,7 @@ class ViewController: LMViewController {
                                     LMChatCore.shared.showChat(accessToken: accessToken, refreshToken: refreshToken, handler: ClientSDKCallBack()){ [weak self] result in
                                         switch result {
                                         case .success:
+                                            registerNotification()
                                             self?.moveToNextScreen()
                                         case .failure(let error):
                                             self?.showAlert(message: error.localizedDescription)
@@ -123,6 +124,7 @@ class ViewController: LMViewController {
 //            LMChatCore.shared.showChat(apiKey:apiKey ,  username: username, uuid: userId){[weak self] result in
 //                switch result {
 //                case .success:
+//                    registerNotification()
 //                    self?.moveToNextScreen()
 //                case .failure(let error):
 //                    self?.showAlert(message: error.localizedDescription)
@@ -136,7 +138,6 @@ class ViewController: LMViewController {
         alert.addAction(UIAlertAction(title: "Ok", style: .cancel))
         present(alert, animated: true)
     }
-    
     
 }
 
@@ -241,3 +242,14 @@ func initiateSDK(apiKey: String, userName: String, userUniqueId: String, complet
     task.resume()
 }
 
+func registerNotification() {
+    guard let deviceID = UIDevice.current.identifierForVendor?.uuidString else { return }
+    
+    Messaging.messaging().token { token, error in
+        if let error {
+            debugPrint(error)
+        } else if let token {
+            LMFeedCore.shared.registerDeviceToken(with: token, deviceID: deviceID)
+        }
+    }
+}

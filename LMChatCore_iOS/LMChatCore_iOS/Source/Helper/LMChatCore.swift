@@ -194,9 +194,6 @@ public class LMChatCore {
             // Mark as initialized if everything is successful
             Self.isInitialized = true
             
-            // Register the device
-            self?.registerDevice(deviceId: self?.deviceId ?? "")
-            
             completion?(.success(()))
         }
     }
@@ -204,38 +201,31 @@ public class LMChatCore {
     /// Registers the current device for push notifications with the LikeMinds system.
     ///
     /// This function performs two main tasks:
-    /// 1. Retrieves the FCM (Firebase Cloud Messaging) registration token for the device.
-    /// 2. Registers the device with the chat system using the obtained FCM token and provided device ID.
+    /// 1. Registers the device with the chat system using the obtained FCM token and provided device ID.
     ///
     /// - Parameter deviceId: A unique identifier for the current device.
+    /// - Parameter fcmToken: FCM Token
     ///
     /// - Note: This function relies on Firebase Messaging to obtain the FCM token. Ensure that Firebase is properly configured in your project before calling this function.
     ///
     /// - Important: This function does not handle Firebase initialization. Make sure Firebase is initialized before calling this function.
     ///
     /// The function follows these steps:
-    /// 1. Requests the FCM token from Firebase Messaging.
-    /// 2. If the token is successfully retrieved, it creates a `RegisterDeviceRequest` with the device ID and FCM token.
-    /// 3. Sends the registration request to LikeMinds system using `LMChatClient.shared.registerDevice`.
-    /// 4. Prints an error message if the registration fails.I
+    /// 1. If the token is successfully retrieved, it creates a `RegisterDeviceRequest` with the device ID and FCM token.
+    /// 2. Sends the registration request to LikeMinds system using `LMChatClient.shared.registerDevice`.
+    /// 3. Prints an error message if the registration fails.I
     ///
-    func registerDevice(deviceId: String) {
-        Messaging.messaging().token { token, error in
-            if let error = error {
-                print("Error fetching FCM registration token: \(error)")
-            } else if let token = token {
-                print("FCM registration token: \(token)")
-                let request = RegisterDeviceRequest.builder()
-                    .deviceId(deviceId)
-                    .token(token)
-                    .build()
-                LMChatClient.shared.registerDevice(request: request) { response in
-                    guard response.success else {
-                        print("error in device register: \(response.errorMessage ?? "")")
-                        return
-                    }
-                    // Consider adding success handling here
-                }
+    public func registerDevice(with fcmToken: String, deviceID: String, completion: ((Result<Void, LMChatError>) -> Void)? = nil) {
+        let request = RegisterDeviceRequest.builder()
+            .token(fcmToken)
+            .deviceId(deviceID)
+            .build()
+        
+        LMChatClient.shared.registerDevice(request: request) { response in
+            if response.success {
+                completion?(.success(()))
+            } else {
+                completion?(.failure(.notificationRegisterationFailed(error: response.errorMessage)))
             }
         }
     }
