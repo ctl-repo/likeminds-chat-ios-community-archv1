@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import LikeMindsChatData
+import LikeMindsChat
 import FirebaseMessaging
 
 /// Protocol defining callback methods for handling token-related events in LMChat.

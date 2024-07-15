@@ -85,8 +85,8 @@ PODS:
     - Giphy
     - LikeMindsChatData
     - LikeMindsChatUI
-  - LikeMindsChatData (1.1.0):
-    - Alamofire
+  - LikeMindsChatData (1.2.0):
+    - Alamofire (~> 5.7)
     - FirebaseCore
     - FirebaseDatabase
     - FirebaseMessaging
@@ -106,9 +106,9 @@ PODS:
     - Realm (= 10.52.1)
 
 DEPENDENCIES:
-  - LikeMindsChatCore (from `../LikeMindsChatCore.podspec`)
-  - LikeMindsChatData (from `../../likeminds-chat-ios-data/LikeMindsChat.podspec`)
-  - LikeMindsChatUI (from `../LikeMindsChatUI.podspec`)
+  - LikeMindsChatCore
+  - LikeMindsChatData
+  - LikeMindsChatUI
 
 SPEC REPOS:
   trunk:
@@ -129,18 +129,13 @@ SPEC REPOS:
     - Kingfisher
     - leveldb-library
     - libwebp
+    - LikeMindsChatCore
+    - LikeMindsChatData
+    - LikeMindsChatUI
     - nanopb
     - PromisesObjC
     - Realm
     - RealmSwift
-
-EXTERNAL SOURCES:
-  LikeMindsChatCore:
-    :path: "../LikeMindsChatCore.podspec"
-  LikeMindsChatData:
-    :path: "../../likeminds-chat-ios-data/LikeMindsChat.podspec"
-  LikeMindsChatUI:
-    :path: "../LikeMindsChatUI.podspec"
 
 SPEC CHECKSUMS:
   Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
@@ -161,13 +156,13 @@ SPEC CHECKSUMS:
   leveldb-library: e8eadf9008a61f9e1dde3978c086d2b6d9b9dc28
   libwebp: 1786c9f4ff8a279e4dac1e8f385004d5fc253009
   LikeMindsChatCore: 99c4e6d0722cb7f83879bcec430865d4d1953169
-  LikeMindsChatData: 5cc0ed3b18bb6b01b7f6287dcb9725bd28d75448
+  LikeMindsChatData: 4f12d2ba082a1b834114c4269b3113c0d085ef80
   LikeMindsChatUI: 27fc498de5ef241fd9f6c74b03c20150057c83e0
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   Realm: 5b0f6fe519911831fff94e6e6fba8fd404fa20ed
   RealmSwift: 6963a458f4f5f3f0df5cca69dece5c802c7b7cad
 
-PODFILE CHECKSUM: 866a388f3c4fa33b5817b95427070e46309d3bad
+PODFILE CHECKSUM: bb04ed6e65bf824de0f504466b47480347799033
 
 COCOAPODS: 1.15.0

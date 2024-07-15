@@ -7,7 +7,7 @@
 
 import Foundation
 import LikeMindsChatUI
-import LikeMindsChatData
+import LikeMindsChat
 
 public protocol LMMessageListViewModelProtocol: LMBaseViewControllerProtocol {
     func reloadChatMessageList()

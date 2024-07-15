@@ -5,7 +5,7 @@
 //  Created by Devansh Mohata on 11/01/24.
 //
 
-import LikeMindsChatData
+import LikeMindsChat
 import LikeMindsChatUI
 
 public protocol LMChatTaggingListViewModelProtocol: AnyObject { 

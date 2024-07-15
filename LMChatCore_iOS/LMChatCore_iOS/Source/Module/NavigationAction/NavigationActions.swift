@@ -7,7 +7,7 @@
 
 import Foundation
 import LikeMindsChatUI
-import LikeMindsChatData
+import LikeMindsChat
 import UIKit
 import SafariServices
 //import GiphyUISDK

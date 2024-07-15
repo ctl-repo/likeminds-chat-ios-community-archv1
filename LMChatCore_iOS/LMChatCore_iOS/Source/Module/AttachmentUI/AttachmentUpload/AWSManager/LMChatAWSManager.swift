@@ -6,7 +6,7 @@
 //
 
 import AWSS3
-import LikeMindsChatData
+import LikeMindsChat
 
 public protocol LMCDNProtocol: AnyObject {
     associatedtype progressBlock

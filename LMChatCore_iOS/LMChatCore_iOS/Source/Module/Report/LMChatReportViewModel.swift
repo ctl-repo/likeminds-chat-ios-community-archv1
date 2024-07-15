@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import LikeMindsChatData
+import LikeMindsChat
 
 public typealias ReportContentID = (chatroomId: String?, messageId: String?, memberId: String?)
 

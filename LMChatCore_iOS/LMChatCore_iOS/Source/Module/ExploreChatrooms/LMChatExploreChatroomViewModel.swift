@@ -6,7 +6,7 @@
 //
 
 import LikeMindsChatUI
-import LikeMindsChatData
+import LikeMindsChat
 
 public protocol LMChatExploreChatroomViewModelProtocol: AnyObject {
     func updateExploreChatroomsData(with data: [LMChatExploreChatroomView.ContentModel])

@@ -5,7 +5,7 @@
 //  Created by Devansh Mohata on 16/04/24.
 //
 
-import LikeMindsChatData
+import LikeMindsChat
 import Foundation
 import LikeMindsChatUI
 

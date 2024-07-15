@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import LikeMindsChatData
+import LikeMindsChat
 import LikeMindsChatUI
 
 protocol ReactionViewModelProtocol: AnyObject {

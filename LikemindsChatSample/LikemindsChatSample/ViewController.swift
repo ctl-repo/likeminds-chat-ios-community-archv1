@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import LikeMindsChatData
+import LikeMindsChat
 import LikeMindsChatUI
 import LikeMindsChatCore
 import FirebaseMessaging
