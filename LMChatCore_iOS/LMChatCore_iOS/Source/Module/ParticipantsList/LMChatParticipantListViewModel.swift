@@ -6,7 +6,7 @@
 //
 
 import LikeMindsChatUI
-import LikeMindsChat
+import LikeMindsChatData
 
 public protocol LMChatParticipantListViewModelProtocol: AnyObject {
     func reloadData(with data: [LMChatParticipantCell.ContentModel])
