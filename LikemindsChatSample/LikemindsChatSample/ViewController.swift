@@ -24,7 +24,6 @@ extension UIViewController {
 
 class ViewController: LMViewController {
     
-    
     @IBOutlet weak var apiKeyField: UITextField?
     @IBOutlet weak var userIdField: UITextField?
     @IBOutlet weak var userNameField: UITextField?
@@ -84,11 +83,9 @@ class ViewController: LMViewController {
     func callInitiateApi(userId: String, username: String, apiKey: String) {
         self.showHideLoaderView(isShow: true, backgroundColor: .clear)
         
-        
-        LMChatCore.shared.showChat(apiKey:apiKey ,  username: username, uuid: userId){[weak self] result in
+        LMChatCore.shared.showChat(apiKey:apiKey,  username: username, uuid: userId){[weak self] result in
             switch result {
             case .success:
-                self?.registerNotification()
                 self?.moveToNextScreen()
             case .failure(let error):
                 self?.showAlert(message: error.localizedDescription)
@@ -102,16 +99,4 @@ class ViewController: LMViewController {
         alert.addAction(UIAlertAction(title: "Ok", style: .cancel))
         present(alert, animated: true)
     }
-    
-    func registerNotification() {
-      guard let deviceID = UIDevice.current.identifierForVendor?.uuidString else { return }
-      Messaging.messaging().token { token, error in
-        if let error {
-          debugPrint(error)
-        } else if let token {
-          LMChatCore.shared.registerDevice(with: token, deviceID: deviceID)
-        }
-      }
-    }
-    
 }

@@ -42,10 +42,9 @@ public class LMChatCore {
     ///
     /// This function initializes necessary components for the chat functionality,
     /// including the AWS manager and Giphy API configuration.
-    public func setupChat() {
-        // Get the device ID
+    public func setupChat(deviceId: String? = nil) {
+        
         LMChatClient.shared.setTokenManager(with: self)
-        let deviceId = UIDevice.current.identifierForVendor?.uuidString ?? ""
         self.deviceId = deviceId
         
         LMChatAWSManager.shared.initialize()
@@ -71,9 +70,6 @@ public class LMChatCore {
     ///         If tokens are found, it validates the user with those tokens.
     ///         If no tokens are found, it initiates a new user session.
     public func showChat(apiKey: String, username: String, uuid: String, completionHandler: ((Result<Void, LMChatError>) -> Void)?) {
-        // Handles all things needed to initialise chat
-        self.setupChat()
-        
         // Fetch tokens from local storage
         let tokens = LMChatClient.shared.getTokens()
         
@@ -94,18 +90,13 @@ public class LMChatCore {
     /// - Parameters:
     ///   - accessToken: The access token for authentication. If nil, the function attempts to retrieve it from storage.
     ///   - refreshToken: The refresh token for authentication. If nil, the function attempts to retrieve it from storage.
-    ///   - handler: An object conforming to `LMChatCoreCallback` protocol to handle token-related events.
     ///   - completionHandler: A closure to be executed upon completion. It takes a `Result<Void, LMChatError>` parameter.
     ///
     /// - Note: This function first sets up the chat environment and then attempts to validate the user
     ///         using either the provided tokens or tokens retrieved from storage. If no valid tokens
     ///         are available, it fails with an error.
-    public func showChat(accessToken: String?, refreshToken: String?, handler: LMChatCoreCallback?, completionHandler: ((Result<Void, LMChatError>) -> Void)?) {
-        // Set the core callback handler
+    public func showChat(accessToken: String?, refreshToken: String?, handler: LMChatCoreCallback? = nil, completionHandler: ((Result<Void, LMChatError>) -> Void)?) {
         self.coreCallback = handler
-        
-        // Set up the chat environment
-        self.setupChat()
         
         // Attempt to retrieve tokens from storage
         let tokenResponse: LMResponse = LMChatClient.shared.getTokens()
@@ -154,6 +145,10 @@ public class LMChatCore {
                 return
             }
             
+            if let deviceId = self?.deviceId, !deviceId.isEmpty{
+                self?.registerDevice(deviceId: deviceId)
+            }
+            
             // Mark as initialized if everything is successful
             Self.isInitialized = true
             
@@ -191,10 +186,25 @@ public class LMChatCore {
                 return
             }
             
+            if let deviceId = self?.deviceId, !deviceId.isEmpty{
+                self?.registerDevice(deviceId: deviceId)
+            }
+            
             // Mark as initialized if everything is successful
             Self.isInitialized = true
             
             completion?(.success(()))
+        }
+    }
+    
+    // This function extracts FCM Token and calls registerDevice api
+    private func registerDevice(deviceId: String, completion: ((Result<Void, LMChatError>) -> Void)? = nil) {
+        Messaging.messaging().token { token, error in
+          if let error {
+            debugPrint(error)
+          } else if let token {
+              self.registerDevice(with: token, deviceId: deviceId)
+          }
         }
     }
     
@@ -215,10 +225,10 @@ public class LMChatCore {
     /// 2. Sends the registration request to LikeMinds system using `LMChatClient.shared.registerDevice`.
     /// 3. Prints an error message if the registration fails.I
     ///
-    public func registerDevice(with fcmToken: String, deviceID: String, completion: ((Result<Void, LMChatError>) -> Void)? = nil) {
+    public func registerDevice(with token: String, deviceId: String, completion: ((Result<Void, LMChatError>) -> Void)? = nil){
         let request = RegisterDeviceRequest.builder()
-            .token(fcmToken)
-            .deviceId(deviceID)
+            .token(token)
+            .deviceId(deviceId)
             .build()
         
         LMChatClient.shared.registerDevice(request: request) { response in
