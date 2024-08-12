@@ -7,7 +7,7 @@
 
 import UIKit
 
-public protocol LMFeedTaggingTextViewProtocol: AnyObject {
+public protocol LMChatTaggingTextViewProtocol: AnyObject {
     func mentionStarted(with text: String, chatroomId: String)
     func mentionStopped()
     func contentHeightChanged()
@@ -15,12 +15,12 @@ public protocol LMFeedTaggingTextViewProtocol: AnyObject {
     func textViewOnCharacterChange(_ textView: UITextView)
 }
 
-extension LMFeedTaggingTextViewProtocol {
+extension LMChatTaggingTextViewProtocol {
     public func textViewDidChange(_ textView: UITextView) {}
     public func textViewOnCharacterChange(_ textView: UITextView) {}
 }
 
-public extension LMFeedTaggingTextViewProtocol {
+public extension LMChatTaggingTextViewProtocol {
     func contentHeightChanged() { }
 }
 
@@ -41,9 +41,9 @@ open class LMChatTaggingTextView: LMTextView {
     public var characters: [Character] = []
     public var chatroomId: String = ""
     
-    public weak var mentionDelegate: LMFeedTaggingTextViewProtocol?
+    public weak var mentionDelegate: LMChatTaggingTextViewProtocol?
     
-    public var textAttributes: [NSAttributedString.Key: Any] { [.font: Appearance.shared.fonts.textFont1,
+    public var textAttributes: [NSAttributedString.Key: Any] { [.font: self.font ?? Appearance.shared.fonts.textFont1,
                                                                 .foregroundColor: typingTextColor]
     }
     
@@ -112,7 +112,7 @@ open class LMChatTaggingTextView: LMTextView {
             let partTwoString = NSMutableAttributedString(attributedString: attributedText.attributedSubstring(from: NSRange(location: startIndex + 1 + characters.count, length: attributedText.length - startIndex - 1 - characters.count)))
             
             let attrName = NSAttributedString(string: "\(username.trimmingCharacters(in: .whitespacesAndNewlines))", attributes: [
-                .font: Appearance.shared.fonts.textFont1,
+                .font: (textAttributes[.font] as? UIFont) ?? Appearance.shared.fonts.textFont1,
                 .foregroundColor: Appearance.shared.colors.linkColor,
                 .route: route
             ])
@@ -255,6 +255,11 @@ extension LMChatTaggingTextView: UITextViewDelegate {
         
         if textView.text != placeHolderText {
             handleTagging()
+        }
+        // Added this conditon to fix the placeholder color, if text is placeholder text.
+        if textView.text == placeHolderText {
+            textView.text = placeHolderText
+            textView.textColor = placeholderColor
         }
     }
     
