@@ -310,9 +310,9 @@ public class LMChatCore {
     }
     
     /// Method for exclude/filter conversation state
-    public func excludeConversations(_ states: [ConversationState]) {
-        LMChatClient.shared.excludeConversationStates(states)
-    }
+//    public func excludeConversations(_ states: [ConversationState]) {
+//        LMChatClient.shared.excludeConversationStates(states)
+//    }
     
 }
 
