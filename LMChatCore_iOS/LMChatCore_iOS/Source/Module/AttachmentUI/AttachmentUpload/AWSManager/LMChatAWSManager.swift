@@ -23,7 +23,6 @@ final class LMChatAWSManager {
     var storedUploadTasks: [String: [AWSS3TransferUtilityUploadTask]] = [:]
     
     public static func awsFilePathForConversation(chatroomId: String,
-                                                conversationId: String,
                                                 attachmentType: String,
                                                   fileExtension: String,
                                                   filename: String,
@@ -31,9 +30,9 @@ final class LMChatAWSManager {
         let name = filename.replacingOccurrences(of: " ", with: "_")
         let miliseconds = Int(Date().millisecondsSince1970)
         if isThumbnail {
-            return   "files/collabcard/\(chatroomId)/conversation/\(conversationId)/thumb_\(name)_\(attachmentType)_\(miliseconds).jpeg"
+            return   "files/collabcard/\(chatroomId)/conversation/thumb_\(name)_\(attachmentType)_\(miliseconds).jpeg"
         } else {
-          return   "files/collabcard/\(chatroomId)/conversation/\(conversationId)/\(attachmentType)_\(name)_\(miliseconds).\(fileExtension)"
+          return   "files/collabcard/\(chatroomId)/conversation/\(attachmentType)_\(name)_\(miliseconds).\(fileExtension)"
         }
     }
     
@@ -75,6 +74,65 @@ final class LMChatAWSManager {
             storedUploadTasks[groupId] = [task]
         }
     }
+    
+    func uploadFileAsync(fileUrl: URL, awsPath: String, fileName: String, contentType: String, withTaskGroupId groupId: String?) async throws -> String {
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                _ = fileUrl.startAccessingSecurityScopedResource()
+                let data = try Data(contentsOf: fileUrl)
+                fileUrl.stopAccessingSecurityScopedResource()
+
+                let expression = AWSS3TransferUtilityUploadExpression()
+                expression.setValue("public-read", forRequestHeader: "x-amz-acl")
+
+                // Progress block
+                expression.progressBlock = { (task, awsProgress) in
+                    DispatchQueue.main.async {
+                        print("progress.fractionCompleted: \(awsProgress.fractionCompleted)")
+                        if awsProgress.isFinished {
+                            print("Upload Finished...")
+                        }
+                    }
+                }
+
+                // Completion handler block
+                let completionHandler: AWSS3TransferUtilityUploadCompletionHandlerBlock = { (task, error) in
+                        if let error = error {
+                            continuation.resume(throwing: error)  // Resume with an error if upload fails
+                            print("File Uploading FAILED with error: \(error.localizedDescription)")
+                        } else {
+                            let url = AWSS3.default().configuration.endpoint.url
+                            let publicURL = url?.appendingPathComponent(ServiceAPI.bucketURL).appendingPathComponent(awsPath)
+                            if let publicURLString = publicURL?.absoluteString {
+                                print("File Uploaded SUCCESSFULLY to: \(publicURLString)")
+                                continuation.resume(returning: publicURLString)  // Resume with URL on success
+                            } else {
+                                continuation.resume(throwing: NSError(domain: "UploadError", code: 500, userInfo: [NSLocalizedDescriptionKey: "Failed to generate public URL"]))
+                            }
+                        }
+                }
+
+                // Start uploading using AWSS3TransferUtility
+                let awsTransferUtility = AWSS3TransferUtility.default()
+                awsTransferUtility.uploadData(data, bucket: ServiceAPI.bucketURL, key: awsPath, contentType: contentType, expression: expression, completionHandler: completionHandler).continueWith { task in
+                    if let error = task.error {
+                        print("Error uploading file: \(error.localizedDescription)\n error: \(error)")
+                        continuation.resume(throwing: error)  // Resume with an error if the task fails
+                    }
+                    if let groupId = groupId, let uploadTask = task.result {
+                        print("Starting upload...")
+                        // Optionally add your task management logic here, if needed.
+                    }
+                    return nil
+                }
+
+            } catch let error {
+                continuation.resume(throwing: error)  // Resume with an error if data reading fails
+            }
+        }
+    }
+
+
     
     /// This Function uploads Any File type to AWS S3 Bucket
     /// - Parameters:

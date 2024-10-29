@@ -200,7 +200,12 @@ open class LMChatMessageContentView: LMView {
     open func setDataView(_ data: LMChatMessageCell.ContentModel, index: IndexPath) {
         dataView = data
         self.textLabel.isUserInteractionEnabled = true
-        self.textLabel.attributedText = GetAttributedTextWithRoutes.getAttributedText(from: (data.message?.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines), font: textLabelFont, withHighlightedColor: Appearance.Colors.shared.linkColor, withTextColor: textLabelColor)
+        
+        let formattedString =  GetAttributedTextWithRoutes.getAttributedText(from: (data.message?.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines), font: textLabelFont, withHighlightedColor: Appearance.Colors.shared.linkColor, withTextColor: textLabelColor);
+        
+        formattedString.applyBoldFormat()
+
+        self.textLabel.attributedText = formattedString
         self.textLabel.isHidden = self.textLabel.text.isEmpty
         setTimestamps(data)
         let isIncoming = data.message?.isIncoming ?? true
