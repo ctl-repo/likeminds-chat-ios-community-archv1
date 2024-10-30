@@ -8,13 +8,7 @@
 
 import Foundation
 
-open class LMChatMessageLoadingShimmerViewCell: LMChatMessageCell {
-    
-    open private(set) lazy var messageContainerView: LMView = {
-        let view = LMView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
+open class LMChatMessageLoadingShimmerViewCell: LMTableViewCell {
     
     open private(set) lazy var stackView: LMStackView = {
         let stack = LMStackView()
@@ -34,15 +28,31 @@ open class LMChatMessageLoadingShimmerViewCell: LMChatMessageCell {
     
     open override func setupLayouts() {
         super.setupLayouts()
-        pinSubView(subView: stackView, padding: .init(top: 16, left: 10, bottom: 0, right: 0))
+        pinSubView(subView: stackView, padding: .init(top: 0, left: 10, bottom: 0, right: 0))
+        
+        contentView.setHeightConstraint(with: 60)
+        
+        self.containerView.backgroundColor = Appearance.shared.colors.backgroundColor
         
         let shimmer = LMChatMessageTypingShimmer()
         shimmer.translatesAutoresizingMaskIntoConstraints = false
         stackView.addArrangedSubview(shimmer)
-        
-        let uiView = UIView()
-        uiView.setHeightConstraint(with: 20)
-        
-        stackView.addArrangedSubview(uiView)
     }
+    
+    open override func awakeFromNib() {
+        super.awakeFromNib()
+        
+        // Set the contentView background color
+        contentView.backgroundColor = Appearance.shared.colors.backgroundColor
+    }
+       
+       override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+           super.init(style: style, reuseIdentifier: reuseIdentifier)
+           contentView.backgroundColor = Appearance.shared.colors.backgroundColor
+       }
+       
+    required public init?(coder: NSCoder) {
+           super.init(coder: coder)
+           contentView.backgroundColor = Appearance.shared.colors.backgroundColor
+       }
 }

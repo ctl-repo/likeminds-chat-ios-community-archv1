@@ -413,6 +413,11 @@ open class LMChatMessageListViewController: LMViewController {
 }
 
 extension LMChatMessageListViewController: LMMessageListViewModelProtocol {
+    public func hideGifButton() {
+        bottomMessageBoxView.gifButton.isHidden = true
+        bottomMessageBoxView.gifButton.removeFromSuperview()
+    }
+    
     
     public func reloadMessage(at index: IndexPath) {
         guard let sectionData = viewModel?.messagesList[index.section] else { return }
@@ -595,7 +600,7 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
         }
         let retryIcon = Constants.shared.images.retryIcon
         tryAction.setValue(retryIcon, forKey: "image")
-        
+         
         let deleteAction = UIAlertAction(title: "Delete", style: UIAlertAction.Style.default) {[weak self] (UIAlertAction) in
             guard let self else { return }
             viewModel?.deleteTempConversation(conversationId: messageId)

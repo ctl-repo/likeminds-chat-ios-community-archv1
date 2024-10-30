@@ -354,7 +354,8 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
     
     func chatMessageShimmer() -> UITableViewCell {
         var cell: LMChatMessageLoadingShimmerViewCell
-        cell = LMChatMessageLoadingShimmerViewCell()
+        cell = LMChatMessageLoadingShimmerViewCell.init()
+        cell.backgroundColor = Appearance.shared.colors.backgroundColor
         return cell
     }
     

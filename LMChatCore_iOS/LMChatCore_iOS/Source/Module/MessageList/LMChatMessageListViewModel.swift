@@ -24,6 +24,7 @@ public protocol LMMessageListViewModelProtocol: LMBaseViewControllerProtocol {
     func viewProfile(route: String)
     func approveRejectView(isShow: Bool)
     func reloadMessage(at index: IndexPath)
+    func hideGifButton()
 }
 
 public typealias ChatroomDetailsExtra = (
@@ -164,6 +165,9 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             return
         }
         chatroomViewData = chatroom
+        if let chatroomViewData = chatroomViewData, isOtherUserAIChatbot(chatroom: chatroomViewData){
+            delegate?.hideGifButton()
+        }
         chatroomTopic = chatroom.topic
         if chatroomTopic == nil, let topicId = chatroom.topicId {
             chatroomTopic =
@@ -753,7 +757,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
                 })
                 
                 
-                var sectionIndex = messagesList.firstIndex(where: { $0.section == conversationDate })
+                let sectionIndex = messagesList.firstIndex(where: { $0.section == conversationDate })
                
                 if let sectionIndex = sectionIndex{
                     messagesList[sectionIndex].data.removeAll { conversation in
@@ -1592,43 +1596,54 @@ extension LMChatMessageListViewModel {
 
         var requestFiles: [LMChatAttachmentUploadModel] = []
         
-        if let updatedFileUrls = filesUrls, !updatedFileUrls.isEmpty {
-            requestFiles.append(
-                contentsOf: getUploadFileRequestList(fileUrls: updatedFileUrls ?? [], chatroomId: chatroomViewData?.id ?? ""))
-            let semaphore = DispatchSemaphore(value: 0)
-
-            // Call your async function
-            Task {
-                requestFiles = try await LMChatConversationAttachmentUpload.shared
-                    .uploadAttachments(withAttachments: requestFiles)
-
-                // Signal the semaphore once async function is done
-                semaphore.signal()
+        DispatchQueue.global(qos: .userInitiated).async{ [self] in
+            if let updatedFileUrls = filesUrls, !updatedFileUrls.isEmpty {
+                requestFiles.append(
+                    contentsOf: getUploadFileRequestList(fileUrls: updatedFileUrls, chatroomId: chatroomViewData?.id ?? ""))
+                
+                let semaphore = DispatchSemaphore(value: 0)
+                
+                Task{
+                    do {
+                        // Attempt to upload attachments asynchronously
+                        requestFiles = try await LMChatConversationAttachmentUpload.shared
+                            .uploadAttachments(withAttachments: requestFiles)
+                    } catch {
+                        // Handle the error appropriately, such as showing an error message or updating the UI
+                        print("Failed to upload attachments: \(error.localizedDescription)")
+                        self.delegate?.showToastMessage(message: "Failed to upload attachments")
+                        self.updateConversationUploadingStatus(messageId: temporaryId, withStatus: .failed)
+                        return
+                    }
+                    // Signal the semaphore once async function is done
+                    semaphore.signal()
+                }
+                
+                semaphore.wait()
             }
-
-            // Wait for the signal from the async function
-            semaphore.wait()
-        }
-        
-        requestBuilder = requestBuilder.attachments(convertToAttachmentList(from: requestFiles))
-        
-        if chatroomViewData != nil{
-            requestBuilder = requestBuilder.triggerBot(isOtherUserAIChatbot(chatroom: chatroomViewData!))
-        }
-        
-        let postConversationRequest = requestBuilder.build()
-
-        LMChatClient.shared.postConversation(request: postConversationRequest) {
-            [weak self] response in
-            guard let self, let conversation = response.data else {
-                self?.delegate?.showToastMessage(message: response.errorMessage)
-                self?.updateConversationUploadingStatus(
-                    messageId: temporaryId, withStatus: .failed)
-                return
+            
+            requestBuilder = requestBuilder.attachments(convertToAttachmentList(from: requestFiles))
+            
+            if self.chatroomViewData != nil{
+                requestBuilder = requestBuilder.triggerBot(isOtherUserAIChatbot(chatroom: chatroomViewData!))
             }
-            onConversationPosted(
-                response: conversation.conversation, updatedFileUrls: filesUrls)
+            
+            let postConversationRequest = requestBuilder.build()
+
+            LMChatClient.shared.postConversation(request: postConversationRequest) {
+                [weak self] response in
+                guard let self, let conversation = response.data else {
+                    self?.delegate?.showToastMessage(message: response.errorMessage)
+                    self?.updateConversationUploadingStatus(
+                        messageId: temporaryId, withStatus: .failed)
+                    return
+                }
+                onConversationPosted(
+                    response: conversation.conversation, updatedFileUrls: filesUrls)
+            }
         }
+        
+        
     }
     
     func shimmerMockConversationData() {
@@ -1679,9 +1694,6 @@ extension LMChatMessageListViewModel {
         response: Conversation?,
         updatedFileUrls: [LMChatAttachmentMediaData]?, isRetry: Bool = false
     ) {
-        if let chatroomViewData = chatroomViewData, isOtherUserAIChatbot(chatroom: chatroomViewData){
-            shimmerMockConversationData()
-        }
         guard let conversation = response, let conversId = conversation.id
         else {
             return
@@ -1690,6 +1702,9 @@ extension LMChatMessageListViewModel {
         if !isRetry {
             savePostedConversation(conversation: conversation)
             followUnfollow()
+        }
+        if let chatroomViewData = chatroomViewData, isOtherUserAIChatbot(chatroom: chatroomViewData){
+            shimmerMockConversationData()
         }
     }
 
@@ -1757,13 +1772,7 @@ extension LMChatMessageListViewModel {
             .build()
         LMChatClient.shared.savePostedConversation(request: request)
 
-        if (conversation.attachmentCount ?? 0) > 0 {
-            if conversation.attachmentUploaded == true {
-                insertOrUpdateConversationIntoList(conversation)
-            }
-        } else {
-            insertOrUpdateConversationIntoList(conversation)
-        }
+        insertOrUpdateConversationIntoList(conversation)
     }
 
     func retryUploadConversation(_ messageId: String) {
@@ -1813,11 +1822,11 @@ extension LMChatMessageListViewModel {
             if Int(conversation.id ?? "NA") == nil {
                 self.currentDetectedOgTags = conversation.ogTags
                 postMessage(
-                    message: conversation.answer, filesUrls: fileUrls,
-                    shareLink: conversation.ogTags?.url,
-                    replyConversationId: conversation.replyConversationId,
-                    replyChatRoomId: conversation.replyChatroomId,
-                    temporaryId: conversation.temporaryId)
+                        message: conversation.answer, filesUrls: fileUrls,
+                        shareLink: conversation.ogTags?.url,
+                        replyConversationId: conversation.replyConversationId,
+                        replyChatRoomId: conversation.replyChatroomId,
+                        temporaryId: conversation.temporaryId)
             }
         }
     }
