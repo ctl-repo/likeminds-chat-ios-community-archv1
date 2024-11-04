@@ -26,13 +26,13 @@ final class LMChatAWSManager {
                                                 attachmentType: String,
                                                   fileExtension: String,
                                                   filename: String,
-                                                isThumbnail: Bool = false) -> String {
+                                                  isThumbnail: Bool = false, uuid: String) -> String {
         let name = filename.replacingOccurrences(of: " ", with: "_")
         let miliseconds = Int(Date().millisecondsSince1970)
         if isThumbnail {
-            return   "files/collabcard/\(chatroomId)/conversation/thumb_\(name)_\(attachmentType)_\(miliseconds).jpeg"
+            return   "files/collabcard/\(chatroomId)/conversation/\(uuid)/thumb_\(name)_\(attachmentType)_\(miliseconds).jpeg"
         } else {
-          return   "files/collabcard/\(chatroomId)/conversation/\(attachmentType)_\(name)_\(miliseconds).\(fileExtension)"
+          return   "files/collabcard/\(chatroomId)/conversation/\(uuid)/\(attachmentType)_\(name)_\(miliseconds).\(fileExtension)"
         }
     }
     

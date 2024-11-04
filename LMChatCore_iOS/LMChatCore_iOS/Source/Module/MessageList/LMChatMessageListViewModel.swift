@@ -165,7 +165,9 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             return
         }
         chatroomViewData = chatroom
-        if let chatroomViewData = chatroomViewData, isOtherUserAIChatbot(chatroom: chatroomViewData){
+        if let chatroomViewData = chatroomViewData,
+            isOtherUserAIChatbot(chatroom: chatroomViewData)
+        {
             delegate?.hideGifButton()
         }
         chatroomTopic = chatroom.topic
@@ -746,25 +748,28 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             chatMessages[firstIndex] = conversation
             updateConversationIntoList(conversation)
         } else {
-            if let chatroomViewData = chatroomViewData, isOtherUserAIChatbot(chatroom: chatroomViewData){
+            if let chatroomViewData = chatroomViewData,
+                isOtherUserAIChatbot(chatroom: chatroomViewData)
+            {
                 var conversationDate: String? = ""
-                chatMessages.removeAll(where: {conversation in
+                chatMessages.removeAll(where: { conversation in
                     if conversation.state == ConversationState.bubbleShimmer {
                         conversationDate = conversation.date ?? ""
                         return true
                     }
                     return false
                 })
-                
-                
-                let sectionIndex = messagesList.firstIndex(where: { $0.section == conversationDate })
-               
-                if let sectionIndex = sectionIndex{
+
+                let sectionIndex = messagesList.firstIndex(where: {
+                    $0.section == conversationDate
+                })
+
+                if let sectionIndex = sectionIndex {
                     messagesList[sectionIndex].data.removeAll { conversation in
                         conversation.messageType == -99
                     }
                 }
-                
+
             }
             chatMessages.append(conversation)
             insertConversationIntoList(conversation)
@@ -1586,7 +1591,7 @@ extension LMChatMessageListViewModel {
                 .ogTags(currentDetectedOgTags)
             currentDetectedOgTags = nil
         }
-       
+
         let tempConversation = saveTemporaryConversation(
             uuid: UserPreferences.shared.getClientUUID() ?? "",
             communityId: communityId, request: requestBuilder.build(),
@@ -1595,68 +1600,88 @@ extension LMChatMessageListViewModel {
         delegate?.scrollToBottom(forceToBottom: true)
 
         var requestFiles: [LMChatAttachmentUploadModel] = []
-        
-        DispatchQueue.global(qos: .userInitiated).async{ [self] in
+
+        DispatchQueue.global(qos: .userInitiated).async { [self] in
             if let updatedFileUrls = filesUrls, !updatedFileUrls.isEmpty {
                 requestFiles.append(
-                    contentsOf: getUploadFileRequestList(fileUrls: updatedFileUrls, chatroomId: chatroomViewData?.id ?? ""))
-                
+                    contentsOf: getUploadFileRequestList(
+                        fileUrls: updatedFileUrls,
+                        chatroomId: chatroomViewData?.id ?? ""))
+
                 let semaphore = DispatchSemaphore(value: 0)
-                
-                Task{
+
+                Task {
                     do {
                         // Attempt to upload attachments asynchronously
-                        requestFiles = try await LMChatConversationAttachmentUpload.shared
+                        requestFiles =
+                            try await LMChatConversationAttachmentUpload.shared
                             .uploadAttachments(withAttachments: requestFiles)
                     } catch {
                         // Handle the error appropriately, such as showing an error message or updating the UI
-                        print("Failed to upload attachments: \(error.localizedDescription)")
-                        self.delegate?.showToastMessage(message: "Failed to upload attachments")
-                        self.updateConversationUploadingStatus(messageId: temporaryId, withStatus: .failed)
+                        print(
+                            "Failed to upload attachments: \(error.localizedDescription)"
+                        )
+                        self.delegate?.showToastMessage(
+                            message: "Failed to upload attachments")
+                        self.updateConversationUploadingStatus(
+                            messageId: temporaryId, withStatus: .failed)
                         return
                     }
                     // Signal the semaphore once async function is done
                     semaphore.signal()
                 }
-                
+
                 semaphore.wait()
             }
-            
-            requestBuilder = requestBuilder.attachments(convertToAttachmentList(from: requestFiles))
-            
-            if self.chatroomViewData != nil{
-                requestBuilder = requestBuilder.triggerBot(isOtherUserAIChatbot(chatroom: chatroomViewData!))
+
+            requestBuilder = requestBuilder.attachments(
+                convertToAttachmentList(from: requestFiles))
+
+            if self.chatroomViewData != nil {
+                requestBuilder = requestBuilder.triggerBot(
+                    isOtherUserAIChatbot(chatroom: chatroomViewData!))
             }
-            
+
             let postConversationRequest = requestBuilder.build()
 
-            LMChatClient.shared.postConversation(request: postConversationRequest) {
+            LMChatClient.shared.postConversation(
+                request: postConversationRequest
+            ) {
                 [weak self] response in
                 guard let self, let conversation = response.data else {
-                    self?.delegate?.showToastMessage(message: response.errorMessage)
+                    self?.delegate?.showToastMessage(
+                        message: response.errorMessage)
                     self?.updateConversationUploadingStatus(
                         messageId: temporaryId, withStatus: .failed)
                     return
                 }
                 onConversationPosted(
-                    response: conversation.conversation, updatedFileUrls: filesUrls)
+                    response: conversation.conversation,
+                    updatedFileUrls: filesUrls)
             }
         }
-        
-        
+
     }
-    
+
     func shimmerMockConversationData() {
         let miliseconds = Int(Date().millisecondsSince1970)
-        
-        let com = Conversation.builder() .date(LMCoreTimeUtils.generateCreateAtDate(miliseconds: Double(miliseconds)))
-            .localCreatedEpoch(miliseconds).createdEpoch(miliseconds).state(ConversationState.bubbleShimmer.rawValue).createdAt(LMCoreTimeUtils.generateCreateAtDate(miliseconds: Double(miliseconds), format: "HH:mm")).answer("").build()
-        
+
+        let com = Conversation.builder().date(
+            LMCoreTimeUtils.generateCreateAtDate(
+                miliseconds: Double(miliseconds))
+        )
+        .localCreatedEpoch(miliseconds).createdEpoch(miliseconds).state(
+            ConversationState.bubbleShimmer.rawValue
+        ).createdAt(
+            LMCoreTimeUtils.generateCreateAtDate(
+                miliseconds: Double(miliseconds), format: "HH:mm")
+        ).answer("").build()
+
         chatMessages.append(com)
         insertConversationIntoList(com)
         self.delegate?.scrollToBottom(forceToBottom: true)
     }
-    
+
     private func saveTemporaryConversation(
         uuid: String,
         communityId: String,
@@ -1703,14 +1728,18 @@ extension LMChatMessageListViewModel {
             savePostedConversation(conversation: conversation)
             followUnfollow()
         }
-        if let chatroomViewData = chatroomViewData, isOtherUserAIChatbot(chatroom: chatroomViewData){
+        if let chatroomViewData = chatroomViewData,
+            isOtherUserAIChatbot(chatroom: chatroomViewData)
+        {
             shimmerMockConversationData()
         }
     }
 
-    func getUploadFileRequestList(fileUrls: [LMChatAttachmentMediaData], chatroomId: String) -> [LMChatAttachmentUploadModel]
-    {
-        
+    func getUploadFileRequestList(
+        fileUrls: [LMChatAttachmentMediaData], chatroomId: String
+    ) -> [LMChatAttachmentUploadModel] {
+        var uuid = loggedInUser()?.sdkClientInfo?.uuid
+
         var fileUploadRequests: [LMChatAttachmentUploadModel] = []
         for (index, attachment) in fileUrls.enumerated() {
             let attachmentMetaDataRequest =
@@ -1739,7 +1768,8 @@ extension LMChatMessageListViewModel {
                         attachmentType: attachment.fileType.rawValue,
                         fileExtension: attachment.url?.pathExtension ?? "",
                         filename: attachment.mediaName
-                            ?? "no_name_\(Int.random(in: 1...100))")
+                            ?? "no_name_\(Int.random(in: 1...100))",
+                        uuid: uuid ?? "")
                 )
                 .thumbnailAWSFolderPath(
                     LMChatAWSManager.awsFilePathForConversation(
@@ -1748,7 +1778,7 @@ extension LMChatMessageListViewModel {
                         fileExtension: attachment.url?.pathExtension ?? "",
                         filename: attachment.mediaName
                             ?? "no_name_\(Int.random(in: 1...100))",
-                        isThumbnail: true)
+                        isThumbnail: true, uuid: uuid ?? "")
                 )
                 .thumbnailLocalFilePath(
                     FileUtils.getFilePath(
@@ -1822,11 +1852,11 @@ extension LMChatMessageListViewModel {
             if Int(conversation.id ?? "NA") == nil {
                 self.currentDetectedOgTags = conversation.ogTags
                 postMessage(
-                        message: conversation.answer, filesUrls: fileUrls,
-                        shareLink: conversation.ogTags?.url,
-                        replyConversationId: conversation.replyConversationId,
-                        replyChatRoomId: conversation.replyChatroomId,
-                        temporaryId: conversation.temporaryId)
+                    message: conversation.answer, filesUrls: fileUrls,
+                    shareLink: conversation.ogTags?.url,
+                    replyConversationId: conversation.replyConversationId,
+                    replyChatRoomId: conversation.replyChatroomId,
+                    temporaryId: conversation.temporaryId)
             }
         }
     }
@@ -2226,5 +2256,3 @@ extension LMChatMessageListViewModel {
     }
 
 }
-
-
