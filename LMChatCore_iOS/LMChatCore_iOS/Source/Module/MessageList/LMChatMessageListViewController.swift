@@ -166,6 +166,7 @@ open class LMChatMessageListViewController: LMViewController {
         self.view.addSubview(chatroomTopicBar)
         self.view.addSubview(bottomLabelContainerView)
         self.view.addSubview(scrollToBottomButton)
+        
         bottomLabelContainerView.addArrangedSubview(bottomMessageLabel)
         bottomMessageBoxView.addOnVerticleStackView.insertArrangedSubview(taggingListView, at: 0)
         bottomMessageBoxView.inputTextView.placeHolderText = "Type your response"
@@ -187,7 +188,7 @@ open class LMChatMessageListViewController: LMViewController {
             
             messageListView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             messageListView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            messageListView.bottomAnchor.constraint(equalTo: bottomLabelContainerView.topAnchor),
+            messageListView.bottomAnchor.constraint(equalTo: bottomMessageBoxView.topAnchor),
             messageListView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             
             bottomLabelContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -412,6 +413,11 @@ open class LMChatMessageListViewController: LMViewController {
 }
 
 extension LMChatMessageListViewController: LMMessageListViewModelProtocol {
+    public func hideGifButton() {
+        bottomMessageBoxView.gifButton.isHidden = true
+        bottomMessageBoxView.gifButton.removeFromSuperview()
+    }
+    
     
     public func reloadMessage(at index: IndexPath) {
         guard let sectionData = viewModel?.messagesList[index.section] else { return }
@@ -594,7 +600,7 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
         }
         let retryIcon = Constants.shared.images.retryIcon
         tryAction.setValue(retryIcon, forKey: "image")
-        
+         
         let deleteAction = UIAlertAction(title: "Delete", style: UIAlertAction.Style.default) {[weak self] (UIAlertAction) in
             guard let self else { return }
             viewModel?.deleteTempConversation(conversationId: messageId)
@@ -999,6 +1005,14 @@ extension LMChatMessageListViewController: LMChatBottomMessageComposerDelegate {
     
     public func composeAttachment() {
         
+        var isAIChatBot: Bool
+        
+        if let chatroomViewData = viewModel?.chatroomViewData {
+            isAIChatBot = isOtherUserAIChatbot(chatroom: chatroomViewData)
+        }else{
+            isAIChatBot = false
+        }
+        
         LMSharedPreferences.setString(bottomMessageBoxView.inputTextView.getText(), forKey: viewModel?.chatroomId ?? "NA")
         
         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -1014,7 +1028,7 @@ extension LMChatMessageListViewController: LMChatBottomMessageComposerDelegate {
         
         let photo = UIAlertAction(title: "Photo & Video", style: UIAlertAction.Style.default) { [weak self] (UIAlertAction) in
             guard let self else { return }
-            MediaPickerManager.shared.presentPicker(viewController: self, delegate: self)
+            MediaPickerManager.shared.presentPicker(viewController: self, delegate: self, selectionLimit: isAIChatBot ? 1 : 10)
         }
         
         let photoImage = Constants.shared.images.galleryIcon
@@ -1022,7 +1036,7 @@ extension LMChatMessageListViewController: LMChatBottomMessageComposerDelegate {
         
         let audio = UIAlertAction(title: "Audio", style: UIAlertAction.Style.default) { [weak self] (UIAlertAction) in
             guard let self else { return }
-            MediaPickerManager.shared.presentAudioAndDocumentPicker(viewController: self, delegate: self, fileType: .audio)
+            MediaPickerManager.shared.presentAudioAndDocumentPicker(viewController: self, delegate: self, fileType: .audio, multipleAllowed: isAIChatBot ? false : true)
         }
         
         let audioImage = Constants.shared.images.micIcon
@@ -1033,15 +1047,17 @@ extension LMChatMessageListViewController: LMChatBottomMessageComposerDelegate {
             MediaPickerManager.shared.presentAudioAndDocumentPicker(viewController: self, delegate: self, fileType: .pdf)
         }
         
-        let documentImage = Constants.shared.images.documentsIcon
-        document.setValue(documentImage, forKey: "image")
-        
-        let cancel = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel) 
-        
         alert.addAction(camera)
         alert.addAction(photo)
         alert.addAction(audio)
-        alert.addAction(document)
+        
+        if let chatroomViewData = viewModel?.chatroomViewData, !isOtherUserAIChatbot(chatroom: chatroomViewData) {
+            let documentImage = Constants.shared.images.documentsIcon
+            document.setValue(documentImage, forKey: "image")
+            alert.addAction(document)
+        }
+        
+        let cancel = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel)
         
         if viewModel?.checkMemberRight(.createPolls) == true,
            viewModel?.isChatroomType(type: .directMessage) == false {

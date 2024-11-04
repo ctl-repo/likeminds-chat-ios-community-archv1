@@ -339,6 +339,8 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
                 cell.delegate = chatroomHeaderCellDelegate
                 tableViewCell = cell
             }
+        case -99:
+            return chatMessageShimmer()
         default:
             if let cell = tableView.dequeueReusableCell(LMUIComponents.shared.chatNotificationCell) {
                 cell.setData(with: .init(message: item, loggedInUserTag: currentLoggedInUserTagFormat, loggedInUserReplaceTag: currentLoggedInUserReplaceTagFormat))
@@ -350,6 +352,12 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         return tableViewCell
     }
     
+    func chatMessageShimmer() -> UITableViewCell {
+        var cell: LMChatMessageLoadingShimmerViewCell
+        cell = LMChatMessageLoadingShimmerViewCell.init()
+        cell.backgroundColor = Appearance.shared.colors.backgroundColor
+        return cell
+    }
     
     func pollCellFor(rowAt indexPath: IndexPath, tableView: UITableView) -> LMChatMessageCell {
         let item = tableSections[indexPath.section].data[indexPath.row]
