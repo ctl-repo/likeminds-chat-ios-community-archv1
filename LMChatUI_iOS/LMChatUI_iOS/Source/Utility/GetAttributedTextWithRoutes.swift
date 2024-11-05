@@ -33,6 +33,8 @@ public struct GetAttributedTextWithRoutes {
                                   withTextColor: UIColor = Appearance.shared.colors.textColor) -> NSMutableAttributedString {
         var attributedString = replaceRouteToName(with: text, andPrefix: andPrefix, font: font, withHighlightedColor: withHighlightedColor, withTextColor: withTextColor)
         
+        attributedString.applyBoldFormat()
+        
         if allowLink {
             attributedString = detectAndHighlightURLs(in: attributedString)
         }

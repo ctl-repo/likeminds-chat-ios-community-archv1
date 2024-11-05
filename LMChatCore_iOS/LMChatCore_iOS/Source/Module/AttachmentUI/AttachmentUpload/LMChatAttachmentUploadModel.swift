@@ -9,7 +9,7 @@ import Foundation
 
 import Foundation
 
-class LMChatAttachmentUploadRequest {
+class LMChatAttachmentUploadModel {
     let name: String?
     let fileUrl: URL?
     let fileType: String
@@ -24,6 +24,7 @@ class LMChatAttachmentUploadRequest {
     let isThumbnail: Bool?
     let hasThumbnail: Bool?
     let meta: LMChatAttachmentMetaDataRequest?
+    let awsUrl: String?
     
     static func builder() -> Builder {
         Builder()
@@ -42,7 +43,9 @@ class LMChatAttachmentUploadRequest {
                  thumbnailLocalFilePath: String?,
                  isThumbnail: Bool?,
                  hasThumbnail: Bool?,
-                 meta: LMChatAttachmentMetaDataRequest?) {
+                 meta: LMChatAttachmentMetaDataRequest?,
+                 awsUrl: String? = nil
+    ) {
         self.name = name
         self.fileUrl = fileUrl
         self.fileType = fileType
@@ -57,6 +60,7 @@ class LMChatAttachmentUploadRequest {
         self.isThumbnail = isThumbnail
         self.hasThumbnail = hasThumbnail
         self.meta = meta
+        self.awsUrl = awsUrl
     }
     
     class Builder {
@@ -74,6 +78,7 @@ class LMChatAttachmentUploadRequest {
         private var isThumbnail: Bool? = nil
         private var hasThumbnail: Bool? = nil
         private var meta: LMChatAttachmentMetaDataRequest? = nil
+        private var awsUrl: String? = nil
         
         func name(_ name: String?) -> Builder {
             self.name = name
@@ -145,8 +150,13 @@ class LMChatAttachmentUploadRequest {
             return self
         }
         
-        func build() -> LMChatAttachmentUploadRequest {
-            return LMChatAttachmentUploadRequest(name: name,
+        func awsUrl(_ awsUrl: String?) -> Builder{
+            self.awsUrl = awsUrl
+            return self
+        }
+        
+        func build() -> LMChatAttachmentUploadModel {
+            return LMChatAttachmentUploadModel(name: name,
                                       fileUrl: fileUrl,
                                       fileType: fileType,
                                       awsFolderPath: awsFolderPath,
@@ -159,7 +169,8 @@ class LMChatAttachmentUploadRequest {
                                       thumbnailLocalFilePath: thumbnailLocalFilePath,
                                       isThumbnail: isThumbnail,
                                       hasThumbnail: hasThumbnail,
-                                      meta: meta)
+                                               meta: meta,
+                                               awsUrl: awsUrl)
         }
     }
     
@@ -179,5 +190,6 @@ class LMChatAttachmentUploadRequest {
             .isThumbnail(isThumbnail)
             .hasThumbnail(hasThumbnail)
             .meta(meta)
+            .awsUrl(awsUrl)
     }
 }

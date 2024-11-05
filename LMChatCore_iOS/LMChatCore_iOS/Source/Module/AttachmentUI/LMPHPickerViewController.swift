@@ -106,13 +106,13 @@ class MediaPickerManager: NSObject {
     
     private override init() {}
     
-    func presentPicker(viewController: UIViewController, delegate: MediaPickerDelegate?) {
+    func presentPicker(viewController: UIViewController, delegate: MediaPickerDelegate?, selectionLimit: Int = 10) {
         self.delegate = delegate
         self.mediaPickerItems.removeAll()
         if #available(iOS 14.0, *) {
             var configuration = PHPickerConfiguration()
             configuration.filter = .any(of: [.videos, .images])
-            configuration.selectionLimit = 10
+            configuration.selectionLimit = selectionLimit
             configuration.preferredAssetRepresentationMode = .current
             let picker = PHPickerViewController(configuration: configuration)
             picker.delegate = self
@@ -142,7 +142,7 @@ class MediaPickerManager: NSObject {
         }
     }
     
-    func presentAudioAndDocumentPicker(viewController: UIViewController, delegate: UIDocumentPickerDelegate?, fileType: MediaType) {
+    func presentAudioAndDocumentPicker(viewController: UIViewController, delegate: UIDocumentPickerDelegate?, fileType: MediaType, multipleAllowed: Bool = true) {
         guard [MediaType.pdf, .audio].contains(fileType) else { return }
         self.fileTypeForDocument = fileType
         let docTypes = fileType == .pdf ? ["com.adobe.pdf"] : ["public.audiovisual-​content", "public.audio"]
@@ -150,6 +150,7 @@ class MediaPickerManager: NSObject {
         docVc.delegate = delegate
         docVc.allowsMultipleSelection = true
         docVc.isModalInPresentation = true
+        docVc.allowsMultipleSelection = multipleAllowed
         viewController.present(docVc, animated: true)
     }
 

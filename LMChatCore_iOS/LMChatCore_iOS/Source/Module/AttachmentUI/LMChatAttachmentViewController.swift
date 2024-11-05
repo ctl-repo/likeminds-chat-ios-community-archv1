@@ -382,6 +382,7 @@ extension LMChatAttachmentViewController: UICollectionViewDataSource, UICollecti
     }
     
     func setDataToView(_ data: MediaPickerModel) {
+        
         viewModel?.selectedMedia = data
         videoImageViewContainer.isHidden = true
         zoomableImageViewContainer.isHidden = true

@@ -46,7 +46,6 @@ class DataModelConverter {
             .ogTags(request.ogTags)
             .date(LMCoreTimeUtils.generateCreateAtDate(miliseconds: Double(miliseconds)))
             .replyConversationId(request.repliedConversationId)
-            .attachmentCount(request.attachmentCount)
             .localCreatedEpoch(miliseconds)
             .temporaryId(request.temporaryId)
             .isEdited(false)
