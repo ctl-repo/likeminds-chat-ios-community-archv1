@@ -1,5 +1,7 @@
 platform :ios, '13.0'
 
+source 'https://cdn.cocoapods.org/'
+
 workspace 'LikemindsChatSample.xcworkspace'
 
 target 'LikemindsChatSample' do
@@ -8,9 +10,8 @@ target 'LikemindsChatSample' do
   use_frameworks!
 
   # Pods for LikemindsChatSample
- pod 'LikeMindsChatData'
- pod 'LikeMindsChatUI'
- pod 'LikeMindsChatCore'
+ pod 'LikeMindsChatUI', path: '../LikeMindsChatUI.podspec'
+ pod 'LikeMindsChatCore', path: '../LikeMindsChatCore.podspec'
  
 end
 

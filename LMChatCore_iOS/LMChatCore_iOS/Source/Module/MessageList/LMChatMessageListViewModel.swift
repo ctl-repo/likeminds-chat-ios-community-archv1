@@ -1664,7 +1664,7 @@ extension LMChatMessageListViewModel {
     }
 
     func shimmerMockConversationData() {
-        let miliseconds = Int(Date().millisecondsSince1970)
+        let miliseconds = Int(Date().millisecondsSince1970)+1000
 
         let com = Conversation.builder().date(
             LMCoreTimeUtils.generateCreateAtDate(
