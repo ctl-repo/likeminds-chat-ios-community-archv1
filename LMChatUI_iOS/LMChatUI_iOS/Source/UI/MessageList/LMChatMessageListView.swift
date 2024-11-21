@@ -94,8 +94,9 @@ open class LMChatMessageListView: LMView {
             public var tempId: String?
             public var hideLeftProfileImage: Bool?
             public var pollData: LMChatPollView.ContentModel?
+            public var metadata: [String:Any]?
             
-            public init(messageId: String, memberTitle: String?, memberState: Int?, message: String?, timestamp: Int?, reactions: [Reaction]?, attachments: [Attachment]?, replied: [Message]?, isDeleted: Bool?, createdBy: String?, createdByImageUrl: String?, createdById: String?, isIncoming: Bool?, messageType: Int, createdTime: String?, ogTags: OgTags?, isEdited: Bool?, attachmentUploaded: Bool?, isShowMore: Bool, messageStatus: LMMessageStatus?, tempId: String?, hideLeftProfileImage: Bool?, pollData: LMChatPollView.ContentModel?) {
+            public init(messageId: String, memberTitle: String?, memberState: Int?, message: String?, timestamp: Int?, reactions: [Reaction]?, attachments: [Attachment]?, replied: [Message]?, isDeleted: Bool?, createdBy: String?, createdByImageUrl: String?, createdById: String?, isIncoming: Bool?, messageType: Int, createdTime: String?, ogTags: OgTags?, isEdited: Bool?, attachmentUploaded: Bool?, isShowMore: Bool, messageStatus: LMMessageStatus?, tempId: String?, hideLeftProfileImage: Bool?, pollData: LMChatPollView.ContentModel?, metadata: [String:Any]?) {
                 self.messageId = messageId
                 self.memberTitle = memberTitle
                 self.message = message
@@ -119,6 +120,7 @@ open class LMChatMessageListView: LMView {
                 self.memberState = memberState
                 self.hideLeftProfileImage = hideLeftProfileImage
                 self.pollData = pollData
+                self.metadata = metadata
             }
         }
         
@@ -185,6 +187,7 @@ open class LMChatMessageListView: LMView {
         table.register(LMUIComponents.shared.chatMessageAudioCell)
         table.register(LMUIComponents.shared.chatMessageLinkPreviewCell)
         table.register(LMUIComponents.shared.chatMessagePollCell)
+        table.register(LMUIComponents.shared.chatMessageCustomCell)
         table.dataSource = self
         table.delegate = self
         table.showsVerticalScrollIndicator = false
@@ -327,25 +330,31 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let item = tableSections[indexPath.section].data[indexPath.row]
         var tableViewCell: UITableViewCell = UITableViewCell()
-        switch item.messageType {
-        case 0:
-            tableViewCell =  cellFor(rowAt: indexPath, tableView: tableView)
-        case 10:
-            tableViewCell =  pollCellFor(rowAt: indexPath, tableView: tableView)
-        case Self.chatroomHeader:
-            if let cell = tableView.dequeueReusableCell(LMUIComponents.shared.chatroomHeaderMessageCell) {
-                cell.setData(with: .init(message: item), index: indexPath)
-                cell.currentIndexPath = indexPath
-                cell.delegate = chatroomHeaderCellDelegate
-                tableViewCell = cell
-            }
-        case -99:
-            return chatMessageShimmer()
-        default:
-            if let cell = tableView.dequeueReusableCell(LMUIComponents.shared.chatNotificationCell) {
-                cell.setData(with: .init(message: item, loggedInUserTag: currentLoggedInUserTagFormat, loggedInUserReplaceTag: currentLoggedInUserReplaceTagFormat))
-                cell.delegate = delegate
-                tableViewCell =  cell
+        if item.metadata != nil{
+            let cell = LMUIComponents.shared.chatMessageCustomCell.init()
+            cell.setData(with: LMChatCustomCell.ContentModel(message: item), index: indexPath)
+            tableViewCell = cell
+        }else{
+            switch item.messageType {
+            case 0:
+                tableViewCell =  cellFor(rowAt: indexPath, tableView: tableView)
+            case 10:
+                tableViewCell =  pollCellFor(rowAt: indexPath, tableView: tableView)
+            case Self.chatroomHeader:
+                if let cell = tableView.dequeueReusableCell(LMUIComponents.shared.chatroomHeaderMessageCell) {
+                    cell.setData(with: .init(message: item), index: indexPath)
+                    cell.currentIndexPath = indexPath
+                    cell.delegate = chatroomHeaderCellDelegate
+                    tableViewCell = cell
+                }
+            case -99:
+                return chatMessageShimmer()
+            default:
+                if let cell = tableView.dequeueReusableCell(LMUIComponents.shared.chatNotificationCell) {
+                    cell.setData(with: .init(message: item, loggedInUserTag: currentLoggedInUserTagFormat, loggedInUserReplaceTag: currentLoggedInUserReplaceTagFormat))
+                    cell.delegate = delegate
+                    tableViewCell =  cell
+                }
             }
         }
         tableViewCell.setNeedsDisplay()
@@ -380,10 +389,14 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
     func cellFor(rowAt indexPath: IndexPath, tableView: UITableView) -> LMChatMessageCell {
         let item = tableSections[indexPath.section].data[indexPath.row]
         var cell: LMChatMessageCell?
-        if let attachments = item.attachments,
+        if item.metadata != nil {
+            // For any other type of content, handle it with a custom widget
+            cell = tableView.dequeueReusableCell(LMUIComponents.shared.chatMessageCustomCell)
+        } else if let attachments = item.attachments,
               !attachments.isEmpty,
             let type = attachments.first?.fileType {
             switch type {
+            
             case "image", "video", "gif":
                 cell = tableView.dequeueReusableCell(LMUIComponents.shared.chatMessageGalleryCell)
             case "pdf", "document", "doc":
