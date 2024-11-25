@@ -1577,7 +1577,8 @@ extension LMChatMessageListViewModel {
         shareLink: String?,
         replyConversationId: String?,
         replyChatRoomId: String?,
-        temporaryId: String? = nil
+        temporaryId: String? = nil,
+        metadata: [String:Any]? = nil
     ) {
         LMSharedPreferences.removeValue(forKey: chatroomId)
         guard let communityId = chatroomViewData?.communityId else { return }
@@ -1600,9 +1601,8 @@ extension LMChatMessageListViewModel {
                 .ogTags(currentDetectedOgTags)
             currentDetectedOgTags = nil
         }
-        var metadata: [String : Any] = [:]
-        metadata["chat_data"] = "data"
-        
+        // Add the metadata received into post conversation request
+        // this will be used to create a widget
         requestBuilder = requestBuilder.metadata(metadata)
 
         let tempConversation = saveTemporaryConversation(
