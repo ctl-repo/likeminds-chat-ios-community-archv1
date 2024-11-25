@@ -13,7 +13,10 @@ open class LMChatCustomCell: LMChatMessageCell {
         public var isSelected: Bool = false
     }
     
-    private let customMessageLabel: UILabel = {
+    public var data: ContentModel?
+    public var index: IndexPath?
+    
+    public let customMessageLabel: UILabel = {
         let label = UILabel()
         label.text = "This is a custom view cell, modify it using LMUIComponent to generate your custom view"
         label.numberOfLines = 0
@@ -50,5 +53,7 @@ open class LMChatCustomCell: LMChatMessageCell {
     // MARK: Configure
     open func setData(with data: ContentModel, index: IndexPath) {
         // You can customize this method to set additional data if needed
+        self.data = data
+        self.index = index
     }
 }
