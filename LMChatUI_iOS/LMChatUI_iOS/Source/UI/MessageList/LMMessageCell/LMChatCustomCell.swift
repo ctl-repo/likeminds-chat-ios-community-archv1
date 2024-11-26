@@ -23,11 +23,6 @@ open class LMChatCustomCell: LMChatMessageCell {
         chatMessageView.usernameLabel.isHidden = true
     }
     
-    open override func setupLayouts() {
-        contentView.setWidthConstraint(with: 0)
-        contentView.setHeightConstraint(with: 0)
-    }
-    
     // MARK: Configure
     open func setData(with data: ContentModel, index: IndexPath) {
         // You can customize this method to set additional data if needed

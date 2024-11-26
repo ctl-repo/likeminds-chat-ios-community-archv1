@@ -34,8 +34,10 @@ class DataModelConverter {
         var widget: Widget? = nil
         
         if let metadata = request.metadata {
+            
             var widgetBuilder: Widget.Builder = Widget.Builder()
             widgetBuilder = widgetBuilder.metadata(metadata)
+            widgetBuilder = widgetBuilder.id(UUID().uuidString)
             widget = widgetBuilder.build()
         }
         
