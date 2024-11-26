@@ -938,10 +938,15 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
 }
 
 extension LMChatMessageListViewController: LMChatBottomMessageComposerDelegate {
+    /// Determines if the other user in the chatroom is an AI chatbot.
+    /// - Returns: `true` if the other user is an AI chatbot, `false` otherwise.
     public func isOtherUserAIChatbotInChatroom() -> Bool {
+        // Check if chatroomViewData is available in the viewModel
         if let chatroomViewData = viewModel?.chatroomViewData {
+            // Check if the other user in the chatroom is an AI chatbot
             return isOtherUserAIChatbot(chatroom: chatroomViewData)
         }
+        // Return false if chatroomViewData is not available
         return false
     }
     
