@@ -38,6 +38,11 @@ open class LMChatParticipantListView: LMView {
         return view
     }()
     
+    open private(set) lazy var noParticipantsView: LMChatNoResultView = {
+        let view = LMChatNoResultView(frame: UIScreen.main.bounds)
+        return view
+    }()
+    
     open private(set) lazy var tableView: LMTableView = {[weak self] in
         let table = LMTableView().translatesAutoresizingMaskIntoConstraints()
         table.register(LMUIComponents.shared.participantListCell)
@@ -84,13 +89,41 @@ open class LMChatParticipantListView: LMView {
         tableView.backgroundView = loadingView
     }
     
-    open func reloadList() {
+    open func reloadList(showLoadingView: Bool = true) {
         if data.count > 0  {
-            tableView.backgroundView = nil
+            hideListBackgroundView()
         } else {
-            tableView.backgroundView = loadingView
+            if showLoadingView{
+                showLoaderView()
+            }else{
+                showNoParticipantsView()
+            }
         }
         tableView.reloadData()
+    }
+    
+    // This function presents the loading view for participants list
+    open func showLoaderView(){
+        // loading view is shown to the user when the user is waiting for
+        // the response from the server
+        // The loading view consists of a shimmer view
+        tableView.backgroundView = loadingView
+    }
+    
+    // This functions remove the background from the participants list
+    open func hideListBackgroundView(){
+        // Background view for participants list can be shimmer in
+        // case waiting for the api response
+        // and can be a no participants view
+        // in case the search term has no members associated with it
+        tableView.backgroundView = nil
+    }
+    
+    // This functions presents the no participants view
+    // This view is shown to the user when no members are found
+    // with the given search term
+    open func showNoParticipantsView(){
+        tableView.backgroundView = noParticipantsView
     }
 }
 
