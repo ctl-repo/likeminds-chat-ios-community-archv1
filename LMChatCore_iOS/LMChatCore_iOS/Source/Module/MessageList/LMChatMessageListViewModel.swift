@@ -532,8 +532,14 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
                         tempId: replyConversation.temporaryId,
                         hideLeftProfileImage: isChatroomType(
                             type: .directMessage),
-                        pollData: convertPollData(replyConversation))
+                        pollData: convertPollData(replyConversation),
+                        metadata: nil
+                    )
                 ]
+        }
+        var metadata: [String:Any]?
+        if conversation.widget != nil {
+            metadata = conversation.widget?.metadata
         }
         return .init(
             messageId: conversation.id ?? "",
@@ -571,7 +577,9 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             messageStatus: messageStatus(conversation.conversationStatus),
             tempId: conversation.temporaryId,
             hideLeftProfileImage: isChatroomType(type: .directMessage),
-            pollData: convertPollData(conversation))
+            pollData: convertPollData(conversation),
+            metadata: metadata
+        )
     }
 
     func convertPollData(_ conversation: Conversation) -> LMChatPollView
@@ -1568,7 +1576,9 @@ extension LMChatMessageListViewModel {
         filesUrls: [LMChatAttachmentMediaData]?,
         shareLink: String?,
         replyConversationId: String?,
-        replyChatRoomId: String?, temporaryId: String? = nil
+        replyChatRoomId: String?,
+        temporaryId: String? = nil,
+        metadata: [String:Any]? = nil
     ) {
         LMSharedPreferences.removeValue(forKey: chatroomId)
         guard let communityId = chatroomViewData?.communityId else { return }
@@ -1591,6 +1601,9 @@ extension LMChatMessageListViewModel {
                 .ogTags(currentDetectedOgTags)
             currentDetectedOgTags = nil
         }
+        // Add the metadata received into post conversation request
+        // this will be used to create a widget
+        requestBuilder = requestBuilder.metadata(metadata)
 
         let tempConversation = saveTemporaryConversation(
             uuid: UserPreferences.shared.getClientUUID() ?? "",
@@ -1664,7 +1677,7 @@ extension LMChatMessageListViewModel {
     }
 
     func shimmerMockConversationData() {
-        let miliseconds = Int(Date().millisecondsSince1970)+1000
+        let miliseconds = Int(Date().millisecondsSince1970) + 1000
 
         let com = Conversation.builder().date(
             LMCoreTimeUtils.generateCreateAtDate(

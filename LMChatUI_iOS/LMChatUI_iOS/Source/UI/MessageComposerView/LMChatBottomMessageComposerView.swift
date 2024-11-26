@@ -25,6 +25,7 @@ public protocol LMChatBottomMessageComposerDelegate: AnyObject {
     func cancelReply()
     func cancelLinkPreview()
     func showToastMessage(message: String?)
+    func isOtherUserAIChatbotInChatroom() -> Bool
 }
 
 @IBDesignable
@@ -267,7 +268,7 @@ open class LMChatBottomMessageComposerView: LMView {
     public override init(frame: CGRect) {
         super.init(frame: frame)
         showHideLockContainer(isShow: false)
-        sendButton.tag = audioButtonTag
+        sendButton.tag = (delegate?.isOtherUserAIChatbotInChatroom() ?? false) ? messageButtonTag : audioButtonTag
     }
     
     // MARK: setupViews
@@ -408,7 +409,7 @@ open class LMChatBottomMessageComposerView: LMView {
     }
     
     public func tagSendButtonOnBasisOfText(_ text: String?) {
-        guard let text, !text.isEmpty, text != inputTextView.placeHolderText else {
+        guard let text, !text.isEmpty, text != inputTextView.placeHolderText, !(delegate?.isOtherUserAIChatbotInChatroom() ?? false) else {
             sendButton.tag = audioButtonTag
             sendButton.setImage(micButtonIcon, for: .normal)
             return
@@ -619,7 +620,7 @@ extension LMChatBottomMessageComposerView: LMBottomMessageLinkPreviewDelete {
 extension LMChatBottomMessageComposerView {
     // Resets Recording View and shows Text Input View
     public func resetRecordingView() {
-        sendButton.tag = audioButtonTag
+        sendButton.tag = (delegate?.isOtherUserAIChatbotInChatroom() ?? false)  ? messageButtonTag : audioButtonTag
         resetSendButtonConstraints()
         
         recordDuration.text = "00:00"
@@ -642,7 +643,7 @@ extension LMChatBottomMessageComposerView {
     
     // Shows Initial Recording View
     public func showRecordingView() {
-        sendButton.tag = audioButtonTag
+        sendButton.tag = (delegate?.isOtherUserAIChatbotInChatroom() ?? false) ? messageButtonTag : audioButtonTag
         
         isLockedIn = false
         horizontalStackView.isHidden = true
@@ -672,8 +673,8 @@ extension LMChatBottomMessageComposerView {
         // Making sure that the text field is empty and the user isn't locked in
         sendButtonLongPressGesture.isEnabled = isText && !isLockedIn
         sendButtonPanPressGesture.isEnabled = isText && !isLockedIn
-        sendButton.tag = isText ? audioButtonTag : messageButtonTag
-        sendButton.setImage(isText ? micButtonIcon : sendButtonIcon, for: .normal)
+        sendButton.tag = isText && !(delegate?.isOtherUserAIChatbotInChatroom() ?? false) ? audioButtonTag : messageButtonTag
+        sendButton.setImage(isText && !(delegate?.isOtherUserAIChatbotInChatroom() ?? false) ? micButtonIcon : sendButtonIcon, for: .normal)
     }
     
     // Sets the visibility of Slide To Cancel, Stop Audio Recording, Delete Audio Recording

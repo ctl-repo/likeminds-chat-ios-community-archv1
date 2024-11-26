@@ -53,6 +53,7 @@ public struct LMUIComponents {
     public var chatMessageAudioCell: LMChatAudioViewCell.Type = LMChatAudioViewCell.self
     public var chatMessageLinkPreviewCell: LMChatLinkPreviewCell.Type = LMChatLinkPreviewCell.self
     public var chatMessagePollCell: LMChatPollViewCell.Type = LMChatPollViewCell.self
+    public var chatMessageCustomCell: LMChatCustomCell.Type = LMChatCustomCell.self
     public var messageLoading: LMChatMessageLoading.Type = LMChatMessageLoading.self
     public var attachmentLoaderView: LMAttachmentLoaderView.Type = LMAttachmentLoaderView.self
     public var attachmentRetryView: LMChatAttachmentUploadRetryView.Type = LMChatAttachmentUploadRetryView.self
