@@ -938,6 +938,13 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
 }
 
 extension LMChatMessageListViewController: LMChatBottomMessageComposerDelegate {
+    public func isOtherUserAIChatbotInChatroom() -> Bool {
+        if let chatroomViewData = viewModel?.chatroomViewData {
+            return isOtherUserAIChatbot(chatroom: chatroomViewData)
+        }
+        return false
+    }
+    
     public func askForMicrophoneAccess() {
         LMChatCheckMediaAccess.askForMicrophoneAccess(from: self)
     }
