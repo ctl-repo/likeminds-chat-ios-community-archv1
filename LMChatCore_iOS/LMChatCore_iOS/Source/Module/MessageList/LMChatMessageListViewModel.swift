@@ -1571,7 +1571,7 @@ extension LMChatMessageListViewModel {
         }
     }
 
-    func postMessage(
+    public func postMessage(
         message: String?,
         filesUrls: [LMChatAttachmentMediaData]?,
         shareLink: String?,

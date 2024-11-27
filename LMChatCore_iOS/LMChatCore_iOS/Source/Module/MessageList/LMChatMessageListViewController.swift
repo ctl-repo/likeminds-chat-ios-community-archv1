@@ -1015,7 +1015,7 @@ extension LMChatMessageListViewController: LMChatBottomMessageComposerDelegate {
         cancelLinkPreview()
     }
     
-    public func composeAttachment() {
+    @objc open func composeAttachment() {
         
         var isAIChatBot: Bool
         
