@@ -5,7 +5,7 @@
 //  Created by Devansh Mohata on 16/04/24.
 //
 
-import LikeMindsChat
+import LikeMindsChatData
 import Foundation
 import LikeMindsChatUI
 
@@ -169,11 +169,11 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
     // MARK: API CALL
     private func searchChatroomList(searchString: String, isFollowed: Bool, searchType: String) {
         let request = SearchChatroomRequest.builder()
-            .setFollowStatus(isFollowed)
-            .setPage(currentPage)
-            .setPageSize(pageSize)
-            .setSearch(searchString)
-            .setSearchType(searchType)
+            .followStatus(isFollowed)
+            .page(currentPage)
+            .pageSize(pageSize)
+            .search(searchString)
+            .searchType(searchType)
             .build()
         
         LMChatClient.shared.searchChatroom(request: request) { [weak self] response in

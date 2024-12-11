@@ -7,7 +7,7 @@
 
 import Foundation
 import LikeMindsChatUI
-import LikeMindsChat
+import LikeMindsChatData
 
 
 public class LMExploreChatroomViewModel {
