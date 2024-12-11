@@ -5,7 +5,7 @@
 //  Created by Pushpendra Singh on 30/07/24.
 //
 
-import LikeMindsChat
+import LikeMindsChatData
 import LikeMindsChatUI
 
 public protocol LMChatPollResultViewModelProtocol: LMBaseViewControllerProtocol {

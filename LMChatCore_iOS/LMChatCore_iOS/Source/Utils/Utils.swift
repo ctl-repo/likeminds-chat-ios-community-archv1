@@ -5,7 +5,7 @@
 //  Created by Anurag Tyagi on 22/10/24.
 //
 
-import LikeMindsChat
+import LikeMindsChatData
 import UIKit
 
 func convertToAttachmentList(from mediaDataList: [LMChatAttachmentUploadModel])

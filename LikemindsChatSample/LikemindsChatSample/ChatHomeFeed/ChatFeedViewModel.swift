@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import LikeMindsChat
+import LikeMindsChatData
 import LikeMindsChatUI
 import LikeMindsChatCore
 

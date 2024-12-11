@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import LikeMindsChat
+import LikeMindsChatData
 
 class LMChatConversationAttachmentUpload {
     static let shared: LMChatConversationAttachmentUpload = .init()
