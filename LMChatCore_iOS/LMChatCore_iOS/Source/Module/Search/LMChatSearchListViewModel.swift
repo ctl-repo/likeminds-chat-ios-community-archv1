@@ -17,7 +17,7 @@ public protocol LMChatSearchListViewProtocol: AnyObject {
 
 final public class LMChatSearchListViewModel: LMChatBaseViewModel {
 
-    public static func createModule(searchOnlyConversations: Bool = false)
+    public static func createModule(searchOnlyConversations: Bool = false, chatroomId: String?)
         throws -> LMChatSearchListViewController
     {
         guard LMChatCore.isInitialized else {
@@ -29,6 +29,7 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
         viewcontroller.viewmodel = viewmodel
 
         viewmodel.searchOnlyConversations = searchOnlyConversations
+        viewmodel.chatroomId = chatroomId
 
         return viewcontroller
     }
@@ -42,6 +43,7 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
     var notFollowedConversationData: [LMChatSearchConversationDataModel]
 
     private var searchString: String
+    private var chatroomId: String?
     private var currentPage: Int
     private let pageSize: Int
     private var isAPICallInProgress: Bool
@@ -163,6 +165,7 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
     ) {
         let request = SearchConversationRequest.builder()
             .search(searchString)
+            .chatroomId(chatroomId)
             .page(currentPage)
             .pageSize(pageSize)
             .build()

@@ -266,7 +266,7 @@ open class LMChatMessageListViewController: LMViewController {
     @objc
     open func navigateToSearchConversationScreen(){
         do{
-            let searchListVC = try LMChatSearchListViewModel.createModule(searchOnlyConversations: true)
+            let searchListVC = try LMChatSearchListViewModel.createModule(searchOnlyConversations: true, chatroomId: viewModel?.chatroomId)
             
             self.navigationController?.pushViewController(searchListVC, animated: true)
         }catch _{
