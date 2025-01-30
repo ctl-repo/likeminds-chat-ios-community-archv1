@@ -17,7 +17,7 @@ public protocol LMChatSearchListViewProtocol: AnyObject {
 
 final public class LMChatSearchListViewModel: LMChatBaseViewModel {
 
-    public static func createModule(searchOnlyConversations: Bool = false, chatroomId: String?)
+    public static func createModule(searchOnlyConversations: Bool = false)
         throws -> LMChatSearchListViewController
     {
         guard LMChatCore.isInitialized else {

@@ -265,14 +265,15 @@ public class LMChatCore {
                 return
             }
 
-            if let communitySettings = response.data?.community?
-                .communitySettings,
-                let setting = communitySettings.first(where: {
-                    $0.type
-                        == CommunitySetting.SettingType
-                        .enableDMWithoutConnectionRequest.rawValue
-                }), setting.enabled == true
-            {
+            let communitySettings =
+                response.data?.community?
+                .communitySettings ?? []
+
+            if let setting = communitySettings.first(where: {
+                $0.type
+                    == CommunitySetting.SettingType
+                    .enableDMWithoutConnectionRequest.rawValue
+            }), setting.enabled == true {
                 LMSharedPreferences.setValue(
                     true,
                     key: LMSharedPreferencesKeys.isDMWithRequestEnabled.rawValue

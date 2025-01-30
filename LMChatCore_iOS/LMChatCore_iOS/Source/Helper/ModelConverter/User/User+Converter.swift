@@ -14,8 +14,6 @@ extension User {
      - Returns: A `UserViewData` populated with the data from this `User`.
      */
     public func toViewData() -> UserViewData {
-        var sdkClientInfo = self.sdkClientInfo?.toViewData()
-        
         return UserViewData(
             id: self.id,
             imageUrl: self.imageUrl,
@@ -29,8 +27,8 @@ extension User {
             customTitle: self.customTitle,
             state: self.state,
             updatedAt: self.updatedAt,
-            sdkClientInfo: sdkClientInfo,  // Assuming `SDKClientInfo` has a `toViewData` method
-            roles: self.roles?.compactMap{ $0.toUserRoleViewData() } ?? []  // Assuming `UserRole` has a `toViewData` method
+            sdkClientInfo: self.sdkClientInfo?.toViewData(),  // Assuming `SDKClientInfo` has a `toViewData` method
+            roles: self.roles?.compactMap { $0.toUserRoleViewData() } ?? []  // Assuming `UserRole` has a `toViewData` method
         )
     }
 }

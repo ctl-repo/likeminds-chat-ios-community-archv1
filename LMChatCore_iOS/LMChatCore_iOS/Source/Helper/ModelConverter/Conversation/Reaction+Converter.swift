@@ -5,6 +5,9 @@
 //  Created by Anurag Tyagi on 21/01/25.
 //
 
+import LikeMindsChatData
+import LikeMindsChatUI
+
 extension Reaction {
     /**
      Converts this `Reaction` instance into a `ReactionViewData`.
@@ -14,7 +17,7 @@ extension Reaction {
     public func toViewData() -> ReactionViewData {
         // Simply copy over the properties
         return ReactionViewData(
-            member: self.member,
+            member: self.member?.toViewData(),
             reaction: self.reaction
         )
     }
@@ -30,7 +33,7 @@ extension ReactionViewData {
     public func toReaction() -> Reaction {
         // Use the existing builder pattern from `Reaction`.
         return Reaction.builder()
-            .member(member)
+            .member(member?.toMember())
             .reaction(reaction)
             .build()
     }

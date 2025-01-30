@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
         Messaging.messaging().delegate = self
         registerForPushNotifications(application: application)
-        var deviceId = UIDevice.current.identifierForVendor?.uuidString
+        let deviceId = UIDevice.current.identifierForVendor?.uuidString
         LMChatCore.shared.setupChat(deviceId: deviceId)
         return true
     }
