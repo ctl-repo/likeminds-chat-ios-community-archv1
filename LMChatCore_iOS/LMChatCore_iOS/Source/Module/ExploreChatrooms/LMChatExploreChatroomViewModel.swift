@@ -5,11 +5,12 @@
 //  Created by Devansh Mohata on 16/05/24.
 //
 
-import LikeMindsChatUI
 import LikeMindsChatData
+import LikeMindsChatUI
 
 public protocol LMChatExploreChatroomViewModelProtocol: AnyObject {
-    func updateExploreChatroomsData(with data: [LMChatExploreChatroomView.ContentModel])
+    func updateExploreChatroomsData(
+        with data: [LMChatExploreChatroomView.ContentModel])
 }
 
 public final class LMChatExploreChatroomViewModel {
@@ -18,7 +19,7 @@ public final class LMChatExploreChatroomViewModel {
         case recentlyActive
         case mostMessages
         case mostParticipants
-        
+
         var stringName: String {
             switch self {
             case .newest:
@@ -32,96 +33,115 @@ public final class LMChatExploreChatroomViewModel {
             }
         }
     }
-    
+
     private var chatrooms: [Chatroom]
     private var currentPage: Int
     private var filterType: Filter
     private var isLoading: Bool
-    private var isPinnedSelected: Bool
+    private var isPinnedSelected: Bool {
+        didSet {
+            if isPinnedSelected == true {
+                LMChatCore.analytics?.trackEvent(
+                    for: LMChatAnalyticsEventName.pinnedChatroomViewed,
+                    eventProperties: [:])
+            }
+        }
+    }
     private weak var delegate: LMChatExploreChatroomViewModelProtocol?
-    
+
     init(delegate: LMChatExploreChatroomViewModelProtocol?) {
         self.delegate = delegate
-        
+
         self.chatrooms = []
         self.currentPage = 1
         self.filterType = .newest
         self.isLoading = false
         self.isPinnedSelected = false
     }
-    
+
     public static func createModule() throws -> LMExploreChatroomListView {
-        guard LMChatCore.isInitialized else { throw LMChatError.chatNotInitialized }
-        
-        let viewController = LMCoreComponents.shared.exploreChatroomListScreen.init()
+        guard LMChatCore.isInitialized else {
+            throw LMChatError.chatNotInitialized
+        }
+
+        let viewController = LMCoreComponents.shared.exploreChatroomListScreen
+            .init()
         let viewmodel = LMChatExploreChatroomViewModel(delegate: viewController)
-        
+
         viewController.viewModel = viewmodel
-        
+
         return viewController
     }
-    
+
     public func getExploreChatrooms() {
         guard !isLoading else { return }
-        
+
         isLoading = true
-        
+
         let request = GetExploreFeedRequest.builder()
             .orderType(filterType.rawValue)
             .page(currentPage)
             .isPinned(isPinnedSelected)
             .build()
-        
-        LMChatClient.shared.getExploreFeed(request: request) {[weak self] response in
+
+        LMChatClient.shared.getExploreFeed(request: request) {
+            [weak self] response in
             guard let self,
-                  let chatroomsRes = response.data?.exploreChatrooms,
-            !chatroomsRes.isEmpty else {
+                let chatroomsRes = response.data?.exploreChatrooms,
+                !chatroomsRes.isEmpty
+            else {
                 self?.isLoading = false
                 return
             }
-            
+
             chatrooms.append(contentsOf: chatroomsRes)
             currentPage += 1
             updateChatroomData()
             isLoading = false
         }
     }
-    
+
     public func applyFilter(filter: Filter) {
         filterType = filter
         currentPage = 1
         chatrooms.removeAll()
         getExploreChatrooms()
     }
-    
+
     public func applyFilter() {
         isPinnedSelected.toggle()
         currentPage = 1
         chatrooms.removeAll()
         getExploreChatrooms()
     }
-    
+
     public func followUnfollow(chatroomId: String, status: Bool) {
         let request = FollowChatroomRequest.builder()
             .chatroomId(chatroomId)
             .uuid(UserPreferences.shared.getClientUUID() ?? "")
             .value(status)
             .build()
-        
+
         LMChatClient.shared.followChatroom(request: request) { response in
             guard response.success else {
                 return
             }
         }
-        LMChatCore.analytics?.trackEvent(for: status ? .chatRoomFollowed : .chatRoomUnfollowed, eventProperties: [
-            LMChatAnalyticsKeys.chatroomId.rawValue: chatroomId,
-            LMChatAnalyticsKeys.communityId.rawValue: SDKPreferences.shared.getCommunityId(),
-            LMChatAnalyticsKeys.source.rawValue: LMChatAnalyticsSource.exploreFeed.rawValue])
+        LMChatCore.analytics?.trackEvent(
+            for: status ? .chatRoomFollowed : .chatRoomUnfollowed,
+            eventProperties: [
+                LMChatAnalyticsKeys.chatroomId.rawValue: chatroomId,
+                LMChatAnalyticsKeys.communityId.rawValue: SDKPreferences.shared
+                    .getCommunityId(),
+                LMChatAnalyticsKeys.source.rawValue: LMChatAnalyticsSource
+                    .exploreFeed.rawValue,
+            ])
     }
-    
+
     func updateChatroomData() {
-        let transformed: [LMChatExploreChatroomView.ContentModel] = chatrooms.compactMap({
-            chatroom in
+        let transformed: [LMChatExploreChatroomView.ContentModel] =
+            chatrooms.compactMap({
+                chatroom in
                 .init(
                     userName: chatroom.member?.name,
                     title: chatroom.title,
@@ -136,8 +156,8 @@ public final class LMChatExploreChatroomViewModel {
                     externalSeen: chatroom.externalSeen ?? false,
                     isPinned: chatroom.isPinned ?? false
                 )
-        })
-        
+            })
+
         delegate?.updateExploreChatroomsData(with: transformed)
     }
 }

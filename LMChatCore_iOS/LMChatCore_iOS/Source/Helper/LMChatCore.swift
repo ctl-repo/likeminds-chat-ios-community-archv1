@@ -32,6 +32,16 @@ public protocol LMChatCoreCallback: AnyObject {
     ///
     /// - Parameter uuid: user id to uniquely identify the user
     func userProfileViewHandle(withRoute route: String)
+
+    /// Called when an analytics event is triggered in LMChat.
+    ///
+    /// - Parameters:
+    ///   - eventName: The name of the analytics event, used for categorizing and identifying the type of event.
+    ///   - eventProperties: A dictionary of properties providing additional context or data about the event.
+    func onEventTriggered(
+        eventName: LMChatAnalyticsEventName,
+        eventProperties: [String: AnyHashable]
+    )
 }
 public class LMChatCore {
 
@@ -44,7 +54,7 @@ public class LMChatCore {
     private(set) var coreCallback: LMChatCoreCallback?
 
     public static var analytics: LMChatAnalyticsProtocol? =
-        LMChatAnalyticsTracker()
+        LMChatAnalytics()
 
     var deviceId: String?
 
