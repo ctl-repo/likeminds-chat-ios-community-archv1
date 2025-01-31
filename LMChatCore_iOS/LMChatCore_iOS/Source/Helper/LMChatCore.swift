@@ -389,14 +389,15 @@ public class LMChatCore {
     ///
     /// - Important: After a successful logout, any stored session data or tokens should be cleared
     ///   from the client-side storage to prevent unauthorized access.
-    public func logoutUser(deviceId: String,
+    public func logoutUser(
+        deviceId: String,
         completion: ((Result<Void, LMChatError>) -> Void)? = nil
     ) {
         let request = LogoutUserRequest.builder()
             .deviceId(deviceId)
             .build()
 
-        LMChatClient.shared.logoutUser(request: request){ response in
+        LMChatClient.shared.logoutUser(request: request) { response in
             if response.success {
                 completion?(.success(()))
             } else {
@@ -418,6 +419,32 @@ public class LMChatCore {
         else { return false }
         DeepLinkManager.sharedInstance.didReceivedRemoteNotification(route)
         return true
+    }
+
+    public func willPresentNotification(
+        userInfo: [AnyHashable: Any],
+        withCompletionHandler completionHandler: @escaping (
+            UNNotificationPresentationOptions
+        ) -> Void
+    ) {
+
+        // Extract your chat room ID from userInfo if it's available
+        // (Adjust the key "chatRoomID" to whatever your payload structure uses)
+        if let incomingChatRoomID = getChatroomIdFromRoute(
+            from:
+                userInfo["route"] as? String ?? ""),
+            let activeChatRoomID = LMChatCore.openedChatroomId,
+            incomingChatRoomID == activeChatRoomID
+        {
+
+            // The user is currently in the chat room for which the notification arrived
+            // => Do not show any notification banner or sound
+            completionHandler([])
+        } else {
+            // The notification is for a different chat room OR no chat room is active
+            // => Show the default notification behavior (alert, badge, sound, etc.)
+            completionHandler([.alert, .badge, .sound])
+        }
     }
 
     public func disableIQKeyboardForViewControllers() -> [UIViewController.Type]

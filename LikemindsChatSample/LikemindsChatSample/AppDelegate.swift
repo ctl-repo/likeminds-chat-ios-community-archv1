@@ -92,7 +92,6 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
     }
 
-    // Called if the app receives a notification in the foreground
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
@@ -100,25 +99,9 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             UNNotificationPresentationOptions
         ) -> Void
     ) {
-
-        let userInfo = notification.request.content.userInfo
-
-        // Extract your chat room ID from userInfo if it's available
-        // (Adjust the key "chatRoomID" to whatever your payload structure uses)
-        if let incomingChatRoomID = getChatroomIdFromRoute(from:
-            userInfo["route"] as? String ?? ""),
-            let activeChatRoomID = LMChatCore.openedChatroomId,
-            incomingChatRoomID == activeChatRoomID
-        {
-
-            // The user is currently in the chat room for which the notification arrived
-            // => Do not show any notification banner or sound
-            completionHandler([])
-        } else {
-            // The notification is for a different chat room OR no chat room is active
-            // => Show the default notification behavior (alert, badge, sound, etc.)
-            completionHandler([.alert, .badge, .sound])
-        }
+        LMChatCore.shared.willPresentNotification(
+            userInfo: notification.request.content.userInfo,
+            withCompletionHandler: completionHandler)
     }
 
 }
