@@ -146,7 +146,15 @@ open class LMChatMessageListViewController: LMViewController {
             viewModel?.addObserveConversations()
         }
         bottomMessageBoxView.inputTextView.mentionDelegate?.contentHeightChanged()
+        LMChatCore.openedChatroomId = viewModel?.chatroomId
     }
+    
+    open override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        LMChatCore.openedChatroomId = nil
+    }
+    
+    
     
     func setupBackButtonItemWithImageView() {
         backButtonItem.actionButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)

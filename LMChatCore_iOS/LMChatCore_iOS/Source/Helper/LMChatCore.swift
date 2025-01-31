@@ -50,6 +50,8 @@ public class LMChatCore {
     public static var shared: LMChatCore = .init()
     public static private(set) var isInitialized: Bool = false
     public static private(set) var isSecretChatroomInviteEnabled: Bool = false
+    public static var openedChatroomId: String? = nil
+
     // Callbacks for accessToken and refreshToken strategy
     private(set) var coreCallback: LMChatCoreCallback?
 

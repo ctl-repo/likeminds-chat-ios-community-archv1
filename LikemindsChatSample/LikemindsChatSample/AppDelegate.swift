@@ -5,16 +5,20 @@
 //  Created by Pushpendra Singh on 13/12/23.
 //
 
-import UIKit
+import FirebaseCore
+import FirebaseMessaging
 import LikeMindsChatCore
 import LikeMindsChatUI
-import FirebaseMessaging
-import FirebaseCore
+import UIKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication
+            .LaunchOptionsKey: Any]?
+    ) -> Bool {
         FirebaseApp.configure()
         Messaging.messaging().delegate = self
         registerForPushNotifications(application: application)
@@ -22,42 +26,64 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         LMChatCore.shared.setupChat(deviceId: deviceId)
         return true
     }
-    
+
     // MARK: UISceneSession Lifecycle
 
-    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+    func application(
+        _ application: UIApplication,
+        configurationForConnecting connectingSceneSession: UISceneSession,
+        options: UIScene.ConnectionOptions
+    ) -> UISceneConfiguration {
         // Called when a new scene session is being created.
         // Use this method to select a configuration to create the new scene with.
-        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+        return UISceneConfiguration(
+            name: "Default Configuration",
+            sessionRole: connectingSceneSession.role)
     }
 
-    func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
+    func application(
+        _ application: UIApplication,
+        didDiscardSceneSessions sceneSessions: Set<UISceneSession>
+    ) {
         // Called when the user discards a scene session.
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
-    
+
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
-    
-    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+
+    func application(
+        _ application: UIApplication,
+        didFailToRegisterForRemoteNotificationsWithError error: Error
+    ) {
         print(error)
     }
-    
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        LMChatCore.shared.didReceieveNotification(userInfo: response.notification.request.content.userInfo)
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        LMChatCore.shared.didReceieveNotification(
+            userInfo: response.notification.request.content.userInfo)
     }
-    
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+
+    func application(
+        _ application: UIApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
         Messaging.messaging().apnsToken = deviceToken
     }
-    
+
     private func registerForPushNotifications(application: UIApplication) {
-        
+
         UNUserNotificationCenter.current().delegate = self
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) {
+        UNUserNotificationCenter.current().requestAuthorization(
+            options: authOptions
+        ) {
             (granted, error) in
             guard granted else { return }
             DispatchQueue.main.async {
@@ -65,12 +91,43 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             }
         }
     }
-    
+
+    // Called if the app receives a notification in the foreground
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (
+            UNNotificationPresentationOptions
+        ) -> Void
+    ) {
+
+        let userInfo = notification.request.content.userInfo
+
+        // Extract your chat room ID from userInfo if it's available
+        // (Adjust the key "chatRoomID" to whatever your payload structure uses)
+        if let incomingChatRoomID = getChatroomIdFromRoute(from:
+            userInfo["route"] as? String ?? ""),
+            let activeChatRoomID = LMChatCore.openedChatroomId,
+            incomingChatRoomID == activeChatRoomID
+        {
+
+            // The user is currently in the chat room for which the notification arrived
+            // => Do not show any notification banner or sound
+            completionHandler([])
+        } else {
+            // The notification is for a different chat room OR no chat room is active
+            // => Show the default notification behavior (alert, badge, sound, etc.)
+            completionHandler([.alert, .badge, .sound])
+        }
+    }
+
 }
 
 extension AppDelegate: MessagingDelegate {
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+    func messaging(
+        _ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?
+    ) {
         print("Firebase registration token: \(String(describing: fcmToken))")
     }
-    
+
 }
