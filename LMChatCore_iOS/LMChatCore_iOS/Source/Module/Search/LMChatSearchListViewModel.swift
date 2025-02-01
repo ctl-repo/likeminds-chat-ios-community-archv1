@@ -283,7 +283,8 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
                         chatroomDetails: chatroomData,
                         message: conversation.answer,
                         createdAt: conversation.createdAt,
-                        updatedAt: conversation.lastUpdated
+                        updatedAt: conversation.lastUpdated,
+                        user: nil
                     )
                 }
 

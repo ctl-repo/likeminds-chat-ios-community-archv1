@@ -34,8 +34,7 @@ final public class LMChatSearchConversationListViewModel: LMChatBaseViewModel {
 
     var delegate: LMChatSearchConversationListViewProtocol?
 
-    var followedConversationData: [LMChatSearchConversationDataModel]
-    var notFollowedConversationData: [LMChatSearchConversationDataModel]
+    var conversationData: [LMChatSearchConversationDataModel]
 
     private var searchString: String
     private var chatroomId: String?
@@ -48,8 +47,7 @@ final public class LMChatSearchConversationListViewModel: LMChatBaseViewModel {
     init(delegate: LMChatSearchConversationListViewProtocol? = nil) {
         self.delegate = delegate
 
-        followedConversationData = []
-        notFollowedConversationData = []
+        conversationData = []
 
         searchString = ""
         currentPage = 1
@@ -63,8 +61,7 @@ final public class LMChatSearchConversationListViewModel: LMChatBaseViewModel {
         self.searchString = searchString.trimmingCharacters(
             in: .whitespacesAndNewlines)
 
-        followedConversationData.removeAll(keepingCapacity: true)
-        notFollowedConversationData.removeAll(keepingCapacity: true)
+        conversationData.removeAll(keepingCapacity: true)
 
         guard !self.searchString.isEmpty else {
             delegate?.showHideFooterLoader(isShow: false)
@@ -90,8 +87,8 @@ final public class LMChatSearchConversationListViewModel: LMChatBaseViewModel {
         searchConversationList(
             searchString: searchString)
     }
-    
-    public func fetchMoreData(){
+
+    public func fetchMoreData() {
         fetchData(searchString: searchString)
     }
 
@@ -119,7 +116,7 @@ final public class LMChatSearchConversationListViewModel: LMChatBaseViewModel {
 
             currentPage += 1
 
-            let conversationData: [LMChatSearchConversationDataModel] =
+            let currentConversationData: [LMChatSearchConversationDataModel] =
                 conversations.compactMap { conversation in
                     guard
                         let chatroomData = self.convertToChatroomData(
@@ -137,6 +134,12 @@ final public class LMChatSearchConversationListViewModel: LMChatBaseViewModel {
                             from: conversation.member)!
                     )
                 }
+            
+            conversationData.append(contentsOf: currentConversationData)
+            
+            if conversationData.count < pageSize{
+                shouldAllowAPICall = false
+            }
 
             convertToContentModel()
         }
@@ -169,18 +172,13 @@ extension LMChatSearchConversationListViewModel {
         var dataModel:
             [LMChatSearchConversationListViewController.ContentModel] = []
 
-        if !followedConversationData.isEmpty
-            || !notFollowedConversationData.isEmpty
-        {
-            let followedConversationData = convertMessageCell(
-                from: followedConversationData, isJoined: true)
-            let notFollowedConversationData = convertMessageCell(
-                from: notFollowedConversationData, isJoined: false)
+        if !conversationData.isEmpty {
+            let conversationDataCell = convertMessageCell(
+                from: conversationData)
 
             var sectionData: [LMChatSearchCellDataProtocol] = []
 
-            sectionData.append(contentsOf: followedConversationData)
-            sectionData.append(contentsOf: notFollowedConversationData)
+            sectionData.append(contentsOf: conversationDataCell)
 
             dataModel.append(
                 .init(
@@ -192,7 +190,7 @@ extension LMChatSearchConversationListViewModel {
     }
 
     private func convertMessageCell(
-        from data: [LMChatSearchConversationDataModel], isJoined: Bool
+        from data: [LMChatSearchConversationDataModel]
     ) -> [LMChatSearchConversationMessageCell.ContentModel] {
         data.map {
             .init(
@@ -202,9 +200,9 @@ extension LMChatSearchConversationListViewModel {
                 message: $0.message,
                 senderName: $0.chatroomDetails.user.firstName,
                 date: $0.updatedAt,
-                isJoined: isJoined,
+                isJoined: $0.chatroomDetails.isFollowed,
                 highlightedText: searchString,
-                userImageUrl: $0.user.imageURL
+                userImageUrl: $0.user?.imageURL
             )
         }
     }

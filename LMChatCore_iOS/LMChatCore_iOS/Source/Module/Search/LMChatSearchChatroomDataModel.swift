@@ -32,9 +32,9 @@ public struct LMChatSearchConversationDataModel {
     public let message: String
     public let createdAt: Double
     public let updatedAt: Double
-    public let user: LMChatSearchListUserDataModel
+    public let user: LMChatSearchListUserDataModel?
     
-    public init(id: String, chatroomDetails: LMChatSearchChatroomDataModel, message: String, createdAt: Double, updatedAt: Double, user: LMChatSearchListUserDataModel) {
+    public init(id: String, chatroomDetails: LMChatSearchChatroomDataModel, message: String, createdAt: Double, updatedAt: Double, user: LMChatSearchListUserDataModel?) {
         self.id = id
         self.chatroomDetails = chatroomDetails
         self.message = message

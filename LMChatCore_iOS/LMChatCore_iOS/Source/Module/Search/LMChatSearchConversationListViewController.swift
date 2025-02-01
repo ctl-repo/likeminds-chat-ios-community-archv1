@@ -107,21 +107,15 @@ extension LMChatSearchConversationListViewController: UITableViewDataSource,
         _ tableView: UITableView, cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
         if let data = searchResults[indexPath.section].data[indexPath.row]
-            as? LMChatSearchChatroomCell.ContentModel,
+            as? LMChatSearchConversationMessageCell.ContentModel,
             let cell = tableView.dequeueReusableCell(
-                LMUIComponents.shared.searchChatroomCell)
+                LMUIComponents.shared.searchConversationMessageCell)
         {
             cell.configure(with: data)
             return cell
         }
 
         return UITableViewCell()
-    }
-
-    open func tableView(
-        _ tableView: UITableView, titleForHeaderInSection section: Int
-    ) -> String? {
-        searchResults[section].title
     }
 
     open func scrollViewDidScroll(_ scrollView: UIScrollView) {
