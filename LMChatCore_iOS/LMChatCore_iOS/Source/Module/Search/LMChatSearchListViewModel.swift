@@ -164,7 +164,6 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
     ) {
         let request = SearchConversationRequest.builder()
             .search(searchString)
-            .chatroomId(chatroomId)
             .page(currentPage)
             .pageSize(pageSize)
             .build()
