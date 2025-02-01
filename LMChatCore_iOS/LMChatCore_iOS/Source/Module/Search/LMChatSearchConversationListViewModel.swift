@@ -1,56 +1,53 @@
 //
-//  LMChatSearchListViewModel.swift
-//  LikeMindsChatCore
+//  LMChatSearchConversationListViewModel.swift
+//  Pods
 //
-//  Created by Devansh Mohata on 16/04/24.
+//  Created by Anurag Tyagi on 01/02/25.
 //
-
-import Foundation
 import LikeMindsChatData
 import LikeMindsChatUI
 
-public protocol LMChatSearchListViewProtocol: AnyObject {
+public protocol LMChatSearchConversationListViewProtocol: AnyObject {
     func updateSearchList(
-        with data: [LMChatSearchListViewController.ContentModel])
+        with data: [LMChatSearchConversationListViewController.ContentModel])
     func showHideFooterLoader(isShow: Bool)
 }
 
-final public class LMChatSearchListViewModel: LMChatBaseViewModel {
-
-    public static func createModule()
-        throws -> LMChatSearchListViewController
+final public class LMChatSearchConversationListViewModel: LMChatBaseViewModel {
+    public static func createModule(chatroomId: String)
+        throws -> LMChatSearchConversationListViewController
     {
         guard LMChatCore.isInitialized else {
             throw LMChatError.chatNotInitialized
         }
 
-        let viewcontroller = LMCoreComponents.shared.searchListScreen.init()
-        let viewmodel = LMChatSearchListViewModel(delegate: viewcontroller)
+        let viewcontroller = LMCoreComponents.shared
+            .searchConversationListScreen.init()
+        let viewmodel = LMChatSearchConversationListViewModel(
+            delegate: viewcontroller)
         viewcontroller.viewmodel = viewmodel
+
+        viewmodel.chatroomId = chatroomId
 
         return viewcontroller
     }
 
-    var delegate: LMChatSearchListViewProtocol?
+    var delegate: LMChatSearchConversationListViewProtocol?
 
-    var headerChatroomData: [LMChatSearchChatroomDataModel]
-    var titleFollowedChatroomData: [LMChatSearchChatroomDataModel]
-    var titleNotFollowedChatroomData: [LMChatSearchChatroomDataModel]
     var followedConversationData: [LMChatSearchConversationDataModel]
     var notFollowedConversationData: [LMChatSearchConversationDataModel]
 
     private var searchString: String
+    private var chatroomId: String?
     private var currentPage: Int
     private let pageSize: Int
     private var isAPICallInProgress: Bool
     private var shouldAllowAPICall: Bool
+    public var searchOnlyConversations: Bool = false
 
-    init(delegate: LMChatSearchListViewProtocol? = nil) {
+    init(delegate: LMChatSearchConversationListViewProtocol? = nil) {
         self.delegate = delegate
 
-        headerChatroomData = []
-        titleFollowedChatroomData = []
-        titleNotFollowedChatroomData = []
         followedConversationData = []
         notFollowedConversationData = []
 
@@ -66,9 +63,6 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
         self.searchString = searchString.trimmingCharacters(
             in: .whitespacesAndNewlines)
 
-        headerChatroomData.removeAll(keepingCapacity: true)
-        titleFollowedChatroomData.removeAll(keepingCapacity: true)
-        titleNotFollowedChatroomData.removeAll(keepingCapacity: true)
         followedConversationData.removeAll(keepingCapacity: true)
         notFollowedConversationData.removeAll(keepingCapacity: true)
 
@@ -93,69 +87,11 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
 
         isAPICallInProgress = true
 
-        if !searchOnlyConversations {
-            searchChatroomList(
-                searchString: searchString)
-        } else {
-            searchConversationList(
-                searchString: searchString)
-        }
+        searchConversationList(
+            searchString: searchString)
     }
-
-    // MARK: API CALL
-    private func searchChatroomList(
-        searchString: String
-    ) {
-        let request = SearchChatroomRequest.builder()
-            .page(currentPage)
-            .pageSize(pageSize)
-            .search(searchString)
-            .build()
-
-        LMChatClient.shared.searchChatroom(request: request) {
-            [weak self] response in
-            self?.isAPICallInProgress = false
-            self?.delegate?.showHideFooterLoader(isShow: false)
-
-            guard let self,
-                let chatrooms = response.data?.conversations
-            else {
-                self?.convertToContentModel()
-                return
-            }
-
-            currentPage += 1
-
-            let chatroomData: [LMChatSearchChatroomDataModel] =
-                chatrooms.compactMap { chatroom in
-                    self.convertToChatroomData(
-                        from: chatroom.chatroom, member: chatroom.member)
-                }
-
-            convertToContentModel()
-        }
-    }
-
-    private func convertToChatroomData(
-        from chatroom: _Chatroom_?, member: Member?
-    ) -> LMChatSearchChatroomDataModel? {
-        guard let chatroom,
-            let id = chatroom.id,
-            let user = generateUserDetails(from: member)
-        else { return .none }
-
-        return .init(
-            id: id,
-            chatroomTitle: chatroom.header ?? "",
-            chatroomImage: chatroom.chatroomImageUrl,
-            isFollowed: chatroom.followStatus ?? false,
-            title: chatroom.title,
-            createdAt: Double(chatroom.createdAt ?? "") ?? 0,
-            user: user
-        )
-    }
-
-    public func fetchMoreData() {
+    
+    public func fetchMoreData(){
         fetchData(searchString: searchString)
     }
 
@@ -228,36 +164,22 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
 }
 
 // MARK: Convert To Content Model
-extension LMChatSearchListViewModel {
+extension LMChatSearchConversationListViewModel {
     func convertToContentModel() {
-        var dataModel: [LMChatSearchListViewController.ContentModel] = []
+        var dataModel:
+            [LMChatSearchConversationListViewController.ContentModel] = []
 
-        if !headerChatroomData.isEmpty {
-            let followedChatroomConverted = convertChatroomCell(
-                from: headerChatroomData)
-            dataModel.append(.init(title: nil, data: followedChatroomConverted))
-        }
-
-        if !titleFollowedChatroomData.isEmpty
-            || !titleNotFollowedChatroomData.isEmpty
-            || !followedConversationData.isEmpty
+        if !followedConversationData.isEmpty
             || !notFollowedConversationData.isEmpty
         {
-
-            let titleFollowedData = convertTitleMessageCell(
-                from: titleFollowedChatroomData, isJoined: true)
             let followedConversationData = convertMessageCell(
                 from: followedConversationData, isJoined: true)
-            let titleNotFollowedData = convertTitleMessageCell(
-                from: titleNotFollowedChatroomData, isJoined: false)
             let notFollowedConversationData = convertMessageCell(
                 from: notFollowedConversationData, isJoined: false)
 
             var sectionData: [LMChatSearchCellDataProtocol] = []
 
-            sectionData.append(contentsOf: titleFollowedData)
             sectionData.append(contentsOf: followedConversationData)
-            sectionData.append(contentsOf: titleNotFollowedData)
             sectionData.append(contentsOf: notFollowedConversationData)
 
             dataModel.append(
@@ -267,16 +189,6 @@ extension LMChatSearchListViewModel {
         }
 
         delegate?.updateSearchList(with: dataModel)
-    }
-
-    private func convertChatroomCell(from data: [LMChatSearchChatroomDataModel])
-        -> [LMChatSearchChatroomCell.ContentModel]
-    {
-        data.map {
-            .init(
-                chatroomID: $0.id, image: $0.chatroomImage,
-                chatroomName: $0.chatroomTitle)
-        }
     }
 
     private func convertTitleMessageCell(
@@ -313,5 +225,24 @@ extension LMChatSearchListViewModel {
                 userImageUrl: $0.user.imageURL
             )
         }
+    }
+
+    private func convertToChatroomData(
+        from chatroom: _Chatroom_?, member: Member?
+    ) -> LMChatSearchChatroomDataModel? {
+        guard let chatroom,
+            let id = chatroom.id,
+            let user = generateUserDetails(from: member)
+        else { return .none }
+
+        return .init(
+            id: id,
+            chatroomTitle: chatroom.header ?? "",
+            chatroomImage: chatroom.chatroomImageUrl,
+            isFollowed: chatroom.followStatus ?? false,
+            title: chatroom.title,
+            createdAt: Double(chatroom.createdAt ?? "") ?? 0,
+            user: user
+        )
     }
 }
