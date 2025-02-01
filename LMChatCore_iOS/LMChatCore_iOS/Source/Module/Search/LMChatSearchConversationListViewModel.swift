@@ -191,27 +191,9 @@ extension LMChatSearchConversationListViewModel {
         delegate?.updateSearchList(with: dataModel)
     }
 
-    private func convertTitleMessageCell(
-        from data: [LMChatSearchChatroomDataModel], isJoined: Bool
-    ) -> [LMChatSearchMessageCell.ContentModel] {
-        data.map {
-            .init(
-                chatroomID: $0.id,
-                messageID: nil,
-                chatroomName: $0.chatroomTitle,
-                message: $0.title ?? "",
-                senderName: $0.user.firstName,
-                date: $0.createdAt,
-                isJoined: isJoined,
-                highlightedText: searchString,
-                userImageUrl: $0.user.imageURL
-            )
-        }
-    }
-
     private func convertMessageCell(
         from data: [LMChatSearchConversationDataModel], isJoined: Bool
-    ) -> [LMChatSearchMessageCell.ContentModel] {
+    ) -> [LMChatSearchConversationMessageCell.ContentModel] {
         data.map {
             .init(
                 chatroomID: $0.chatroomDetails.id,

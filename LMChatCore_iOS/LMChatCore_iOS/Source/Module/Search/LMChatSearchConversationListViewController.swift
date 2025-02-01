@@ -20,7 +20,7 @@ public class LMChatSearchConversationListViewController: LMViewController {
     open private(set) lazy var tableView: LMTableView = {
         let table = LMTableView(frame: .zero, style: .grouped)
             .translatesAutoresizingMaskIntoConstraints()
-        table.register(LMUIComponents.shared.searchMessageCell)
+        table.register(LMUIComponents.shared.searchConversationMessageCell)
         table.dataSource = self
         table.delegate = self
         table.estimatedSectionHeaderHeight = .leastNonzeroMagnitude
@@ -166,7 +166,7 @@ extension LMChatSearchConversationListViewController: UITableViewDataSource,
                 .chatroom(chatroomId: cell.chatroomID, conversationID: nil),
                 from: self, params: nil)
         } else if let cell = searchResults[indexPath.section].data[
-            indexPath.row] as? LMChatSearchMessageCell.ContentModel
+            indexPath.row] as? LMChatSearchConversationMessageCell.ContentModel
         {
             LMChatCore.analytics?.trackEvent(
                 for: .messageSearched,
