@@ -16,10 +16,43 @@ public protocol LMChatSearchListViewProtocol: AnyObject {
 }
 
 final public class LMChatSearchListViewModel: LMChatBaseViewModel {
+    public enum APIStatus {
+        case headerChatroomFollowTrue
+        case headerChatroomFollowFalse
+        case titleChatroomFollowTrue
+        case conversationFollowTrue
+        case titleChatroomFollowFalse
+        case conversationFollowFalse
 
-    public static func createModule()
-        throws -> LMChatSearchListViewController
-    {
+        var followStatus: Bool {
+            switch self {
+            case .headerChatroomFollowTrue,
+                .titleChatroomFollowTrue,
+                .conversationFollowTrue:
+                return true
+            case .headerChatroomFollowFalse,
+                .titleChatroomFollowFalse,
+                .conversationFollowFalse:
+                return false
+            }
+        }
+
+        var searchType: String {
+            switch self {
+            case .headerChatroomFollowTrue,
+                .headerChatroomFollowFalse:
+                return "header"
+            case .titleChatroomFollowTrue,
+                .titleChatroomFollowFalse:
+                return "title"
+            case .conversationFollowTrue,
+                .conversationFollowFalse:
+                return ""
+            }
+        }
+    }
+
+    public static func createModule() throws -> LMChatSearchListViewController {
         guard LMChatCore.isInitialized else {
             throw LMChatError.chatNotInitialized
         }
@@ -40,6 +73,7 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
     var notFollowedConversationData: [LMChatSearchConversationDataModel]
 
     private var searchString: String
+    private var currentAPIStatus: APIStatus
     private var currentPage: Int
     private let pageSize: Int
     private var isAPICallInProgress: Bool
@@ -55,6 +89,7 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
         notFollowedConversationData = []
 
         searchString = ""
+        currentAPIStatus = .headerChatroomFollowTrue
         currentPage = 1
         pageSize = 10
 
@@ -79,8 +114,38 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
 
         shouldAllowAPICall = true
         isAPICallInProgress = false
+        currentAPIStatus = .headerChatroomFollowTrue
         currentPage = 1
         fetchData(searchString: searchString)
+    }
+
+    func fetchMoreData() {
+        fetchData(searchString: searchString)
+    }
+
+    private func setNewAPIStatus() {
+        // This means we have fetched all available data, no need to progress further
+        if currentAPIStatus == .conversationFollowFalse {
+            shouldAllowAPICall = false
+            convertToContentModel()
+            return
+        }
+
+        currentPage = 1
+
+        if currentAPIStatus == .headerChatroomFollowTrue {
+            currentAPIStatus = .headerChatroomFollowFalse
+        } else if currentAPIStatus == .headerChatroomFollowFalse {
+            currentAPIStatus = .titleChatroomFollowTrue
+        } else if currentAPIStatus == .titleChatroomFollowTrue {
+            currentAPIStatus = .conversationFollowTrue
+        } else if currentAPIStatus == .conversationFollowTrue {
+            currentAPIStatus = .titleChatroomFollowFalse
+        } else if currentAPIStatus == .titleChatroomFollowFalse {
+            currentAPIStatus = .conversationFollowFalse
+        }
+
+        fetchMoreData()
     }
 
     private func fetchData(searchString: String) {
@@ -93,23 +158,33 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
 
         isAPICallInProgress = true
 
-        if !searchOnlyConversations {
+        switch currentAPIStatus {
+        case .headerChatroomFollowTrue,
+            .headerChatroomFollowFalse,
+            .titleChatroomFollowTrue,
+            .titleChatroomFollowFalse:
             searchChatroomList(
-                searchString: searchString)
-        } else {
+                searchString: searchString,
+                isFollowed: currentAPIStatus.followStatus,
+                searchType: currentAPIStatus.searchType)
+        case .conversationFollowTrue,
+            .conversationFollowFalse:
             searchConversationList(
-                searchString: searchString)
+                searchString: searchString,
+                followStatus: currentAPIStatus.followStatus)
         }
     }
 
     // MARK: API CALL
     private func searchChatroomList(
-        searchString: String
+        searchString: String, isFollowed: Bool, searchType: String
     ) {
         let request = SearchChatroomRequest.builder()
+            .followStatus(isFollowed)
             .page(currentPage)
             .pageSize(pageSize)
             .search(searchString)
+            .searchType(searchType)
             .build()
 
         LMChatClient.shared.searchChatroom(request: request) {
@@ -132,7 +207,23 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
                         from: chatroom.chatroom, member: chatroom.member)
                 }
 
-            convertToContentModel()
+            switch currentAPIStatus {
+            case .headerChatroomFollowTrue,
+                .headerChatroomFollowFalse:
+                headerChatroomData.append(contentsOf: chatroomData)
+            case .titleChatroomFollowTrue:
+                titleFollowedChatroomData.append(contentsOf: chatroomData)
+            case .titleChatroomFollowFalse:
+                titleNotFollowedChatroomData.append(contentsOf: chatroomData)
+            default:
+                break
+            }
+
+            if chatrooms.count < pageSize {
+                setNewAPIStatus()
+            } else {
+                convertToContentModel()
+            }
         }
     }
 
@@ -155,17 +246,14 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
         )
     }
 
-    public func fetchMoreData() {
-        fetchData(searchString: searchString)
-    }
-
     private func searchConversationList(
-        searchString: String
+        searchString: String, followStatus: Bool
     ) {
         let request = SearchConversationRequest.builder()
             .search(searchString)
             .page(currentPage)
             .pageSize(pageSize)
+            .followStatus(followStatus)
             .build()
 
         LMChatClient.shared.searchConversation(request: request) {
@@ -195,13 +283,24 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
                         chatroomDetails: chatroomData,
                         message: conversation.answer,
                         createdAt: conversation.createdAt,
-                        updatedAt: conversation.lastUpdated,
-                        user: self.generateUserDetails(
-                            from: conversation.member)!
+                        updatedAt: conversation.lastUpdated
                     )
                 }
 
-            convertToContentModel()
+            switch currentAPIStatus {
+            case .conversationFollowTrue:
+                followedConversationData.append(contentsOf: conversationData)
+            case .conversationFollowFalse:
+                notFollowedConversationData.append(contentsOf: conversationData)
+            default:
+                break
+            }
+
+            if conversations.count < pageSize {
+                setNewAPIStatus()
+            } else {
+                convertToContentModel()
+            }
         }
     }
 
@@ -259,10 +358,7 @@ extension LMChatSearchListViewModel {
             sectionData.append(contentsOf: titleNotFollowedData)
             sectionData.append(contentsOf: notFollowedConversationData)
 
-            dataModel.append(
-                .init(
-                    title: searchOnlyConversations ? nil : "Messages",
-                    data: sectionData))
+            dataModel.append(.init(title: "Messages", data: sectionData))
         }
 
         delegate?.updateSearchList(with: dataModel)
@@ -290,8 +386,7 @@ extension LMChatSearchListViewModel {
                 senderName: $0.user.firstName,
                 date: $0.createdAt,
                 isJoined: isJoined,
-                highlightedText: searchString,
-                userImageUrl: $0.user.imageURL
+                highlightedText: searchString
             )
         }
     }
@@ -308,8 +403,7 @@ extension LMChatSearchListViewModel {
                 senderName: $0.chatroomDetails.user.firstName,
                 date: $0.updatedAt,
                 isJoined: isJoined,
-                highlightedText: searchString,
-                userImageUrl: $0.user.imageURL
+                highlightedText: searchString
             )
         }
     }
