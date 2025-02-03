@@ -9,24 +9,96 @@ import UIKit
 
 protocol BaseContentModel {}
 
+/// A delegate protocol for handling user interactions and scroll events on the home feed list view.
+///
+/// Implementers of this protocol are expected to respond to events such as cell taps, scroll events, and
+/// requests to fetch more data (e.g., for pagination). In addition, the protocol provides optional methods
+/// to handle secret chatroom invite actions. Default (empty) implementations are provided so that conforming
+/// types can choose to override only the methods they need.
+///
+/// Methods:
+/// - didTapOnCell(indexPath:): Called when a cell is tapped.
+/// - fetchMoreData(): Called when more data should be loaded (e.g., when scrolling to the bottom).
+/// - scrollViewDidEndDragging(_:willDecelerate:): Called when the user stops dragging the scroll view.
+/// - scrollViewDidScroll(_:): Called continuously as the user scrolls.
+/// - didAcceptSecretChatroomInvite(data:): Called when a secret chatroom invite is accepted.
+/// - didRejectSecretChatroomInvite(data:): Called when a secret chatroom invite is rejected.
 public protocol LMHomFeedListViewDelegate: AnyObject {
+    /**
+     Called when a cell at the specified index path is tapped.
+
+     - Parameter indexPath: The index path of the tapped cell.
+     */
     func didTapOnCell(indexPath: IndexPath)
+
+    /**
+     Called when more data should be fetched, typically used for pagination.
+     */
     func fetchMoreData()
+
+    /**
+     Called when the scroll view ends dragging.
+
+     - Parameters:
+       - scrollView: The scroll view that ended dragging.
+       - decelerate: A Boolean indicating whether the scroll view will continue to decelerate.
+     */
     func scrollViewDidEndDragging(
         _ scrollView: UIScrollView, willDecelerate decelerate: Bool)
+
+    /**
+     Called continuously as the scroll view is scrolled.
+
+     - Parameter scrollView: The scroll view that is scrolling.
+     */
     func scrollViewDidScroll(_ scrollView: UIScrollView)
 }
 
 extension LMHomFeedListViewDelegate {
+    /**
+     Default implementation for handling cell tap events.
+
+     - Parameter indexPath: The index path of the tapped cell.
+     */
     public func didTapOnCell(indexPath: IndexPath) {}
+
+    /**
+     Default implementation for fetching more data.
+     */
     public func fetchMoreData() {}
+
+    /**
+     Default implementation for handling the end of dragging events in the scroll view.
+
+     - Parameters:
+       - scrollView: The scroll view that ended dragging.
+       - decelerate: A Boolean indicating whether the scroll view will continue to decelerate.
+     */
     public func scrollViewDidEndDragging(
         _ scrollView: UIScrollView, willDecelerate decelerate: Bool
     ) {}
+
+    /**
+     Default implementation for handling scrolling events.
+
+     - Parameter scrollView: The scroll view that is scrolling.
+     */
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {}
+
+    /**
+     Default implementation for handling acceptance of a secret chatroom invite.
+
+     - Parameter data: The content model associated with the secret chatroom invite.
+     */
     public func didAcceptSecretChatroomInvite(
         data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
     ) {}
+
+    /**
+     Default implementation for handling rejection of a secret chatroom invite.
+
+     - Parameter data: The content model associated with the secret chatroom invite.
+     */
     public func didRejectSecretChatroomInvite(
         data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
     ) {}
@@ -286,13 +358,40 @@ extension LMChatHomeFeedListView: UITableViewDataSource, UITableViewDelegate {
         tableSections[section].data.count
     }
 
+    /**
+     Returns the configured table view cell for the specified index path.
+
+     This method determines which type of cell to dequeue and configure based on the section type of the
+     `tableSections` array. There are three supported section types:
+
+     - **.exploreTab**: Dequeues a cell for exploring the home feed. It casts the corresponding data item
+       to a `LMChatHomeFeedExploreTabCell.ContentModel`, configures the cell, and returns it.
+
+     - **.secretChatroomInvite**: Dequeues a cell for secret chatroom invites. It casts the corresponding data item
+       to a `LMChatHomeFeedSecretChatroomInviteCell.ContentModel`, configures the cell, assigns its delegate, and returns it.
+
+     - **.chatrooms**: Dequeues a cell for chatrooms. It casts the corresponding data item to a
+       `LMChatHomeFeedChatroomCell.ContentModel`, configures the cell, and triggers fetching of more data
+       if the current row is near the end of the list (last 4 items). Then it returns the cell.
+
+     If no cell can be dequeued or configured, a default `UITableViewCell` is returned.
+
+     - Parameters:
+        - tableView: The `UITableView` requesting the cell.
+        - indexPath: The `IndexPath` indicating the row and section of the cell.
+     - Returns: A configured `UITableViewCell` instance ready for display.
+     */
     open func tableView(
         _ tableView: UITableView, cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
+        // Retrieve the list of items for the given section.
         let items = tableSections[indexPath.section].data
 
+        // Switch based on the section type to determine which cell to dequeue and configure.
         switch tableSections[indexPath.section].sectionType {
+
         case .exploreTab:
+            // Attempt to cast the item at the specified row to the explore tab content model and dequeue the appropriate cell.
             if let item = items[indexPath.row]
                 as? LMChatHomeFeedExploreTabCell.ContentModel,
                 let cell = tableView.dequeueReusableCell(
@@ -301,29 +400,37 @@ extension LMChatHomeFeedListView: UITableViewDataSource, UITableViewDelegate {
                 cell.configure(with: item)
                 return cell
             }
+
         case .secretChatroomInvite:
+            // Attempt to cast the item at the specified row to the secret chatroom invite content model and dequeue the appropriate cell.
             if let item = items[indexPath.row]
                 as? LMChatHomeFeedSecretChatroomInviteCell.ContentModel,
                 let cell = tableView.dequeueReusableCell(
                     LMUIComponents.shared.homeFeedSecretChatroomInviteCell)
             {
                 cell.configure(with: item)
+                // Set the delegate for handling actions on the secret chatroom invite cell.
                 cell.delegate = self
                 return cell
             }
+
         case .chatrooms:
+            // Attempt to cast the item at the specified row to the chatroom content model and dequeue the appropriate cell.
             if let item = items[indexPath.row]
                 as? LMChatHomeFeedChatroomCell.ContentModel,
                 let cell = tableView.dequeueReusableCell(
                     LMUIComponents.shared.homeFeedChatroomCell)
             {
                 cell.configure(with: item)
+                // Trigger fetching more data if the user is nearing the end of the current list (last 4 items).
                 if indexPath.row >= (items.count - 4) {
                     self.delegate?.fetchMoreData()
                 }
                 return cell
             }
         }
+
+        // Return an empty UITableViewCell if no cell could be dequeued or configured.
         return UITableViewCell()
     }
 
@@ -350,14 +457,33 @@ extension LMChatHomeFeedListView: UITableViewDataSource, UITableViewDelegate {
     }
 }
 
+/// This extension makes `LMChatHomeFeedListView` conform to the `LMChatHomeFeedSecretChatroomInviteCellDelegate` protocol.
+///
+/// It handles user interactions within secret chatroom invite cells by forwarding button tap events to the
+/// appropriate delegate methods, enabling the rest of the application to respond to accept or reject actions.
 extension LMChatHomeFeedListView: LMChatHomeFeedSecretChatroomInviteCellDelegate
 {
+
+    /**
+     Called when the accept button is tapped within a secret chatroom invite cell.
+
+     This method forwards the event to the delegate by calling `didAcceptSecretChatroomInvite(data:)`.
+
+     - Parameter data: The content model representing the secret chatroom invite cell.
+     */
     func didTapAcceptButton(
         in data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
     ) {
         self.delegate?.didAcceptSecretChatroomInvite(data: data)
     }
 
+    /**
+     Called when the reject button is tapped within a secret chatroom invite cell.
+
+     This method forwards the event to the delegate by calling `didRejectSecretChatroomInvite(data:)`.
+
+     - Parameter data: The content model representing the secret chatroom invite cell.
+     */
     func didTapRejectButton(
         in data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
     ) {
