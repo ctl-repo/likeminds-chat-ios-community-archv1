@@ -109,40 +109,26 @@ public struct LMUIComponents {
     public var audioContentView: LMChatAudioContentView.Type =
         LMChatAudioContentView.self
     public var audioPreview: LMChatAudioPreview.Type = LMChatAudioPreview.self
-    public var voiceNotePreview: LMChatVoiceNotePreview.Type =
-        LMChatVoiceNotePreview.self
-    public var linkContentView: LMChatLinkPreviewContentView.Type =
-        LMChatLinkPreviewContentView.self
-    public var messageLinkPreview: LMChatMessageLinkPreview.Type =
-        LMChatMessageLinkPreview.self
-
-    public var reactionViewCell: LMChatReactionViewCell.Type =
-        LMChatReactionViewCell.self
-    public var reactionTitleCell: LMChatReactionTitleCell.Type =
-        LMChatReactionTitleCell.self
-
-    public var searchMessageCell: LMChatSearchMessageCell.Type =
-        LMChatSearchMessageCell.self
-    public var searchChatroomCell: LMChatSearchChatroomCell.Type =
-        LMChatSearchChatroomCell.self
-    public var approveRejectRequestView: LMChatApproveRejectView.Type =
-        LMChatApproveRejectView.self
-
-    public var createPollDisplayView: LMChatCreateDisplayPollView.Type =
-        LMChatCreateDisplayPollView.self
-    public var createPollDisplayWidget: LMChatDisplayCreatePollWidget.Type =
-        LMChatDisplayCreatePollWidget.self
-    public var createPollHeaderView: LMChatCreatePollHeader.Type =
-        LMChatCreatePollHeader.self
-    public var createPollQuestionView: LMChatCreatePollQuestionView.Type =
-        LMChatCreatePollQuestionView.self
-    public var createPollDateView: LMChatCreatePollDateView.Type =
-        LMChatCreatePollDateView.self
-    public var createPollMetaView: LMChatCreatePollMetaView.Type =
-        LMChatCreatePollMetaView.self
-    public var createPollOptionCell: LMChatCreatePollOptionWidget.Type =
-        LMChatCreatePollOptionWidget.self
-
+    public var voiceNotePreview: LMChatVoiceNotePreview.Type = LMChatVoiceNotePreview.self
+    public var linkContentView: LMChatLinkPreviewContentView.Type = LMChatLinkPreviewContentView.self
+    public var messageLinkPreview: LMChatMessageLinkPreview.Type = LMChatMessageLinkPreview.self
+    
+    public var reactionViewCell: LMChatReactionViewCell.Type = LMChatReactionViewCell.self
+    public var reactionTitleCell: LMChatReactionTitleCell.Type = LMChatReactionTitleCell.self
+    
+    public var searchMessageCell: LMChatSearchMessageCell.Type = LMChatSearchMessageCell.self
+    public var searchChatroomCell: LMChatSearchChatroomCell.Type = LMChatSearchChatroomCell.self
+    public var searchConversationMessageCell: LMChatSearchConversationMessageCell.Type = LMChatSearchConversationMessageCell.self
+    public var approveRejectRequestView: LMChatApproveRejectView.Type = LMChatApproveRejectView.self
+    
+    public var createPollDisplayView: LMChatCreateDisplayPollView.Type = LMChatCreateDisplayPollView.self
+    public var createPollDisplayWidget: LMChatDisplayCreatePollWidget.Type = LMChatDisplayCreatePollWidget.self
+    public var createPollHeaderView: LMChatCreatePollHeader.Type = LMChatCreatePollHeader.self
+    public var createPollQuestionView: LMChatCreatePollQuestionView.Type = LMChatCreatePollQuestionView.self
+    public var createPollDateView: LMChatCreatePollDateView.Type = LMChatCreatePollDateView.self
+    public var createPollMetaView: LMChatCreatePollMetaView.Type = LMChatCreatePollMetaView.self
+    public var createPollOptionCell: LMChatCreatePollOptionWidget.Type = LMChatCreatePollOptionWidget.self
+    
     // MARK: Display Poll Components
     public var pollContentView: LMChatPollContentView.Type =
         LMChatPollContentView.self
