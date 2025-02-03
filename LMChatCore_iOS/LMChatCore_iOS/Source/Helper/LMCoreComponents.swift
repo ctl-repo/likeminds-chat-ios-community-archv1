@@ -37,6 +37,7 @@ public struct LMCoreComponents {
     
     // MARK: Search List Screen
     public var searchListScreen: LMChatSearchListViewController.Type = LMChatSearchListViewController.self
+    public var searchConversationListScreen: LMChatSearchConversationListViewController.Type = LMChatSearchConversationListViewController.self
     
     //MARK: DM Screen
     public var dmChatFeedScreen: LMChatDMFeedViewController.Type = LMChatDMFeedViewController.self
