@@ -135,31 +135,49 @@ extension LMChatGroupFeedViewController: LMChatGroupFeedViewModelProtocol {
                 unseenChatroomsCount: countData.unseenChatroomCount))
     }
 
+    /**
+     Updates the home feed with secret chatroom invites data and optionally navigates to a specific chatroom.
+
+     This method performs the following steps:
+     1. Retrieves secret chatroom invites data from the view model. If no data is available, the method returns early.
+     2. Transforms the raw secret chatroom invites data into an array of `LMChatHomeFeedSecretChatroomInviteCell.ContentModel` objects.
+        - For each invite, it converts associated chatroom and invite sender/receiver data into view data formats.
+     3. Updates the home feed view (via `feedListView`) with the transformed secret chatroom invites.
+     4. If a `chatroomId` is provided, navigates to the chatroom using the shared navigation screen.
+
+     - Parameter chatroomId: An optional string representing the chatroom identifier. If provided, the method
+       will trigger a navigation to that chatroom after updating the feed.
+     */
     public func updateHomeFeedSecretChatroomInvitesData(chatroomId: String?) {
+        // Ensure that secret chatroom invites data exists in the view model.
         guard let secretChatroomInvites = viewModel?.secretChatroomInvites
         else { return }
 
+        // Map the raw secret chatroom invite objects into the cell content models for display.
         var secretChatroomInviteContentList:
             [LMChatHomeFeedSecretChatroomInviteCell.ContentModel] =
                 secretChatroomInvites.compactMap { invite in
-
                     return LMChatHomeFeedSecretChatroomInviteCell.ContentModel(
                         chatroom: invite.chatroom.toViewData(),
-                        createdAt: invite.createdAt, id: invite.id,
+                        createdAt: invite.createdAt,
+                        id: invite.id,
                         inviteStatus: invite.inviteStatus,
                         updatedAt: invite.updatedAt,
                         inviteSender: invite.inviteSender.toViewData(),
-                        inviteReceiver: invite.inviteReceiver.toViewData())
+                        inviteReceiver: invite.inviteReceiver.toViewData()
+                    )
                 }
 
+        // Update the feed list view with the newly mapped secret chatroom invite content.
         feedListView.updateSecretChatroomInviteCell(
             secretChatroomInvites: secretChatroomInviteContentList)
 
+        // If a chatroom ID is provided, navigate to the corresponding chatroom.
         if let chatroomId {
             NavigationScreen.shared.perform(
-                .chatroom(
-                    chatroomId: chatroomId, conversationID: nil),
-                from: self, params: nil)
+                .chatroom(chatroomId: chatroomId, conversationID: nil),
+                from: self, params: nil
+            )
         }
     }
 

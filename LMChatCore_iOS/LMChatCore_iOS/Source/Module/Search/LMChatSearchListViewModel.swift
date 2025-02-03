@@ -267,10 +267,6 @@ final public class LMChatSearchListViewModel: LMChatBaseViewModel {
                 followStatus: currentAPIStatus.followStatus)
         }
     }
-    
-    public func fetchMoreData(){
-        fetchData(searchString: searchString)
-    }
 
     // MARK: - API Calls
 
