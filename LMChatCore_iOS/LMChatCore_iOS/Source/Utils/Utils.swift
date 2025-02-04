@@ -6,6 +6,7 @@
 //
 
 import LikeMindsChatData
+import LikeMindsChatUI
 import UIKit
 
 func convertToAttachmentList(from mediaDataList: [LMChatAttachmentUploadModel])
@@ -71,36 +72,36 @@ func isOtherUserAIChatbot(chatroom: Chatroom) -> Bool {
 /// Returns the conversation type based on the attachments and ogTags of a conversation.
 /// - Parameter conversation: The conversation from which to determine the type.
 /// - Returns: A string representing the conversation type (e.g., "image", "video", "doc", etc.).
-func getConversationType(_ attachments: [Attachment]) -> String {
-    
+func getConversationType(_ attachments: [LMChatMessageListView.ContentModel.Attachment]?) -> String {
+
     // Count how many attachments exist for each media type
-//    let imageCount = getMediaCount(mediaType: "image", attachments: attachments)
-//    let gifCount = getMediaCount(mediaType: "gif", attachments: attachments)
-//    let videoCount = getMediaCount(mediaType: "video", attachments: attachments)
-//    let pdfCount = getMediaCount(mediaType: "pdf", attachments: attachments)
-//    let audioCount = getMediaCount(mediaType: "audio", attachments: attachments)
-//    let voiceNoteCount = getMediaCount(mediaType: "voice_note", attachments: attachments)
-    
+    let imageCount = getMediaCount(mediaType: "image", attachments: attachments)
+    let gifCount = getMediaCount(mediaType: "gif", attachments: attachments)
+    let videoCount = getMediaCount(mediaType: "video", attachments: attachments)
+    let pdfCount = getMediaCount(mediaType: "pdf", attachments: attachments)
+    let audioCount = getMediaCount(mediaType: "audio", attachments: attachments)
+    let voiceNoteCount = getMediaCount(
+        mediaType: "voice_note", attachments: attachments)
+
     // Determine the conversation type using the counts and any link in ogTags
-//    switch true {
-//    case imageCount > 0 && videoCount > 0:
-//        return "image, video"
-//    case imageCount > 0:
-//        return "image"
-//    case gifCount > 0:
-//        return "gif"
-//    case videoCount > 0:
-//        return "video"
-//    case pdfCount > 0:
-//        return "doc"
-//    case audioCount > 0:
-//        return "audio"
-//    case voiceNoteCount > 0:
-//        return "voice note"
-//    default:
-//        return "text"
-//    }
-    return "text"
+    switch true {
+    case imageCount > 0 && videoCount > 0:
+        return "image, video"
+    case imageCount > 0:
+        return "image"
+    case gifCount > 0:
+        return "gif"
+    case videoCount > 0:
+        return "video"
+    case pdfCount > 0:
+        return "doc"
+    case audioCount > 0:
+        return "audio"
+    case voiceNoteCount > 0:
+        return "voice note"
+    default:
+        return "text"
+    }
 }
 
 /// Returns the number of attachments that match the specified media type.
@@ -108,11 +109,11 @@ func getConversationType(_ attachments: [Attachment]) -> String {
 ///   - mediaType: The media type to look for (e.g., IMAGE, VIDEO, etc.).
 ///   - attachments: An optional array of `AttachmentViewData`.
 /// - Returns: The number of attachments matching `mediaType`.
-func getMediaCount(mediaType: String, attachments: [Attachment]?) -> Int {
+func getMediaCount(mediaType: String, attachments: [LMChatMessageListView.ContentModel.Attachment]?) -> Int {
     guard let attachments = attachments else {
         return 0
     }
-    return attachments.filter { $0.type == mediaType }.count
+    return attachments.filter { $0.fileType == mediaType }.count
 }
 
 /// Returns either the `collabcard_id` or the `chatroom_id` from the given URL string.
@@ -128,19 +129,22 @@ func getMediaCount(mediaType: String, attachments: [Attachment]?) -> Int {
 /// - Returns: The collabcard_id or chatroom_id, if found. Otherwise, `nil`.
 public func getChatroomIdFromRoute(from route: String?) -> String? {
     guard let route = route,
-          let url = URL(string: route),
-          let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-          let queryItems = components.queryItems else {
+        let url = URL(string: route),
+        let components = URLComponents(
+            url: url, resolvingAgainstBaseURL: false),
+        let queryItems = components.queryItems
+    else {
         return nil
     }
-    
+
     // Attempt to fetch "collabcard_id" first
-    let collabcardId = queryItems.first(where: { $0.name == "collabcard_id" })?.value
-    
+    let collabcardId = queryItems.first(where: { $0.name == "collabcard_id" })?
+        .value
+
     // If collabcardId is nil, try "chatroom_id"
-    let chatroomId = queryItems.first(where: { $0.name == "chatroom_id" })?.value
-    
+    let chatroomId = queryItems.first(where: { $0.name == "chatroom_id" })?
+        .value
+
     // Return whichever ID is non-nil (in your scenario, never both)
     return collabcardId ?? chatroomId
 }
-

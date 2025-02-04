@@ -862,7 +862,7 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
             viewModel?.copyConversation(conversationIds: [message.messageId])
             break
         case .report:
-            NavigationScreen.shared.perform(.report(chatroomId: nil, conversationId: message.messageId, memberId: nil, type: getConversationType([])), from: self, params: nil)
+            NavigationScreen.shared.perform(.report(chatroomId: nil, conversationId: message.messageId, memberId: nil, type: getConversationType(message.attachments)), from: self, params: nil)
         case .select:
             messageListView.isMultipleSelectionEnable = true
             messageListView.justReloadData()
