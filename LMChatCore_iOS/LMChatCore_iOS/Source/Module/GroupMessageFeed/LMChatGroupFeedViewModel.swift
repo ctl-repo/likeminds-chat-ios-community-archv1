@@ -85,7 +85,7 @@ public class LMChatGroupFeedViewModel: LMChatBaseViewModel {
         // 1. Build the request for channel invites, specifying channel type and pagination info.
         let request: GetChannelInvitesRequest =
             GetChannelInvitesRequest.builder()
-            .channelType(1)  // channelType(1) could mean "secret chatroom"
+            .channelType(1)  // channelType(1) could mean chats
             .page(secretChatroomInvitesPageCount)  // current page number
             .pageSize(20)  // fetch 20 invites per page
             .build()

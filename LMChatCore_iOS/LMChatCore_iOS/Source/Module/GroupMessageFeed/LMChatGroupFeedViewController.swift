@@ -16,7 +16,6 @@ open class LMChatGroupFeedViewController: LMViewController {
         let view = LMChatHomeFeedListView()
             .translatesAutoresizingMaskIntoConstraints()
         view.backgroundColor = .systemGroupedBackground
-        view.delegate = self
         return view
     }()
 
@@ -40,6 +39,7 @@ open class LMChatGroupFeedViewController: LMViewController {
                 LMChatAnalyticsKeys.communityId.rawValue: viewModel?
                     .getCommunityId() ?? ""
             ])
+        feedListView.delegate = self
     }
 
     open override func viewDidAppear(_ animated: Bool) {
@@ -185,7 +185,6 @@ extension LMChatGroupFeedViewController: LMChatGroupFeedViewModelProtocol {
 }
 
 extension LMChatGroupFeedViewController: LMHomFeedListViewDelegate {
-
     public func didTapOnCell(indexPath: IndexPath) {
         switch feedListView.tableSections[indexPath.section].sectionType {
         case .exploreTab:
@@ -215,22 +214,24 @@ extension LMChatGroupFeedViewController: LMHomFeedListViewDelegate {
     public func didAcceptSecretChatroomInvite(
         data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
     ) {
-        print("Inside function")
         guard let viewModel else { return }
+        
+        var stringConstant = Constants.shared.strings
+        
         // Create and configure the alert controller
         let alertController = UIAlertController(
-            title: "Join this chatroom?",
-            message: "You are about to join this secret chatroom.",
+            title: stringConstant.joinThisChatroom,
+            message: stringConstant.joinThisSecretChatroomDesc,
             preferredStyle: .alert
         )
 
         // Add Cancel action
         let cancelAction = UIAlertAction(
-            title: "CANCEL", style: .cancel, handler: nil)
+            title: stringConstant.cancelAllCaps, style: .cancel, handler: nil)
         alertController.addAction(cancelAction)
 
         // Add Confirm action
-        let confirmAction = UIAlertAction(title: "CONFIRM", style: .default) {
+        let confirmAction = UIAlertAction(title: stringConstant.confirmAllCaps, style: .default) {
             _ in
             // Call the method to update the channel invite
             viewModel.updateChannelInvite(
@@ -245,24 +246,25 @@ extension LMChatGroupFeedViewController: LMHomFeedListViewDelegate {
     public func didRejectSecretChatroomInvite(
         data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
     ) {
-        print("Inside function")
         guard let viewModel else { return }
+        
+        var stringConstant = Constants.shared.strings
 
         // Create and configure the alert controller
         let alertController = UIAlertController(
-            title: "Reject invitation?",
+            title: stringConstant.rejectInvitation,
             message:
-                "Are you sure you want to reject the invitation to join this chatroom?",
+                stringConstant.rejectSecretChatroomInvitationDesc,
             preferredStyle: .alert
         )
 
         // Add Cancel action
         let cancelAction = UIAlertAction(
-            title: "CANCEL", style: .cancel, handler: nil)
+            title: stringConstant.cancelAllCaps , style: .cancel, handler: nil)
         alertController.addAction(cancelAction)
 
         // Add Confirm action
-        let confirmAction = UIAlertAction(title: "CONFIRM", style: .default) {
+        let confirmAction = UIAlertAction(title: stringConstant.confirmAllCaps, style: .default) {
             _ in
             // Call the method to update the channel invite
             viewModel.updateChannelInvite(

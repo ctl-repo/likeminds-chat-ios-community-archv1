@@ -155,6 +155,51 @@ public class LMChatCore {
         }
     }
 
+    /// Called after the user session is initialized.
+    /// This function updates various settings based on the community configuration,
+    /// registers the device if available, and marks the session as fully initialized.
+    private func onPostUserSessionInit(community: Community?) {
+        // Retrieve community-specific settings if available; otherwise, use an empty array.
+        let communitySettings = community?.communitySettings ?? []
+
+        // Check for the setting that allows direct messaging without requiring a connection request.
+        // If the setting is found and it is enabled, store the corresponding value in shared preferences.
+        if let setting = communitySettings.first(where: {
+            $0.type
+                == CommunitySetting.SettingType.enableDMWithoutConnectionRequest
+                .rawValue
+        }), setting.enabled == true {
+            LMSharedPreferences.setValue(
+                true,
+                key: LMSharedPreferencesKeys.isDMWithRequestEnabled.rawValue
+            )
+        } else {
+            // If the setting is not present or is disabled, explicitly store a false value.
+            LMSharedPreferences.setValue(
+                false,
+                key: LMSharedPreferencesKeys.isDMWithRequestEnabled.rawValue
+            )
+        }
+
+        // Check if there is a setting for secret chatroom invites.
+        // If the setting exists, update the LMChatCore's flag accordingly.
+        if let setting = communitySettings.first(where: {
+            $0.type == CommunitySetting.SettingType.secretGroupInvite.rawValue
+        }) {
+            // If the 'enabled' property is nil, default to false.
+            LMChatCore.isSecretChatroomInviteEnabled = setting.enabled ?? false
+        }
+
+        // If a valid device ID exists (i.e., it is non-nil and not empty),
+        // register the device for receiving push notifications or similar services.
+        if let deviceId = self.deviceId, !deviceId.isEmpty {
+            self.registerDevice(deviceId: deviceId)
+        }
+
+        // Mark the initialization process as complete.
+        Self.isInitialized = true
+    }
+
     /// Validates the user using the provided access and refresh tokens.
     ///
     /// - Parameters:
@@ -195,43 +240,7 @@ public class LMChatCore {
                 return
             }
 
-            let communitySettings =
-                response.data?.community?.communitySettings ?? []
-
-            if let setting = communitySettings.first(where: {
-                $0.type
-                    == CommunitySetting.SettingType
-                    .enableDMWithoutConnectionRequest.rawValue
-            }), setting.enabled == true {
-                LMSharedPreferences.setValue(
-                    true,
-                    key: LMSharedPreferencesKeys.isDMWithRequestEnabled.rawValue
-                )
-            } else {
-                LMSharedPreferences.setValue(
-                    false,
-                    key: LMSharedPreferencesKeys.isDMWithRequestEnabled.rawValue
-                )
-            }
-
-            // Check if Secret Chatroom invite setting is present in
-            // communitySettings list,
-            // If it does then update isSecretChatroomInviteEnabled value
-            // using the setting.enabled property
-            if let setting = communitySettings.first(where: {
-                $0.type
-                    == CommunitySetting.SettingType.secretGroupInvite.rawValue
-            }) {
-                LMChatCore.isSecretChatroomInviteEnabled =
-                    setting.enabled ?? false
-            }
-
-            if let deviceId = self?.deviceId, !deviceId.isEmpty {
-                self?.registerDevice(deviceId: deviceId)
-            }
-
-            // Mark as initialized if everything is successful
-            Self.isInitialized = true
+            self?.onPostUserSessionInit(community: response.data?.community)
 
             completionHandler?(.success(()))
         }
@@ -275,44 +284,7 @@ public class LMChatCore {
                 return
             }
 
-            let communitySettings =
-                response.data?.community?
-                .communitySettings ?? []
-
-            if let setting = communitySettings.first(where: {
-                $0.type
-                    == CommunitySetting.SettingType
-                    .enableDMWithoutConnectionRequest.rawValue
-            }), setting.enabled == true {
-                LMSharedPreferences.setValue(
-                    true,
-                    key: LMSharedPreferencesKeys.isDMWithRequestEnabled.rawValue
-                )
-            } else {
-                LMSharedPreferences.setValue(
-                    false,
-                    key: LMSharedPreferencesKeys.isDMWithRequestEnabled.rawValue
-                )
-            }
-
-            // Check if Secret Chatroom invite setting is present in
-            // communitySettings list,
-            // If it does then update isSecretChatroomInviteEnabled value
-            // using the setting.enabled property
-            if let setting = communitySettings.first(where: {
-                $0.type
-                    == CommunitySetting.SettingType.secretGroupInvite.rawValue
-            }) {
-                LMChatCore.isSecretChatroomInviteEnabled =
-                    setting.enabled ?? false
-            }
-
-            if let deviceId = self?.deviceId, !deviceId.isEmpty {
-                self?.registerDevice(deviceId: deviceId)
-            }
-
-            // Mark as initialized if everything is successful
-            Self.isInitialized = true
+            self?.onPostUserSessionInit(community: response.data?.community)
 
             completion?(.success(()))
         }

@@ -52,6 +52,24 @@ public protocol LMHomFeedListViewDelegate: AnyObject {
      - Parameter scrollView: The scroll view that is scrolling.
      */
     func scrollViewDidScroll(_ scrollView: UIScrollView)
+
+    /**
+     Default implementation for handling acceptance of a secret chatroom invite.
+
+     - Parameter data: The content model associated with the secret chatroom invite.
+     */
+    func didAcceptSecretChatroomInvite(
+        data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
+    )
+
+    /**
+     Default implementation for handling rejection of a secret chatroom invite.
+
+     - Parameter data: The content model associated with the secret chatroom invite.
+     */
+    func didRejectSecretChatroomInvite(
+        data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
+    )
 }
 
 extension LMHomFeedListViewDelegate {
@@ -84,24 +102,6 @@ extension LMHomFeedListViewDelegate {
      - Parameter scrollView: The scroll view that is scrolling.
      */
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {}
-
-    /**
-     Default implementation for handling acceptance of a secret chatroom invite.
-
-     - Parameter data: The content model associated with the secret chatroom invite.
-     */
-    public func didAcceptSecretChatroomInvite(
-        data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
-    ) {}
-
-    /**
-     Default implementation for handling rejection of a secret chatroom invite.
-
-     - Parameter data: The content model associated with the secret chatroom invite.
-     */
-    public func didRejectSecretChatroomInvite(
-        data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
-    ) {}
 }
 
 public enum HomeFeedSection: String {
@@ -346,7 +346,35 @@ open class LMChatHomeFeedListView: LMView {
 }
 
 // MARK: UITableView
-extension LMChatHomeFeedListView: UITableViewDataSource, UITableViewDelegate {
+extension LMChatHomeFeedListView: UITableViewDataSource, UITableViewDelegate,
+    LMChatHomeFeedSecretChatroomInviteCellDelegate
+{
+
+    /**
+     Called when the accept button is tapped within a secret chatroom invite cell.
+
+     This method forwards the event to the delegate by calling `didAcceptSecretChatroomInvite(data:)`.
+
+     - Parameter data: The content model representing the secret chatroom invite cell.
+     */
+    public func didTapAcceptButton(
+        in data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
+    ) {
+        self.delegate?.didAcceptSecretChatroomInvite(data: data)
+    }
+
+    /**
+     Called when the reject button is tapped within a secret chatroom invite cell.
+
+     This method forwards the event to the delegate by calling `didRejectSecretChatroomInvite(data:)`.
+
+     - Parameter data: The content model representing the secret chatroom invite cell.
+     */
+    public func didTapRejectButton(
+        in data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
+    ) {
+        self.delegate?.didRejectSecretChatroomInvite(data: data)
+    }
 
     open func numberOfSections(in tableView: UITableView) -> Int {
         tableSections.count
@@ -408,9 +436,7 @@ extension LMChatHomeFeedListView: UITableViewDataSource, UITableViewDelegate {
                 let cell = tableView.dequeueReusableCell(
                     LMUIComponents.shared.homeFeedSecretChatroomInviteCell)
             {
-                cell.configure(with: item)
-                // Set the delegate for handling actions on the secret chatroom invite cell.
-                cell.delegate = self
+                cell.configure(with: item, delegate: self)
                 return cell
             }
 
@@ -454,39 +480,5 @@ extension LMChatHomeFeedListView: UITableViewDataSource, UITableViewDelegate {
     }
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         self.delegate?.scrollViewDidScroll(scrollView)
-    }
-}
-
-/// This extension makes `LMChatHomeFeedListView` conform to the `LMChatHomeFeedSecretChatroomInviteCellDelegate` protocol.
-///
-/// It handles user interactions within secret chatroom invite cells by forwarding button tap events to the
-/// appropriate delegate methods, enabling the rest of the application to respond to accept or reject actions.
-extension LMChatHomeFeedListView: LMChatHomeFeedSecretChatroomInviteCellDelegate
-{
-
-    /**
-     Called when the accept button is tapped within a secret chatroom invite cell.
-
-     This method forwards the event to the delegate by calling `didAcceptSecretChatroomInvite(data:)`.
-
-     - Parameter data: The content model representing the secret chatroom invite cell.
-     */
-    func didTapAcceptButton(
-        in data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
-    ) {
-        self.delegate?.didAcceptSecretChatroomInvite(data: data)
-    }
-
-    /**
-     Called when the reject button is tapped within a secret chatroom invite cell.
-
-     This method forwards the event to the delegate by calling `didRejectSecretChatroomInvite(data:)`.
-
-     - Parameter data: The content model representing the secret chatroom invite cell.
-     */
-    func didTapRejectButton(
-        in data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
-    ) {
-        self.delegate?.didRejectSecretChatroomInvite(data: data)
     }
 }
