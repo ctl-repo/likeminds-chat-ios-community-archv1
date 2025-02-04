@@ -120,6 +120,8 @@ open class LMChatMessageListViewController: LMViewController {
         viewModel?.syncConversation()
         
         setRightNavigationWithAction(title: nil, image: Constants.shared.images.ellipsisCircleIcon, style: .plain, target: self, action: #selector(chatroomActions))
+        // Sets the right most action for searching conversation in the chatroom
+        setRightNavigationWithAction(title: nil, image: Constants.shared.images.searchIcon, style: .plain, target: self, action: #selector(navigateToSearchConversationScreen))
         setupBackButtonItemWithImageView()
         self.navigationController?.interactivePopGestureRecognizer?.delegate = nil
         let attText = GetAttributedTextWithRoutes.getAttributedText(from: LMSharedPreferences.getString(forKey: viewModel?.chatroomId ?? "NA") ?? "")
@@ -262,6 +264,21 @@ open class LMChatMessageListViewController: LMViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    /**
+     Navigates to the search conversation screen.
+     This method attempts to create a search conversation module corresponding to the current chatroom by performing the following steps:
+     */
+    @objc
+    open func navigateToSearchConversationScreen(){
+        do{
+            let searchListVC = try LMChatSearchConversationListViewModel.createModule(chatroomId: viewModel?.chatroomId ?? "")
+            
+            self.navigationController?.pushViewController(searchListVC, animated: true)
+        }catch _{
+            self.showErrorAlert(message: "An error occurred")
+        }
+    }
+    
     @objc
     open func scrollToBottomClicked(_ sender: UIButton) {
         self.scrollToBottomButton.isHidden = true
@@ -297,6 +314,8 @@ open class LMChatMessageListViewController: LMViewController {
         messageListView.selectedItems.removeAll()
         navigationItem.rightBarButtonItems = nil
         setRightNavigationWithAction(title: nil, image: Constants.shared.images.ellipsisCircleIcon, style: .plain, target: self, action: #selector(chatroomActions))
+        // Set the right most action for search conversation in chatroom
+        setRightNavigationWithAction(title: nil, image: Constants.shared.images.searchIcon, style: .plain, target: self, action: #selector(navigateToSearchConversationScreen))
         updateChatroomSubtitles()
         memberRightsCheck()
         messageListView.justReloadData()
