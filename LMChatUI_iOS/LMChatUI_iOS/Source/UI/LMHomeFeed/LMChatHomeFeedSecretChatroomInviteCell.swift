@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 /// A protocol that defines delegate methods for handling actions on secret chatroom invite cells.
-protocol LMChatHomeFeedSecretChatroomInviteCellDelegate: AnyObject {
+public protocol LMChatHomeFeedSecretChatroomInviteCellDelegate: AnyObject {
     /**
      Called when the accept button is tapped in the secret chatroom invite cell.
 
@@ -97,7 +97,7 @@ open class LMChatHomeFeedSecretChatroomInviteCell: LMTableViewCell {
     public var data: ContentModel?
 
     /// The delegate for handling accept and reject button actions.
-    weak var delegate: LMChatHomeFeedSecretChatroomInviteCellDelegate?
+    public weak var delegate: LMChatHomeFeedSecretChatroomInviteCellDelegate?
 
     // MARK: UI Elements
 
@@ -275,8 +275,9 @@ open class LMChatHomeFeedSecretChatroomInviteCell: LMTableViewCell {
 
      The method saves the content model and updates the chatroom view with the invite details.
      */
-    open func configure(with data: ContentModel) {
+    open func configure(with data: ContentModel, delegate: LMChatHomeFeedSecretChatroomInviteCellDelegate?) {
         self.data = data
+        self.delegate = delegate
         setChatroomData(data)
     }
 

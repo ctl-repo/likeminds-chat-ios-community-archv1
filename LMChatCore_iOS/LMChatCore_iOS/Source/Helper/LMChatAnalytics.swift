@@ -42,13 +42,6 @@ final class LMChatAnalytics: LMChatAnalyticsProtocol {
         for eventName: LMChatAnalyticsEventName,
         eventProperties: [String: AnyHashable]
     ) {
-        let track = """
-                ========Event Tracker========
-            Event Name: \(eventName.rawValue)
-            Event Properties: \(eventProperties)
-                =============================
-            """
-        print(track)
         LMChatCore.shared.coreCallback?.onEventTriggered(
             eventName: eventName,
             eventProperties: eventProperties
@@ -69,24 +62,24 @@ final class LMChatAnalytics: LMChatAnalyticsProtocol {
 public enum LMChatAnalyticsEventName: String {
     // Chatroom Events
     case chatroomLinkClicked = "chatroom_link_clicked"
-    case userTagsSomeone = "user_tags_someone"  // Done
-    case chatroomMuted = "chatroom_muted"  // Done
-    case chatroomUnmuted = "chatroom_unmuted"  // Done
+    case userTagsSomeone = "user_tags_someone"  
+    case chatroomMuted = "chatroom_muted"  
+    case chatroomUnmuted = "chatroom_unmuted"  
     case chatroomResponded = "chatroom_responded"
     case chatRoomDeleted = "chatroom_deleted"
-    case chatRoomFollowed = "chatroom_followed"  // Done
+    case chatRoomFollowed = "chatroom_followed"  
     case chatRoomLeft = "chatroom_left"
-    case chatRoomOpened = "chatroom_opened"  // Done
+    case chatRoomOpened = "chatroom_opened"  
     case chatRoomShared = "chatroom_shared"
-    case chatRoomUnfollowed = "chatroom_unfollowed"  // Done
+    case chatRoomUnfollowed = "chatroom_unfollowed"  
     case chatroomAutoFollow = "auto_follow_enabled"
-    case setChatroomTopic = "current_topic_updated"  // Done
-    case pinnedChatroomViewed = "pinned_chatrooms_viewed" // Done
-    case viewChatroomParticipants = "view_chatroom_participants" // Done
+    case setChatroomTopic = "current_topic_updated"  
+    case pinnedChatroomViewed = "pinned_chatrooms_viewed" 
+    case viewChatroomParticipants = "view_chatroom_participants" 
 
     // DM Events
-    case dmScreenOpened = "direct_messages_screen_opened"  // Done
-    case dmChatroomCreated = "dm_chatroom_created" // Done
+    case dmScreenOpened = "direct_messages_screen_opened"  
+    case dmChatroomCreated = "dm_chatroom_created" 
     case dmRequestSent = "dm_request_sent"
     case dmRequestResponded = "dm_request_responded"
     case dmSent = "dm_sent"
@@ -99,44 +92,44 @@ public enum LMChatAnalyticsEventName: String {
 
     // Reaction Events
     case reactionsClicked = "reactions_click"
-    case reactionAdded = "reaction_added"  // Done
-    case reactionListOpened = "reaction_list_opened"  // Done
-    case reactionRemoved = "reaction_removed"  // Done
+    case reactionAdded = "reaction_added"  
+    case reactionListOpened = "reaction_list_opened"  
+    case reactionRemoved = "reaction_removed"  
 
     // Search Events
-    case searchIconClicked = "clicked_search_icon"  // Done
-    case searchCrossIconClicked = "clicked_cross_search_icon"  // Done
-    case chatroomSearched = "chatroom_searched"  // Done
+    case searchIconClicked = "clicked_search_icon"  
+    case searchCrossIconClicked = "clicked_cross_search_icon"  
+    case chatroomSearched = "chatroom_searched"  
     case chatroomSearchClosed = "chatroom_search_closed"
-    case messageSearched = "message_searched"  // Done
+    case messageSearched = "message_searched"  
     case messageSearchClosed = "message_search_closed"
 
     // Voice Note Events
-    case voiceNoteRecorded = "voice_message_recorded"  // Done
-    case voiceNotePreviewed = "voice_message_previewed"  // Done
-    case voiceNoteCanceled = "voice_message_canceled"  // Done
-    case voiceNoteSent = "voice_message_sent"  // Done
-    case voiceNotePlayed = "voice_message_played"  // Done
+    case voiceNoteRecorded = "voice_message_recorded"  
+    case voiceNotePreviewed = "voice_message_previewed"  
+    case voiceNoteCanceled = "voice_message_canceled"  
+    case voiceNoteSent = "voice_message_sent"  
+    case voiceNotePlayed = "voice_message_played"  
 
     // Onboarding Flow
     case communityTabClicked = "community_tab_clicked"
     case communityFeedClicked = "community_feed_clicked"
 
     // Attachment Events
-    case imageViewed = "image_viewed"  // Done
-    case videoPlayed = "video_played"  // Done
-    case audioPlayed = "audio_played"  // Done
-    case chatLinkClicked = "chat_link_clicked"  // Done
+    case imageViewed = "image_viewed"  
+    case videoPlayed = "video_played"  
+    case audioPlayed = "audio_played"  
+    case chatLinkClicked = "chat_link_clicked"  
 
     // Message Action Events
-    case messageEdited = "message_edited"  // Done
-    case messageDeleted = "message_deleted"  // Done
-    case messageCopied = "message_copied"  // Done
-    case messageReply = "message_reply"  // Done
-    case replyPrivately = "reply_privately" // Done
+    case messageEdited = "message_edited"  
+    case messageDeleted = "message_deleted"  
+    case messageCopied = "message_copied"  
+    case messageReply = "message_reply"  
+    case replyPrivately = "reply_privately" 
 
     // Reporting Events
-    case messageReported = "message_reported" // Done
+    case messageReported = "message_reported" 
 
     // Sync Related Events
     case syncComplete = "sync_complete"

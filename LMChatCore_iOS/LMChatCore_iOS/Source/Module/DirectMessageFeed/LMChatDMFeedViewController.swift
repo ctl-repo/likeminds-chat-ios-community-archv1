@@ -223,6 +223,14 @@ extension LMChatDMFeedViewController: LMChatDMFeedViewModelProtocol {
 }
 
 extension LMChatDMFeedViewController: LMHomFeedListViewDelegate {
+    public func didAcceptSecretChatroomInvite(data: LikeMindsChatUI.LMChatHomeFeedSecretChatroomInviteCell.ContentModel) {
+        return
+    }
+    
+    public func didRejectSecretChatroomInvite(data: LikeMindsChatUI.LMChatHomeFeedSecretChatroomInviteCell.ContentModel) {
+        return
+    }
+    
 
     public func didTapOnCell(indexPath: IndexPath) {
         switch feedListView.tableSections[indexPath.section].sectionType {
@@ -237,7 +245,7 @@ extension LMChatDMFeedViewController: LMHomFeedListViewDelegate {
     }
 
     public func fetchMoreData() {
-
+        return
     }
 
     public func scrollViewDidEndDragging(

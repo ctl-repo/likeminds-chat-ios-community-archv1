@@ -147,7 +147,15 @@ open class LMChatMessageListViewController: LMViewController {
             viewModel?.addObserveConversations()
         }
         bottomMessageBoxView.inputTextView.mentionDelegate?.contentHeightChanged()
+        LMChatCore.openedChatroomId = viewModel?.chatroomId
     }
+    
+    open override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        LMChatCore.openedChatroomId = nil
+    }
+    
+    
     
     func setupBackButtonItemWithImageView() {
         backButtonItem.actionButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
@@ -854,7 +862,7 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
             viewModel?.copyConversation(conversationIds: [message.messageId])
             break
         case .report:
-            NavigationScreen.shared.perform(.report(chatroomId: nil, conversationId: message.messageId, memberId: nil, type: getConversationType([])), from: self, params: nil)
+            NavigationScreen.shared.perform(.report(chatroomId: nil, conversationId: message.messageId, memberId: nil, type: getConversationType(message.attachments)), from: self, params: nil)
         case .select:
             messageListView.isMultipleSelectionEnable = true
             messageListView.justReloadData()
