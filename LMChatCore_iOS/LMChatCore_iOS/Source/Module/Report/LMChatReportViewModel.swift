@@ -8,7 +8,7 @@
 import Foundation
 import LikeMindsChatData
 
-public typealias ReportContentID = (chatroomId: String?, messageId: String?, memberId: String?)
+public typealias ReportContentID = (chatroomId: String?, messageId: String?, memberId: String?, type: String?)
 
 public final class LMChatReportViewModel {
     
@@ -99,6 +99,11 @@ public final class LMChatReportViewModel {
         LMChatClient.shared.postReport(request: request) { [weak self] response in
             self?.delegate?.showHideLoaderView(isShow: false)
             guard let self, response.success else {
+                LMChatCore.analytics?.trackEvent(for: LMChatAnalyticsEventName.messageReported, eventProperties: [
+                    LMChatAnalyticsKeys.chatroomId.rawValue: self?.chatroomId,
+                    LMChatAnalyticsKeys.reason.rawValue: reasonName
+                ])
+                
                 self?.delegate?.showError(withTitle: "Error", message: response.errorMessage ?? "", isPopVC: true)
                 return
             }

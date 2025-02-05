@@ -9,6 +9,7 @@ import AVFoundation
 import LikeMindsChatUI
 import GiphyUISDK
 import UIKit
+import LikeMindsChatData
 
 open class LMChatMessageListViewController: LMViewController {
     // MARK: UI Elements
@@ -853,7 +854,7 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
             viewModel?.copyConversation(conversationIds: [message.messageId])
             break
         case .report:
-            NavigationScreen.shared.perform(.report(chatroomId: nil, conversationId: message.messageId, memberId: nil), from: self, params: nil)
+            NavigationScreen.shared.perform(.report(chatroomId: nil, conversationId: message.messageId, memberId: nil, type: getConversationType([])), from: self, params: nil)
         case .select:
             messageListView.isMultipleSelectionEnable = true
             messageListView.justReloadData()
@@ -867,8 +868,19 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
         case .replyPrivately:
             guard let conversation = viewModel?.chatMessages.first(where: {$0.id == message.messageId}),
                   let uuid = conversation.member?.sdkClientInfo?.uuid else { return }
+            
+            var senderId = LMChatClient.shared.getLoggedInUser()?.sdkClientInfo?.uuid ?? ""
+            
+            LMChatCore.analytics?.trackEvent(for: LMChatAnalyticsEventName.replyPrivately, eventProperties: [
+                LMChatAnalyticsKeys.senderId.rawValue: senderId,
+                LMChatAnalyticsKeys.receiverId.rawValue: uuid,
+                LMChatAnalyticsKeys.chatroomId.rawValue: viewModel?.chatroomId ?? "",
+                LMChatAnalyticsKeys.conversationId.rawValue: conversation.id
+            ])
+            
             LMChatDMCreationHandler.shared.openDMChatroom(uuid: uuid, viewController: self) {[weak self] chatroomId in
                 guard let self, let chatroomId else { return }
+                
                 DispatchQueue.main.async {
                     NavigationScreen.shared.perform(.chatroom(chatroomId: chatroomId, conversationID: nil), from: self, params: nil)
                 }
@@ -1499,7 +1511,7 @@ extension LMChatMessageListViewController: LMChatApproveRejectDelegate {
             ("Cancel", nil),
             ("Report And Reject", {[weak self] in
                 guard let self,
-                      let reportView = try? LMChatReportViewModel.createModule(reportContentId: (viewModel?.chatroomId, nil, nil)) else { return }
+                      let reportView = try? LMChatReportViewModel.createModule(reportContentId: (viewModel?.chatroomId, nil, nil, nil)) else { return }
                 reportView.delegate = self
                 self.navigationController?.pushViewController(reportView, animated: true)
             })

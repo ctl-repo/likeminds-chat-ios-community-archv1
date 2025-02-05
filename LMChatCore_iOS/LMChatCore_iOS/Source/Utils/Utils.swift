@@ -67,3 +67,51 @@ func isOtherUserAIChatbot(chatroom: Chatroom) -> Bool {
 
     return false
 }
+
+/// Returns the conversation type based on the attachments and ogTags of a conversation.
+/// - Parameter conversation: The conversation from which to determine the type.
+/// - Returns: A string representing the conversation type (e.g., "image", "video", "doc", etc.).
+func getConversationType(_ attachments: [Attachment]) -> String {
+    
+    // Count how many attachments exist for each media type
+//    let imageCount = getMediaCount(mediaType: "image", attachments: attachments)
+//    let gifCount = getMediaCount(mediaType: "gif", attachments: attachments)
+//    let videoCount = getMediaCount(mediaType: "video", attachments: attachments)
+//    let pdfCount = getMediaCount(mediaType: "pdf", attachments: attachments)
+//    let audioCount = getMediaCount(mediaType: "audio", attachments: attachments)
+//    let voiceNoteCount = getMediaCount(mediaType: "voice_note", attachments: attachments)
+    
+    // Determine the conversation type using the counts and any link in ogTags
+//    switch true {
+//    case imageCount > 0 && videoCount > 0:
+//        return "image, video"
+//    case imageCount > 0:
+//        return "image"
+//    case gifCount > 0:
+//        return "gif"
+//    case videoCount > 0:
+//        return "video"
+//    case pdfCount > 0:
+//        return "doc"
+//    case audioCount > 0:
+//        return "audio"
+//    case voiceNoteCount > 0:
+//        return "voice note"
+//    default:
+//        return "text"
+//    }
+    return "text"
+}
+
+/// Returns the number of attachments that match the specified media type.
+/// - Parameters:
+///   - mediaType: The media type to look for (e.g., IMAGE, VIDEO, etc.).
+///   - attachments: An optional array of `AttachmentViewData`.
+/// - Returns: The number of attachments matching `mediaType`.
+func getMediaCount(mediaType: String, attachments: [Attachment]?) -> Int {
+    guard let attachments = attachments else {
+        return 0
+    }
+    return attachments.filter { $0.type == mediaType }.count
+}
+

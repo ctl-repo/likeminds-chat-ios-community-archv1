@@ -19,7 +19,7 @@ enum NavigationActions {
     case messageAttachmentWithData(data:[MediaPickerModel], delegate: LMChatAttachmentViewDelegate?, chatroomId: String?, mediaType: MediaType)
     case participants(chatroomId: String, isSecret: Bool)
     case dmMemberList(showList: Int?)
-    case report(chatroomId: String?, conversationId: String?, memberId: String?)
+    case report(chatroomId: String?, conversationId: String?, memberId: String?, type: String?)
     case reactionSheet(reactions: [Reaction], selectedReaction: String?, conversation: String?, chatroomId: String?)
     case exploreFeed
     case browser(url: URL)
@@ -64,8 +64,8 @@ class NavigationScreen: NavigationScreenProtocol {
         case .dmMemberList(let showList):
             guard let participants = try? LMChatMemberListViewModel.createModule(showList: showList) else { return }
             source.navigationController?.pushViewController(participants, animated: true)
-        case .report(let chatroomId, let conversationId, let memberId):
-            guard let report = try? LMChatReportViewModel.createModule(reportContentId: (chatroomId, conversationId, memberId)) else { return }
+        case .report(let chatroomId, let conversationId, let memberId, let type):
+            guard let report = try? LMChatReportViewModel.createModule(reportContentId: (chatroomId, conversationId, memberId, type)) else { return }
             source.navigationController?.pushViewController(report, animated: true)
         case .reactionSheet(let reactions, let selected, let conversationId, let chatroomId):
             guard let reactions = try? LMChatReactionViewModel.createModule(reactions: reactions, selected: selected, conversationId: conversationId, chatroomId: chatroomId) else { return }
