@@ -186,8 +186,7 @@ public class LMChatCore {
 
             // Check if the app has access
             if response.data?.appAccess == false {
-                self?.logout(
-                    accessToken,
+                self?.logoutUser(
                     deviceId: UIDevice.current.identifierForVendor?.uuidString
                         ?? "")
                 completionHandler?(.failure(.appAccessFalse))
@@ -265,8 +264,7 @@ public class LMChatCore {
             // Check if the response was successful and app access is granted
             guard response.success, response.data?.appAccess == true else {
                 print("error in initiate user: \(response.errorMessage ?? "")")
-                self?.logout(
-                    response.data?.refreshToken ?? "",
+                self?.logoutUser(
                     deviceId: UIDevice.current.identifierForVendor?.uuidString
                         ?? "")
                 completion?(
@@ -389,16 +387,14 @@ public class LMChatCore {
     ///
     /// - Important: After a successful logout, any stored session data or tokens should be cleared
     ///   from the client-side storage to prevent unauthorized access.
-    public func logout(
-        _ refreshToken: String, deviceId: String,
+    public func logoutUser(deviceId: String,
         completion: ((Result<Void, LMChatError>) -> Void)? = nil
     ) {
-        let request = LogoutRequest.builder()
-            .refreshToken(refreshToken)
+        let request = LogoutUserRequest.builder()
             .deviceId(deviceId)
             .build()
 
-        LMChatClient.shared.logout(request: request) { response in
+        LMChatClient.shared.logoutUser(request: request){ response in
             if response.success {
                 completion?(.success(()))
             } else {
