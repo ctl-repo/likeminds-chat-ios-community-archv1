@@ -156,7 +156,7 @@ extension LMChatGroupFeedViewController: LMChatGroupFeedViewModelProtocol {
         // Map the raw secret chatroom invite objects into the cell content models for display.
         var secretChatroomInviteContentList:
             [LMChatHomeFeedSecretChatroomInviteCell.ContentModel] =
-                secretChatroomInvites.compactMap { invite in
+                viewModel?.secretChatroomInvites.compactMap { invite in
                     return LMChatHomeFeedSecretChatroomInviteCell.ContentModel(
                         chatroom: invite.chatroom.toViewData(),
                         createdAt: invite.createdAt,
@@ -166,7 +166,7 @@ extension LMChatGroupFeedViewController: LMChatGroupFeedViewModelProtocol {
                         inviteSender: invite.inviteSender.toViewData(),
                         inviteReceiver: invite.inviteReceiver.toViewData()
                     )
-                }
+                } ?? []
 
         // Update the feed list view with the newly mapped secret chatroom invite content.
         feedListView.updateSecretChatroomInviteCell(
@@ -215,9 +215,9 @@ extension LMChatGroupFeedViewController: LMHomFeedListViewDelegate {
         data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
     ) {
         guard let viewModel else { return }
-        
+
         var stringConstant = Constants.shared.strings
-        
+
         // Create and configure the alert controller
         let alertController = UIAlertController(
             title: stringConstant.joinThisChatroom,
@@ -231,7 +231,9 @@ extension LMChatGroupFeedViewController: LMHomFeedListViewDelegate {
         alertController.addAction(cancelAction)
 
         // Add Confirm action
-        let confirmAction = UIAlertAction(title: stringConstant.confirmAllCaps, style: .default) {
+        let confirmAction = UIAlertAction(
+            title: stringConstant.confirmAllCaps, style: .default
+        ) {
             _ in
             // Call the method to update the channel invite
             viewModel.updateChannelInvite(
@@ -247,7 +249,7 @@ extension LMChatGroupFeedViewController: LMHomFeedListViewDelegate {
         data: LMChatHomeFeedSecretChatroomInviteCell.ContentModel
     ) {
         guard let viewModel else { return }
-        
+
         var stringConstant = Constants.shared.strings
 
         // Create and configure the alert controller
@@ -260,11 +262,13 @@ extension LMChatGroupFeedViewController: LMHomFeedListViewDelegate {
 
         // Add Cancel action
         let cancelAction = UIAlertAction(
-            title: stringConstant.cancelAllCaps , style: .cancel, handler: nil)
+            title: stringConstant.cancelAllCaps, style: .cancel, handler: nil)
         alertController.addAction(cancelAction)
 
         // Add Confirm action
-        let confirmAction = UIAlertAction(title: stringConstant.confirmAllCaps, style: .default) {
+        let confirmAction = UIAlertAction(
+            title: stringConstant.confirmAllCaps, style: .default
+        ) {
             _ in
             // Call the method to update the channel invite
             viewModel.updateChannelInvite(

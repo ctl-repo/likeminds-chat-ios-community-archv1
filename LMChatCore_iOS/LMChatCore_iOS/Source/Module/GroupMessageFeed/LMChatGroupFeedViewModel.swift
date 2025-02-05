@@ -138,7 +138,7 @@ public class LMChatGroupFeedViewModel: LMChatBaseViewModel {
         // Create a request to update the channel invite
         let request: UpdateChannelInviteRequest =
             UpdateChannelInviteRequest.builder()
-            .channelId(String(channelInvite.id))  // Set the channel ID in the request
+            .channelId(channelInvite.chatroom.id)  // Set the channel ID in the request
             .inviteStatus(inviteStatus)  // Set the desired invite status in the request
             .build()  // Finalize the request object
 
