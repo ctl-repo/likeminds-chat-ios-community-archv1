@@ -10,7 +10,7 @@ import LikeMindsChatUI
 import LikeMindsChatData
 
 public protocol LMChatMemberListViewModelProtocol: AnyObject {
-    func reloadData(with data: [LMChatParticipantCell.ContentModel])
+    func reloadData(with data: [LMChatParticipantCell.ContentModel], showLoader: Bool)
 }
 
 public class LMChatMemberListViewModel {
@@ -69,6 +69,7 @@ public class LMChatMemberListViewModel {
         }
         
         isParticipantLoading = true
+        delegate?.reloadData(with: participantsContentModels, showLoader: true)
         
         let request = GetAllMembersRequest.builder()
             .page(pageNo)
@@ -98,7 +99,7 @@ public class LMChatMemberListViewModel {
                 .init(id: $0.sdkClientInfo?.uuid, name: $0.name ?? "", designationDetail: nil, profileImageUrl: $0.imageUrl, customTitle: $0.customTitle)
             }))
             pageNo += 1
-            delegate?.reloadData(with: participantsContentModels)
+            delegate?.reloadData(with: participantsContentModels, showLoader: false)
             isAllParticipantLoaded = (totalParticipantCount == participants.count)
             isParticipantLoading = false
         }
@@ -128,6 +129,8 @@ public class LMChatMemberListViewModel {
     
     func searchMembers(_ searchText: String) {
         isParticipantLoading = true
+        delegate?.reloadData(with: participantsContentModels, showLoader: true)
+        
         let request = SearchMembersRequest.builder()
             .searchType("name")
             .page(pageNo)
@@ -151,7 +154,7 @@ public class LMChatMemberListViewModel {
                 .init(id: $0.sdkClientInfo?.uuid, name: $0.name ?? "", designationDetail: nil, profileImageUrl: $0.imageUrl, customTitle: $0.customTitle)
             }))
             
-            delegate?.reloadData(with: participantsContentModels)
+            delegate?.reloadData(with: participantsContentModels, showLoader: false)
             
             isAllParticipantLoaded = (totalParticipantCount == participants.count)
             isParticipantLoading = false
