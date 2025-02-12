@@ -461,15 +461,18 @@ extension LMChatHomeFeedListView: UITableViewDataSource, UITableViewDelegate,
     }
 
     open func tableView(
-        _ tableView: UITableView, willDisplay cell: UITableViewCell,
-        forRowAt indexPath: IndexPath
-    ) {
-    }
-
-    open func tableView(
         _ tableView: UITableView, didSelectRowAt indexPath: IndexPath
     ) {
-        self.delegate?.didTapOnCell(indexPath: indexPath)
+        switch tableSections[indexPath.section].sectionType {
+        case .secretChatroomInvite:
+            // In case the tapped cell is a secret chatroom invite
+            // Do nothing
+            return
+        default:
+            // Call the didTapOnCell method to call the respective action
+            // for that cell
+            self.delegate?.didTapOnCell(indexPath: indexPath)
+        }
     }
 
     public func scrollViewDidEndDragging(
@@ -478,6 +481,7 @@ extension LMChatHomeFeedListView: UITableViewDataSource, UITableViewDelegate,
         self.delegate?.scrollViewDidEndDragging(
             scrollView, willDecelerate: decelerate)
     }
+    
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         self.delegate?.scrollViewDidScroll(scrollView)
     }

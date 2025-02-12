@@ -59,9 +59,9 @@ open class LMChatParticipantListViewController: LMViewController {
 }
 
 extension LMChatParticipantListViewController: LMChatParticipantListViewModelProtocol {
-    public func reloadData(with data: [LMChatParticipantCell.ContentModel]) {
+    public func reloadData(with data: [LMChatParticipantCell.ContentModel], showLoader: Bool) {
         containerView.data = data
-        containerView.reloadList(showLoadingView: !data.isEmpty)
+        containerView.reloadList(showLoadingView: showLoader)
         
         var subCount: String? = nil
         

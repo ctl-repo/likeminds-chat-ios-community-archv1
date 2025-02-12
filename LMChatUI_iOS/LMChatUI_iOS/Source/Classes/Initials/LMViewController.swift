@@ -229,6 +229,17 @@ open class LMViewController: UIViewController {
         backItem.tintColor = Appearance.shared.colors.linkColor
         self.navigationItem.backBarButtonItem = backItem
     }
+    
+    func createCustomBarButton(with image: UIImage?, action: Selector?) -> UIBarButtonItem {
+        let button = UIButton(type: .system)
+        button.setImage(image, for: .normal)
+        // Adjust the insets to reduce spacing if needed
+        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
+        if let action{
+            button.addTarget(self, action: action, for: .touchUpInside)
+        }
+        return UIBarButtonItem(customView: button)
+    }
 
     open func setRightNavigationWithAction(
         title: String?, image: UIImage?, style: UIBarButtonItem.Style,
@@ -238,10 +249,12 @@ open class LMViewController: UIViewController {
             title != nil
             ? UIBarButtonItem(
                 title: title, style: style, target: target, action: action)
-            : UIBarButtonItem(
-                image: image, style: style, target: target, action: action)
+            : createCustomBarButton(
+                with: image, action: action)
         rightItem.tintColor = Appearance.shared.colors.linkColor
         var rightItems = self.navigationItem.rightBarButtonItems ?? []
+
+        // Append the new item
         rightItems.append(rightItem)
 
         self.navigationItem.rightBarButtonItems = rightItems

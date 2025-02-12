@@ -132,10 +132,11 @@ open class LMChatHomeFeedSecretChatroomInviteCell: LMTableViewCell {
         let button = LMButton(type: .system)
             .translatesAutoresizingMaskIntoConstraints()
         button.setImage(Constants.shared.images.crossIcon, for: .normal)
-        button.tintColor = Appearance.shared.colors.gray102
+        button.imageView?.contentMode = .scaleAspectFill
+        button.tintColor = Appearance.shared.colors.gray155
         button.backgroundColor = .clear
         button.clipsToBounds = true
-        button.setInsets(forContentPadding: .zero, imageTitlePadding: .zero)
+        button.setInsets(forContentPadding: .zero, imageTitlePadding: 0.0)
         return button
     }()
 
@@ -211,7 +212,7 @@ open class LMChatHomeFeedSecretChatroomInviteCell: LMTableViewCell {
 
             // Layout constraints for the reject button.
             rejectButton.trailingAnchor.constraint(
-                equalTo: acceptButton.leadingAnchor, constant: -8),
+                equalTo: acceptButton.leadingAnchor),
             rejectButton.centerYAnchor.constraint(
                 equalTo: acceptButton.centerYAnchor),
             rejectButton.widthAnchor.constraint(equalToConstant: 50),
@@ -292,7 +293,7 @@ open class LMChatHomeFeedSecretChatroomInviteCell: LMTableViewCell {
     open func setChatroomData(_ data: ContentModel) {
         // Update the last message label with the invite sender's name.
         chatroomView.lastMessageLabel.text =
-            "\(data.inviteSender.name ?? "") sent you an invite"
+            "\(data.inviteSender.name ?? "") invited you to join this secret chatroom"
         chatroomView.timestampLabel.isHidden = true
         chatroomView.chatroomCountBadgeLabel.isHidden = true
 
@@ -322,5 +323,7 @@ open class LMChatHomeFeedSecretChatroomInviteCell: LMTableViewCell {
         } else {
             chatroomView.chatroomImageView.image = placeholder
         }
+        
+        chatroomView.lockIconImageView.isHidden = false
     }
 }

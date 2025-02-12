@@ -9,7 +9,7 @@ import LikeMindsChatUI
 import LikeMindsChatData
 
 public protocol LMChatParticipantListViewModelProtocol: AnyObject {
-    func reloadData(with data: [LMChatParticipantCell.ContentModel])
+    func reloadData(with data: [LMChatParticipantCell.ContentModel], showLoader: Bool)
 }
 
 public class LMChatParticipantListViewModel {
@@ -51,6 +51,8 @@ public class LMChatParticipantListViewModel {
     func getParticipants() {
         guard !isParticipantLoading else { return }
         
+        delegate?.reloadData(with: participantsContentModels, showLoader: true)
+        
         isParticipantLoading = true
         
         let request = GetParticipantsRequest.builder()
@@ -75,7 +77,7 @@ public class LMChatParticipantListViewModel {
             participantsContentModels.append(contentsOf: participantsData.compactMap({
                 .init(id: $0.sdkClientInfo?.uuid, name: $0.name ?? "", designationDetail: nil, profileImageUrl: $0.imageUrl, customTitle: $0.customTitle)
             }))
-            delegate?.reloadData(with: participantsContentModels)
+            delegate?.reloadData(with: participantsContentModels, showLoader: false)
             isAllParticipantLoaded = (totalParticipantCount == participants.count)
             isParticipantLoading = false
         }
@@ -90,7 +92,7 @@ public class LMChatParticipantListViewModel {
                   let actionsData = response.data else { return }
             self.chatroomActionData = actionsData
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.delegate?.reloadData(with: self.participantsContentModels)
+                self.delegate?.reloadData(with: self.participantsContentModels, showLoader: false)
             }
         }
     }
@@ -103,6 +105,7 @@ public class LMChatParticipantListViewModel {
         
         participants.removeAll(keepingCapacity: true)
         participantsContentModels.removeAll(keepingCapacity: true)
+        delegate?.reloadData(with: participantsContentModels, showLoader: true)
         
         let request = GetParticipantsRequest.builder()
             .chatroomId(chatroomId)
@@ -127,7 +130,7 @@ public class LMChatParticipantListViewModel {
                 .init(id: $0.sdkClientInfo?.uuid, name: $0.name ?? "", designationDetail: nil, profileImageUrl: $0.imageUrl, customTitle: $0.customTitle)
             }))
             
-            delegate?.reloadData(with: participantsContentModels)
+            delegate?.reloadData(with: participantsContentModels, showLoader: false)
 
             isAllParticipantLoaded = (totalParticipantCount == participants.count)
             isParticipantLoading = false
