@@ -18,6 +18,7 @@ open class LMChatMessageListViewController: LMViewController {
         view.layer.cornerRadius = 16
         view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         view.delegate = self
+        view.isHidden = true
         view.inputTextView.mentionDelegate = self
         return view
     }()
@@ -26,6 +27,7 @@ open class LMChatMessageListViewController: LMViewController {
         let button = LMButton().translatesAutoresizingMaskIntoConstraints()
         button.setImage(Constants.shared.images.downChevronArrowIcon, for: .normal)
         button.contentMode = .scaleToFill
+        button.isHidden = true
         button.setWidthConstraint(with: 40)
         button.setHeightConstraint(with: 40)
         button.backgroundColor = Appearance.shared.colors.white.withAlphaComponent(0.8)
