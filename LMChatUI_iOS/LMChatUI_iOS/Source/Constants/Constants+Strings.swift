@@ -56,5 +56,11 @@ public extension Constants {
         public var addNewPollMessage = "Enter an option that you think is missing in this poll. This can not be undone."
         public var addNewOption = " Add an option"
         public var userCanVoteTitle = "User can vote for"
+        public var joinThisChatroom = "Join this chatroom?"
+        public var joinThisSecretChatroomDesc = "You are about to join this secret chatroom."
+        public var rejectInvitation = "Reject invitation?"
+        public var rejectSecretChatroomInvitationDesc = "Are you sure you want to reject the invitation to join this chatroom?"
+        public var confirmAllCaps = "CONFIRM"
+        public var cancelAllCaps = "CANCEL"
     }
 }

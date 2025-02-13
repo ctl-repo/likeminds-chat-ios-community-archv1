@@ -75,6 +75,5 @@ open class LMChatHomeFeedChatroomCell: LMTableViewCell {
         guard let dataView = data.contentView else { return }
         chatroomView.setData(dataView)
     }
-
 }
 

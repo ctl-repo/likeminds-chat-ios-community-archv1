@@ -9,6 +9,7 @@ import AVFoundation
 import LikeMindsChatUI
 import GiphyUISDK
 import UIKit
+import LikeMindsChatData
 
 open class LMChatMessageListViewController: LMViewController {
     // MARK: UI Elements
@@ -17,6 +18,7 @@ open class LMChatMessageListViewController: LMViewController {
         view.layer.cornerRadius = 16
         view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         view.delegate = self
+        view.isHidden = true
         view.inputTextView.mentionDelegate = self
         return view
     }()
@@ -25,6 +27,7 @@ open class LMChatMessageListViewController: LMViewController {
         let button = LMButton().translatesAutoresizingMaskIntoConstraints()
         button.setImage(Constants.shared.images.downChevronArrowIcon, for: .normal)
         button.contentMode = .scaleToFill
+        button.isHidden = true
         button.setWidthConstraint(with: 40)
         button.setHeightConstraint(with: 40)
         button.backgroundColor = Appearance.shared.colors.white.withAlphaComponent(0.8)
@@ -120,6 +123,8 @@ open class LMChatMessageListViewController: LMViewController {
         viewModel?.syncConversation()
         
         setRightNavigationWithAction(title: nil, image: Constants.shared.images.ellipsisCircleIcon, style: .plain, target: self, action: #selector(chatroomActions))
+        // Sets the right most action for searching conversation in the chatroom
+        setRightNavigationWithAction(title: nil, image: Constants.shared.images.searchIcon, style: .plain, target: self, action: #selector(navigateToSearchConversationScreen))
         setupBackButtonItemWithImageView()
         self.navigationController?.interactivePopGestureRecognizer?.delegate = nil
         let attText = GetAttributedTextWithRoutes.getAttributedText(from: LMSharedPreferences.getString(forKey: viewModel?.chatroomId ?? "NA") ?? "")
@@ -144,7 +149,15 @@ open class LMChatMessageListViewController: LMViewController {
             viewModel?.addObserveConversations()
         }
         bottomMessageBoxView.inputTextView.mentionDelegate?.contentHeightChanged()
+        LMChatCore.openedChatroomId = viewModel?.chatroomId
     }
+    
+    open override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        LMChatCore.openedChatroomId = nil
+    }
+    
+    
     
     func setupBackButtonItemWithImageView() {
         backButtonItem.actionButton.addTarget(self, action: #selector(dismissViewController), for: .touchUpInside)
@@ -262,6 +275,21 @@ open class LMChatMessageListViewController: LMViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    /**
+     Navigates to the search conversation screen.
+     This method attempts to create a search conversation module corresponding to the current chatroom by performing the following steps:
+     */
+    @objc
+    open func navigateToSearchConversationScreen(){
+        do{
+            let searchListVC = try LMChatSearchConversationListViewModel.createModule(chatroomId: viewModel?.chatroomId ?? "")
+            
+            self.navigationController?.pushViewController(searchListVC, animated: true)
+        }catch _{
+            self.showErrorAlert(message: "An error occurred")
+        }
+    }
+    
     @objc
     open func scrollToBottomClicked(_ sender: UIButton) {
         self.scrollToBottomButton.isHidden = true
@@ -297,6 +325,8 @@ open class LMChatMessageListViewController: LMViewController {
         messageListView.selectedItems.removeAll()
         navigationItem.rightBarButtonItems = nil
         setRightNavigationWithAction(title: nil, image: Constants.shared.images.ellipsisCircleIcon, style: .plain, target: self, action: #selector(chatroomActions))
+        // Set the right most action for search conversation in chatroom
+        setRightNavigationWithAction(title: nil, image: Constants.shared.images.searchIcon, style: .plain, target: self, action: #selector(navigateToSearchConversationScreen))
         updateChatroomSubtitles()
         memberRightsCheck()
         messageListView.justReloadData()
@@ -834,7 +864,7 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
             viewModel?.copyConversation(conversationIds: [message.messageId])
             break
         case .report:
-            NavigationScreen.shared.perform(.report(chatroomId: nil, conversationId: message.messageId, memberId: nil), from: self, params: nil)
+            NavigationScreen.shared.perform(.report(chatroomId: nil, conversationId: message.messageId, memberId: nil, type: getConversationType(message.attachments)), from: self, params: nil)
         case .select:
             messageListView.isMultipleSelectionEnable = true
             messageListView.justReloadData()
@@ -848,8 +878,19 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
         case .replyPrivately:
             guard let conversation = viewModel?.chatMessages.first(where: {$0.id == message.messageId}),
                   let uuid = conversation.member?.sdkClientInfo?.uuid else { return }
+            
+            var senderId = LMChatClient.shared.getLoggedInUser()?.sdkClientInfo?.uuid ?? ""
+            
+            LMChatCore.analytics?.trackEvent(for: LMChatAnalyticsEventName.replyPrivately, eventProperties: [
+                LMChatAnalyticsKeys.senderId.rawValue: senderId,
+                LMChatAnalyticsKeys.receiverId.rawValue: uuid,
+                LMChatAnalyticsKeys.chatroomId.rawValue: viewModel?.chatroomId ?? "",
+                LMChatAnalyticsKeys.conversationId.rawValue: conversation.id
+            ])
+            
             LMChatDMCreationHandler.shared.openDMChatroom(uuid: uuid, viewController: self) {[weak self] chatroomId in
                 guard let self, let chatroomId else { return }
+                
                 DispatchQueue.main.async {
                     NavigationScreen.shared.perform(.chatroom(chatroomId: chatroomId, conversationID: nil), from: self, params: nil)
                 }
@@ -1480,7 +1521,7 @@ extension LMChatMessageListViewController: LMChatApproveRejectDelegate {
             ("Cancel", nil),
             ("Report And Reject", {[weak self] in
                 guard let self,
-                      let reportView = try? LMChatReportViewModel.createModule(reportContentId: (viewModel?.chatroomId, nil, nil)) else { return }
+                      let reportView = try? LMChatReportViewModel.createModule(reportContentId: (viewModel?.chatroomId, nil, nil, nil)) else { return }
                 reportView.delegate = self
                 self.navigationController?.pushViewController(reportView, animated: true)
             })

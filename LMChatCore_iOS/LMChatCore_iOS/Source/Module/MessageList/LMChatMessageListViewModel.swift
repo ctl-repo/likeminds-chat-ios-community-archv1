@@ -927,6 +927,10 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         }
         switch action.id {
         case .viewParticipants:
+            LMChatCore.analytics?.trackEvent(for: LMChatAnalyticsEventName.viewChatroomParticipants, eventProperties: [
+                LMChatAnalyticsKeys.chatroomId.rawValue: chatroomViewData?.id,
+                LMChatAnalyticsKeys.source.rawValue: LMChatAnalyticsSource.chatroomOverflowMenu
+            ])
             NavigationScreen.shared.perform(
                 .participants(
                     chatroomId: chatroomViewData?.id ?? "",
@@ -940,7 +944,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             NavigationScreen.shared.perform(
                 .report(
                     chatroomId: chatroomViewData?.id ?? "", conversationId: nil,
-                    memberId: nil), from: fromViewController, params: nil)
+                    memberId: nil, type: nil), from: fromViewController, params: nil)
         case .leaveChatRoom:
             leaveChatroom()
         case .unFollow:
