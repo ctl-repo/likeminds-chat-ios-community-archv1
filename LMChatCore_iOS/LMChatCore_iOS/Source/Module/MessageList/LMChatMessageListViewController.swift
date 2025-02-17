@@ -18,7 +18,6 @@ open class LMChatMessageListViewController: LMViewController {
         view.layer.cornerRadius = 16
         view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         view.delegate = self
-        view.isHidden = true
         view.inputTextView.mentionDelegate = self
         return view
     }()
