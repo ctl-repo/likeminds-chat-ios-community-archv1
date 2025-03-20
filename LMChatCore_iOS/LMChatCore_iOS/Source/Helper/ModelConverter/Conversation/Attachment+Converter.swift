@@ -18,7 +18,7 @@ extension Attachment {
             id: self.id,
             name: self.name,
             url: self.url,
-            type: self.type,
+            type: AttachmentViewData.AttachmentType(rawValue: self.type?.rawValue ?? "") ?? AttachmentViewData.AttachmentType.unknown,
             index: self.index,
             width: self.width,
             height: self.height,
@@ -29,7 +29,8 @@ extension Attachment {
             thumbnailLocalFilePath: self.thumbnailLocalFilePath,
             meta: self.meta?.toViewData(),
             createdAt: self.createdAt,
-            updatedAt: self.updatedAt
+            updatedAt: self.updatedAt,
+            isUploaded: self.isUploaded
         )
     }
 }
@@ -45,7 +46,7 @@ extension AttachmentViewData {
             .id(self.id)
             .name(self.name)
             .url(self.url ?? "")
-            .type(self.type ?? "")
+            .type(Attachment.AttachmentType(rawValue: self.type?.rawValue ?? "") ?? Attachment.AttachmentType.unknown)
             .index(self.index)
             .width(self.width)
             .height(self.height)
@@ -57,6 +58,7 @@ extension AttachmentViewData {
             .meta(self.meta?.toAttachmentMeta())
             .createdAt(self.createdAt)
             .updatedAt(self.updatedAt)
+            .isUploaded(self.isUploaded)
             .build()
     }
 }

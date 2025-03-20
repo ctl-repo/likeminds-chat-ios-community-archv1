@@ -12,11 +12,33 @@ import Foundation
 /// This class is mutable and designed for UI layers or intermediate layers
 /// where flexibility in modifying properties is required.
 public class AttachmentViewData {
+    
+    /// Represents the type of an attachment.
+    public enum AttachmentType: String, Codable {
+        case image
+        case video
+        case audio
+        case gif
+        case link
+        case pdf
+        case doc
+        case document
+        case voiceNote = "voice_note"
+        case unknown  // Fallback case for unexpected types
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            let value = try container.decode(String.self)
+            self = AttachmentType(rawValue: value) ?? .unknown
+        }
+    }
+    
+    
     // MARK: - Properties
     public var id: String?
     public var name: String?
     public var url: String?
-    public var type: String?
+    public var type: AttachmentType?
     public var index: Int?
     public var width: Int?
     public var height: Int?
@@ -28,13 +50,14 @@ public class AttachmentViewData {
     public var meta: AttachmentMetaViewData?
     public var createdAt: Int?
     public var updatedAt: Int?
+    public var isUploaded: Bool = false
 
     // MARK: - Initializer
     public init(
         id: String?,
         name: String?,
         url: String?,
-        type: String?,
+        type: AttachmentType?,
         index: Int?,
         width: Int?,
         height: Int?,
@@ -45,7 +68,8 @@ public class AttachmentViewData {
         thumbnailLocalFilePath: String?,
         meta: AttachmentMetaViewData?,
         createdAt: Int?,
-        updatedAt: Int?
+        updatedAt: Int?,
+        isUploaded: Bool = false
     ) {
         self.id = id
         self.name = name
@@ -62,5 +86,6 @@ public class AttachmentViewData {
         self.meta = meta
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.isUploaded = isUploaded
     }
 }

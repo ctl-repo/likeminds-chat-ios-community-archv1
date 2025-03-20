@@ -17,7 +17,7 @@ func convertToAttachmentList(from mediaDataList: [LMChatAttachmentUploadModel])
             .id(nil)  // Assuming id is not available in LMChatAttachmentUploadModel
             .name(mediaData.name)
             .url(mediaData.awsUrl ?? "")  // Assuming awsUrl is equivalent to file_url
-            .type(mediaData.fileType)
+            .type(Attachment.AttachmentType(rawValue: mediaData.fileType) ?? Attachment.AttachmentType.unknown)
             .index(mediaData.index)
             .width(mediaData.width)
             .height(mediaData.height)
@@ -113,7 +113,7 @@ func getMediaCount(mediaType: String, attachments: [LMChatMessageListView.Conten
     guard let attachments = attachments else {
         return 0
     }
-    return attachments.filter { $0.fileType == mediaType }.count
+    return attachments.filter { $0.fileType?.rawValue == mediaType }.count
 }
 
 /// Returns either the `collabcard_id` or the `chatroom_id` from the given URL string.

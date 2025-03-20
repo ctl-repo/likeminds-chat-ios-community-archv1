@@ -56,7 +56,7 @@ open class LMChatMessageReactionsView: LMView {
         return view
     }
     
-    func setData(_ data: [LMChatMessageListView.ContentModel.Reaction]) {
+    func setData(_ data: [ReactionViewData]) {
         previewsContainerView.arrangedSubviews.forEach({$0.isHidden = true})
         for (index, item) in data.enumerated() {
             if index > 1 {

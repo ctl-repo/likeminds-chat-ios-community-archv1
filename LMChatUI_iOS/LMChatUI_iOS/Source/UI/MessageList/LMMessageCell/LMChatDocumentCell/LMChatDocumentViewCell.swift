@@ -39,7 +39,7 @@ open class LMChatDocumentViewCell: LMChatMessageCell {
     open override func setData(with data: ContentModel, index: IndexPath) {
         super.setData(with: data, index: index)
         documentMessageView.onShowMoreCallback = { [weak self] in
-            self?.delegate?.onClickOfSeeMore(for: data.message?.messageId ?? "", indexPath: index)
+            self?.delegate?.onClickOfSeeMore(for: data.message.id ?? "", indexPath: index)
         }
     }
 }

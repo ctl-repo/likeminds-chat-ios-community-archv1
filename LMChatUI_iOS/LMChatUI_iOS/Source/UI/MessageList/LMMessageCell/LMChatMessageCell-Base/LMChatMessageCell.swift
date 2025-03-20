@@ -18,13 +18,14 @@ public protocol LMChatMessageCellDelegate: LMChatMessageBaseProtocol {
     func didCancelAttachmentUploading(indexPath: IndexPath)
     func didRetryAttachmentUploading(indexPath: IndexPath)
     func didTapOnProfileLink(route: String)
+    func onRetryButtonClicked(conversation: ConversationViewData)
 }
 
 @IBDesignable
 open class LMChatMessageCell: LMTableViewCell {
     
     public struct ContentModel {
-        public let message: LMChatMessageListView.ContentModel.Message?
+        public let message: ConversationViewData
         public var isSelected: Bool = false
     }
     
@@ -71,6 +72,7 @@ open class LMChatMessageCell: LMTableViewCell {
     weak var audioDelegate: LMChatAudioProtocol?
     weak var pollDelegate: LMChatPollViewDelegate?
 
+    var data: LMChatMessageCell.ContentModel?
     var currentIndexPath: IndexPath?
     var originalCenter = CGPoint()
     var replyActionHandler: (() -> Void)?
@@ -149,6 +151,7 @@ open class LMChatMessageCell: LMTableViewCell {
     
     // MARK: configure
     open func setData(with data: ContentModel, index: IndexPath) {
+        self.data = data
         chatMessageView.setDataView(data, index: index)
         chatMessageView.loaderView.delegate = self
         chatMessageView.retryView.delegate = self
@@ -170,8 +173,8 @@ open class LMChatMessageCell: LMTableViewCell {
     }
     
     @objc open func retrySendMessage(_ sender: UIButton) {
-        guard let currentIndexPath else { return }
-        delegate?.didRetryAttachmentUploading(indexPath: currentIndexPath )
+        guard let data else { return }
+        delegate?.onRetryButtonClicked(conversation: data)
     }
 }
 

@@ -59,9 +59,9 @@ open class LMChatAudioContentView: LMChatMessageContentView {
         let updatedAttachments = data.message?.isShowMore == true ? attachments : Array(attachments.prefix(2))
         
         switch type {
-        case "audio":
+        case .audio:
             audioPreview(updatedAttachments, delegate: delegate, index: index)
-        case "voice_note":
+        case .voiceNote:
             voiceNotePreview(updatedAttachments, delegate: delegate, index: index)
         default:
             break

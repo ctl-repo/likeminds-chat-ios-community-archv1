@@ -17,7 +17,7 @@ public protocol LMChatroomHeaderMessageCellDelegate: AnyObject {
 open class LMChatroomHeaderMessageCell: LMTableViewCell {
     
     public struct ContentModel {
-        public let message: LMChatMessageListView.ContentModel.Message?
+        public let message: ConversationViewData?
     }
     
     // MARK: UI Elements
@@ -89,7 +89,7 @@ open class LMChatroomHeaderMessageCell: LMTableViewCell {
     
     // MARK: configure
     open func setData(with data: ContentModel, index: IndexPath) {
-        chatMessageView.setData(.init(title: data.message?.message, createdBy: data.message?.createdBy, chatroomImageUrl: data.message?.createdByImageUrl, messageId: data.message?.messageId, customTitle: data.message?.memberTitle, createdTime: data.message?.createdTime))
+        chatMessageView.setData(.init(title: data.message?.message, createdBy: data.message?.createdBy, chatroomImageUrl: data.message?.member?.imageUrl, messageId: data.message?.id, customTitle: data.message?.memberTitle, createdTime: data.message?.createdAt))
         reactionsView(data)
     }
     

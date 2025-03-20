@@ -36,7 +36,7 @@ open class LMChatGalleryContentView: LMChatMessageContentView {
     open override func setDataView(_ data: LMChatMessageCell.ContentModel, index: IndexPath) {
         super.setDataView(data, index: index)
         updateRetryButton(data)
-        if data.message?.isDeleted == true {
+        if data.message.isDeleted == true {
             galleryView.isHidden = true
         } else {
             attachmentView(data, index: index)
@@ -46,7 +46,7 @@ open class LMChatGalleryContentView: LMChatMessageContentView {
     }
     
     func attachmentView(_ data: LMChatMessageCell.ContentModel, index: IndexPath) {
-        guard let attachments = data.message?.attachments,
+        guard let attachments = data.message.attachments,
               !attachments.isEmpty else {
             galleryView.isHidden = true
             return
@@ -54,7 +54,7 @@ open class LMChatGalleryContentView: LMChatMessageContentView {
         galleryPreview(attachments)
     }
     
-    func galleryPreview(_ attachments: [LMChatMessageListView.ContentModel.Attachment]) {
+    func galleryPreview(_ attachments: [AttachmentViewData]) {
         guard !attachments.isEmpty else {
             galleryView.isHidden = true
             return
@@ -62,7 +62,7 @@ open class LMChatGalleryContentView: LMChatMessageContentView {
         if attachments.count > 0 {
             galleryView.isHidden = false
             let data: [LMChatMessageGallaryView.ContentModel] = attachments.compactMap({ attachment in
-                    .init(fileUrl: attachment.fileUrl, thumbnailUrl: attachment.thumbnailUrl, fileSize: attachment.fileSize, duration: attachment.duration, fileType: attachment.fileType, fileName: attachment.fileName)
+                    .init(fileUrl: attachment.url, thumbnailUrl: attachment.thumbnailUrl, fileSize: attachment.meta?.size, duration: attachment.meta?.duration, fileType: attachment.type, fileName: attachment.name)
             })
             galleryView.setData(data)
         } else {
@@ -71,8 +71,8 @@ open class LMChatGalleryContentView: LMChatMessageContentView {
     }
     
     func updateRetryButton(_ data: LMChatMessageCell.ContentModel) {
-        loaderView.isHidden = !(data.message?.messageStatus == .sending)
-        retryView.isHidden = !(data.message?.messageStatus == .failed)
+        loaderView.isHidden = !(data.message.messageStatus == .sending)
+        retryView.isHidden = !(data.message.messageStatus == .failed)
     }
     
     override func prepareToResuse() {

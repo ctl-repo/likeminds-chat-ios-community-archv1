@@ -108,7 +108,7 @@ class DataModelConverter {
             .id(tempId)
             .name(mediaData.mediaName)
             .url(mediaData.url?.absoluteString ?? "")
-            .type(mediaData.fileType.rawValue)
+            .type(Attachment.AttachmentType(rawValue: mediaData.fileType.rawValue) ?? Attachment.AttachmentType.unknown)
             .index(index)
             .width(mediaData.width)
             .height(mediaData.height)

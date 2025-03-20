@@ -238,7 +238,7 @@ public class LMChatGroupFeedViewModel: LMChatBaseViewModel {
         let groupedBy = Dictionary(grouping: attachments, by: { $0.type })
         var typeArray: [(String, Int)] = []
         for atType in attachmentTypes {
-            typeArray.append((atType, groupedBy[atType]?.count ?? 0))
+            typeArray.append((atType.rawValue, groupedBy[atType]?.count ?? 0))
         }
         typeArray =
             ((typeArray.count) > 0)

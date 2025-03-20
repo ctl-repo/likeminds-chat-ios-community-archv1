@@ -18,7 +18,7 @@ open class LMChatMessageDocumentPreview: LMView {
         public let thumbnailUrl: String?
         public let fileSize: Int?
         public let numberOfPages: Int?
-        public let fileType: String?
+        public let fileType: AttachmentViewData.AttachmentType?
         public let fileName: String?
         public var fileSizeInMb: String {
             guard let fileSize else { return "" }
@@ -140,7 +140,7 @@ open class LMChatMessageDocumentPreview: LMView {
         if !data.fileSizeInMb.isEmpty {
             details = details + "\(data.fileSizeInMb) • "
         }
-        subtitleLabel.text = details + "\(data.fileType?.uppercased() ?? "PDF")"
+        subtitleLabel.text = details + "\(data.fileType?.rawValue.uppercased() ?? "PDF")"
     }
     
     @objc func onAttachmentClicked(_ gesture: UITapGestureRecognizer) {

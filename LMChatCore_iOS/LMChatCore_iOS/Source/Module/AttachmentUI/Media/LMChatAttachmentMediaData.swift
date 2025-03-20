@@ -9,6 +9,7 @@ import Foundation
 import PhotosUI
 
 public struct LMChatAttachmentMediaData {
+    
     let url: URL?
     let fileType: MediaType
     let width: Int?

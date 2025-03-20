@@ -437,7 +437,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
                 $0.section == mediumConversation.date
             }),
             let index = messagesList[section].data.firstIndex(where: {
-                $0.messageId == mediumConversation.id
+                $0.id == mediumConversation.id
             })
         else { return }
         fetchingInitialBottomData = true
@@ -469,9 +469,9 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
     }
 
     func convertConversation(_ conversation: Conversation)
-        -> LMChatMessageListView.ContentModel.Message
+        -> ConversationViewData
     {
-        var replies: [LMChatMessageListView.ContentModel.Message] = []
+        var replyViewData: ConversationViewData?
         var replyConversation: Conversation? = conversation.replyConversation
 
         if conversation.replyConversation == nil,
@@ -491,95 +491,41 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         }
 
         if let replyConversation {
-            replies =
-                [
-                    .init(
-                        messageId: replyConversation.id ?? "",
-                        memberTitle: conversation.member?.communityManager(),
-                        memberState: replyConversation.member?.state,
-                        message: convertMessageIntoFormat(replyConversation),
-                        timestamp: replyConversation.createdEpoch,
-                        reactions: nil,
-                        attachments: replyConversation.attachments?.sorted(by: {
-                            ($0.index ?? 0) < ($1.index ?? 0)
-                        }).compactMap({
-                            .init(
-                                fileUrl: FileUtils.imageUrl($0.url),
-                                thumbnailUrl: FileUtils.imageUrl(
-                                    $0.thumbnailUrl), fileSize: $0.meta?.size,
-                                numberOfPages: $0.meta?.numberOfPage,
-                                duration: $0.meta?.duration, fileType: $0.type,
-                                fileName: $0.name)
-                        }), replied: nil,
-                        isDeleted: replyConversation.deletedByMember != nil,
-                        createdBy: replyConversation.member?.sdkClientInfo?.uuid
-                            != UserPreferences.shared.getClientUUID()
-                            ? replyConversation.member?.name : "You",
-                        createdByImageUrl: replyConversation.member?.imageUrl,
-                        createdById: replyConversation.member?.sdkClientInfo?
-                            .uuid,
-                        isIncoming: replyConversation.member?.sdkClientInfo?
-                            .uuid != UserPreferences.shared.getClientUUID(),
-                        messageType: replyConversation.state.rawValue,
-                        createdTime: LMCoreTimeUtils.timestampConverted(
-                            withEpoch: replyConversation.createdEpoch ?? 0),
-                        ogTags: createOgTags(replyConversation.ogTags),
-                        isEdited: replyConversation.isEdited,
-                        attachmentUploaded: replyConversation
-                            .attachmentUploaded, isShowMore: false,
-                        messageStatus: messageStatus(
-                            replyConversation.conversationStatus),
-                        tempId: replyConversation.temporaryId,
-                        hideLeftProfileImage: isChatroomType(
-                            type: .directMessage),
-                        pollData: convertPollData(replyConversation),
-                        metadata: nil
-                    )
-                ]
+            replyViewData = replyConversation.toViewData(
+                memberTitle: replyConversation.member?.communityManager(),
+                message: convertMessageIntoFormat(replyConversation),
+                createdBy: replyConversation.member?.sdkClientInfo?.uuid
+                    != UserPreferences.shared.getClientUUID()
+                    ? replyConversation.member?.name : "You",
+                isIncoming: replyConversation.member?.sdkClientInfo?
+                    .uuid != UserPreferences.shared.getClientUUID(),
+                messageType: replyConversation.state.rawValue,
+                messageStatus: messageStatus(
+                    replyConversation.conversationStatus),
+                hideLeftProfileImage: isChatroomType(
+                    type: .directMessage),
+                createdTime: LMCoreTimeUtils.timestampConverted(
+                    withEpoch: replyConversation.createdEpoch ?? 0))
         }
-        var metadata: [String:Any]?
-        if conversation.widget != nil {
-            metadata = conversation.widget?.metadata
-        }
-        return .init(
-            messageId: conversation.id ?? "",
+
+        var conversationViewData = conversation.toViewData(
             memberTitle: conversation.member?.communityManager(),
-            memberState: conversation.member?.state,
             message: convertMessageIntoFormat(conversation),
-            timestamp: conversation.createdEpoch,
-            reactions: reactionGrouping(
-                conversation.reactions?.reversed() ?? []),
-            attachments: conversation.attachments?.sorted(by: {
-                ($0.index ?? 0) < ($1.index ?? 0)
-            }).map({
-                .init(
-                    fileUrl: FileUtils.imageUrl($0.url),
-                    thumbnailUrl: FileUtils.imageUrl($0.thumbnailUrl),
-                    fileSize: $0.meta?.size,
-                    numberOfPages: $0.meta?.numberOfPage,
-                    duration: $0.meta?.duration, fileType: $0.type,
-                    fileName: $0.name)
-            }),
-            replied: replies,
-            isDeleted: conversation.deletedByMember != nil,
-            createdBy: conversation.member?.name,
-            createdByImageUrl: conversation.member?.imageUrl,
-            createdById: conversation.member?.sdkClientInfo?.uuid,
-            isIncoming: conversation.member?.sdkClientInfo?.uuid
-                != UserPreferences.shared.getClientUUID(),
+            createdBy: conversation.member?.sdkClientInfo?.uuid
+                != UserPreferences.shared.getClientUUID()
+                ? conversation.member?.name : "You",
+            isIncoming: conversation.member?.sdkClientInfo?
+                .uuid != UserPreferences.shared.getClientUUID(),
             messageType: conversation.state.rawValue,
+            messageStatus: messageStatus(
+                conversation.conversationStatus),
+            hideLeftProfileImage: isChatroomType(
+                type: .directMessage),
             createdTime: LMCoreTimeUtils.timestampConverted(
                 withEpoch: conversation.createdEpoch ?? 0),
-            ogTags: createOgTags(conversation.ogTags),
-            isEdited: conversation.isEdited,
-            attachmentUploaded: conversation.attachmentUploaded,
-            isShowMore: false,
-            messageStatus: messageStatus(conversation.conversationStatus),
-            tempId: conversation.temporaryId,
-            hideLeftProfileImage: isChatroomType(type: .directMessage),
-            pollData: convertPollData(conversation),
-            metadata: metadata
-        )
+            replyConversation: replyViewData)
+
+        return conversationViewData
     }
 
     func convertPollData(_ conversation: Conversation) -> LMChatPollView
@@ -703,8 +649,8 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
     }
 
     func addTapToUndoForRejectedNotification(
-        _ lastMessage: LMChatMessageListView.ContentModel.Message
-    ) -> LMChatMessageListView.ContentModel.Message? {
+        _ lastMessage: ConversationViewData
+    ) -> ConversationViewData? {
         var message = lastMessage
         if message.messageType
             == ConversationState.directMessageMemberRequestRejected.rawValue,
@@ -729,20 +675,19 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             subtitle: ogTags.description)
     }
 
-    func reactionGrouping(_ reactions: [Reaction]) -> [LMChatMessageListView
-        .ContentModel.Reaction]
+    func reactionGrouping(_ reactions: [Reaction]) -> [ReactionViewData]
     {
         guard !reactions.isEmpty else { return [] }
         let reactionsOnly = reactions.map { $0.reaction }.unique()
         let grouped = Dictionary(grouping: reactions, by: { $0.reaction })
-        var reactionsArray: [LMChatMessageListView.ContentModel.Reaction] = []
+        var reactionsArray: [ReactionViewData] = []
         for item in reactionsOnly {
             let membersIds =
                 grouped[item]?.compactMap({ $0.member?.uuid }) ?? []
             reactionsArray.append(
+          
                 .init(
-                    memberUUID: membersIds, reaction: item,
-                    count: membersIds.count))
+                    memberUUID: membersIds, reaction: item))
         }
         return reactionsArray
     }
@@ -792,7 +737,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             var sectionData = messagesList[index]
             sectionData.data.append(convertConversation(conversation))
             sectionData.data.sort(by: {
-                ($0.timestamp ?? 0) < ($1.timestamp ?? 0)
+                ($0.createdEpoch ?? 0) < ($1.createdEpoch ?? 0)
             })
             messagesList[index] = sectionData
         } else {
@@ -811,14 +756,14 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         }) {
             var sectionData = messagesList[index]
             if let conversationIndex = sectionData.data.firstIndex(where: {
-                $0.messageId == conversation.id
-                    || $0.messageId == conversation.temporaryId
+                $0.id == conversation.id
+                    || $0.id == conversation.temporaryId
             }) {
                 sectionData.data[conversationIndex] = convertConversation(
                     conversation)
             }
             sectionData.data.sort(by: {
-                ($0.timestamp ?? 0) < ($1.timestamp ?? 0)
+                ($0.createdEpoch ?? 0) < ($1.createdEpoch ?? 0)
             })
             messagesList[index] = sectionData
         }
@@ -927,10 +872,14 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         }
         switch action.id {
         case .viewParticipants:
-            LMChatCore.analytics?.trackEvent(for: LMChatAnalyticsEventName.viewChatroomParticipants, eventProperties: [
-                LMChatAnalyticsKeys.chatroomId.rawValue: chatroomViewData?.id,
-                LMChatAnalyticsKeys.source.rawValue: LMChatAnalyticsSource.chatroomOverflowMenu
-            ])
+            LMChatCore.analytics?.trackEvent(
+                for: LMChatAnalyticsEventName.viewChatroomParticipants,
+                eventProperties: [
+                    LMChatAnalyticsKeys.chatroomId.rawValue: chatroomViewData?
+                        .id,
+                    LMChatAnalyticsKeys.source.rawValue: LMChatAnalyticsSource
+                        .chatroomOverflowMenu,
+                ])
             NavigationScreen.shared.perform(
                 .participants(
                     chatroomId: chatroomViewData?.id ?? "",
@@ -944,7 +893,8 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             NavigationScreen.shared.perform(
                 .report(
                     chatroomId: chatroomViewData?.id ?? "", conversationId: nil,
-                    memberId: nil, type: nil), from: fromViewController, params: nil)
+                    memberId: nil, type: nil), from: fromViewController,
+                params: nil)
         case .leaveChatRoom:
             leaveChatroom()
         case .unFollow:
@@ -1202,7 +1152,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
                 || (poll.multipleSelectState != nil))
             && ((poll.polls?.contains(where: { $0.isSelected == true }) == true)
                 && (messagesList[sectionIndex].data.first(where: {
-                    $0.messageId == messageId
+                    $0.id == messageId
                 })?.pollData?.isEditingMode == false))
         {
             return
@@ -1217,7 +1167,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
                 rawValue: poll.multipleSelectState ?? -1)
             let selectionCount = poll.multipleSelectNum ?? 0
             if let rowIndex = messagesList[sectionIndex].data.firstIndex(
-                where: { $0.messageId == messageId })
+                where: { $0.id == messageId })
             {
                 var sectionData = messagesList[sectionIndex]
                 var rowData = sectionData.data[rowIndex]
@@ -1280,7 +1230,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             $0.section == conversationDate
         }),
             let rowData = messagesList[sectionIndex].data.first(where: {
-                $0.messageId == messageId
+                $0.id == messageId
             }),
             let pollData = rowData.pollData
         {
@@ -1315,7 +1265,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             $0.section == conversationDate
         }),
             let rowIndex = messagesList[sectionIndex].data.firstIndex(where: {
-                $0.messageId == messageId
+                $0.id == messageId
             })
         {
             var sectionData = messagesList[sectionIndex]
@@ -1575,6 +1525,7 @@ extension LMChatMessageListViewModel {
         }
     }
 
+    // MARK: Post Conversation
     public func postMessage(
         message: String?,
         filesUrls: [LMChatAttachmentMediaData]?,
@@ -1582,7 +1533,7 @@ extension LMChatMessageListViewModel {
         replyConversationId: String?,
         replyChatRoomId: String?,
         temporaryId: String? = nil,
-        metadata: [String:Any]? = nil
+        metadata: [String: Any]? = nil
     ) {
         LMSharedPreferences.removeValue(forKey: chatroomId)
         guard let communityId = chatroomViewData?.communityId else { return }
@@ -1619,6 +1570,7 @@ extension LMChatMessageListViewModel {
         var requestFiles: [LMChatAttachmentUploadModel] = []
 
         DispatchQueue.global(qos: .userInitiated).async { [self] in
+
             if let updatedFileUrls = filesUrls, !updatedFileUrls.isEmpty {
                 requestFiles.append(
                     contentsOf: getUploadFileRequestList(
@@ -1678,6 +1630,26 @@ extension LMChatMessageListViewModel {
             }
         }
 
+    }
+
+    public func containsAttachments(
+        conversation: ConversationViewData
+    ) -> Bool {
+        guard let attachments = conversation.attachments else {
+            return false
+        }
+
+        for attachment in attachments {
+            if let fileType = attachment.type {
+                if fileType == .image || fileType == .video || fileType == .pdf
+                    || fileType == .gif || fileType == .audio
+                    || fileType == .voiceNote
+                {
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     func shimmerMockConversationData() {
@@ -1839,7 +1811,8 @@ extension LMChatMessageListViewModel {
                     url: FileUtils.getFilePath(
                         withFileName: URL(string: attachment.url ?? "")?
                             .lastPathComponent),
-                    fileType: MediaType(rawValue: attachment.type ?? "image")
+                    fileType: MediaType(
+                        rawValue: attachment.type?.rawValue ?? "image")
                         ?? .image,
                     width: attachment.width,
                     height: attachment.height,
@@ -1853,7 +1826,7 @@ extension LMChatMessageListViewModel {
                     duration: attachment.meta?.duration,
                     awsFolderPath: attachment.awsFolderPath,
                     thumbnailAwsPath: attachment.thumbnailAWSFolderPath,
-                    format: attachment.type,
+                    format: attachment.type?.rawValue,
                     image: nil,
                     livePhoto: nil)
             }
@@ -2068,7 +2041,7 @@ extension LMChatMessageListViewModel {
             $0.section == conversation.date
         }) {
             var section = messagesList[sectionIndex]
-            section.data.removeAll(where: { $0.messageId == conversationId })
+            section.data.removeAll(where: { $0.id == conversationId })
             if !section.data.isEmpty {
                 messagesList[sectionIndex] = section
             } else {

@@ -14,7 +14,7 @@ extension Conversation {
 
      - Returns: A `ConversationViewData` populated with the data from this `Conversation`.
      */
-    public func toViewData() -> ConversationViewData {
+    public func toViewData(memberTitle: String? = nil, message: String? = nil, createdBy: String? = nil, isIncoming: Bool? = nil, messageType: Int? = nil, messageStatus: LMMessageStatus? = nil, hideLeftProfileImage: Bool? = nil, createdTime: String? = nil, replyConversation: ConversationViewData? = nil) -> ConversationViewData {
         let viewData = ConversationViewData(
             answer: self.answer,
             state: self.state.toViewData(),  // Assuming `ConversationState` has `toViewData`
@@ -57,9 +57,17 @@ extension Conversation {
         viewData.hasReactions = self.hasReactions
         viewData.lastUpdated = self.lastUpdated
         viewData.deletedByMember = self.deletedByMember?.toViewData()  // Assuming `Member` has `toViewData`
-        viewData.replyConversation = self.replyConversation?.toViewData()  // Assuming `Conversation` has `toViewData`
+        viewData.replyConversation = replyConversation ?? self.replyConversation?.toViewData()  // Assuming `Conversation` has `toViewData`
         viewData.conversationStatus = self.conversationStatus?.toViewData()  // Assuming `ConversationStatus` has `toViewData`
         viewData.widget = self.widget?.toViewData()  // Assuming `Widget` has `toViewData`
+        viewData.memberTitle = memberTitle
+        viewData.message = message
+        viewData.createdBy = createdBy
+        viewData.isIncoming = isIncoming
+        viewData.messageType = messageType
+        viewData.messageStatus = messageStatus
+        viewData.hideLeftProfileImage = hideLeftProfileImage
+        viewData.createdTime = createdTime
         return viewData
     }
 }
