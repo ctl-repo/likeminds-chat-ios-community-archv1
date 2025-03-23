@@ -72,7 +72,7 @@ open class LMChatMessageCell: LMTableViewCell {
     weak var audioDelegate: LMChatAudioProtocol?
     weak var pollDelegate: LMChatPollViewDelegate?
 
-    var data: LMChatMessageCell.ContentModel?
+    var data: ContentModel?
     var currentIndexPath: IndexPath?
     var originalCenter = CGPoint()
     var replyActionHandler: (() -> Void)?
@@ -157,10 +157,10 @@ open class LMChatMessageCell: LMTableViewCell {
         chatMessageView.retryView.delegate = self
         updateSelection(data: data)
         chatMessageView.delegate = self
-        if data.message?.isIncoming == false {
-            retryButton.isHidden = data.message?.messageStatus != .failed
+        if data.message.isIncoming == false {
+            retryButton.isHidden = data.message.messageStatus != .failed
         }
-        if data.message?.hideLeftProfileImage == true {
+        if data.message.hideLeftProfileImage == true {
             chatMessageView.chatProfileImageView.isHidden = true
             chatMessageView.usernameLabel.isHidden = true
         }
@@ -174,7 +174,7 @@ open class LMChatMessageCell: LMTableViewCell {
     
     @objc open func retrySendMessage(_ sender: UIButton) {
         guard let data else { return }
-        delegate?.onRetryButtonClicked(conversation: data)
+        delegate?.onRetryButtonClicked(conversation: data.message)
     }
 }
 

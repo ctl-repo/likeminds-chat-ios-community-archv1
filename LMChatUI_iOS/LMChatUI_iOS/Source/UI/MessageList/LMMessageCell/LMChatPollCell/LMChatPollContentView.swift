@@ -38,16 +38,16 @@ open class LMChatPollContentView: LMChatMessageContentView {
         super.setDataView(data, index: index)
         self.textLabel.isHidden = true
         updateRetryButton(data)
-        if data.message?.isDeleted == true {
+        if data.message.isDeleted == true {
             pollDisplayView.isHidden = true
         } else {
-            pollDisplayPreview(data.message?.pollData)
+            pollDisplayPreview(data.message.pollInfoData)
         }
         pollDisplayView.bringSubviewToFront(cancelRetryContainerStackView)
         bubbleView.layoutIfNeeded()
     }
 
-    func pollDisplayPreview(_ pollData: LMChatPollView.ContentModel?) {
+    func pollDisplayPreview(_ pollData: PollInfoData?) {
         guard let pollData else {
             pollDisplayView.isHidden = true
             return
@@ -57,8 +57,8 @@ open class LMChatPollContentView: LMChatMessageContentView {
     }
      
     func updateRetryButton(_ data: LMChatMessageCell.ContentModel) {
-        loaderView.isHidden = !(data.message?.messageStatus == .sending)
-        retryView.isHidden = !(data.message?.messageStatus == .failed)
+        loaderView.isHidden = !(data.message.messageStatus == .sending)
+        retryView.isHidden = !(data.message.messageStatus == .failed)
     }
     
     override func prepareToResuse() {

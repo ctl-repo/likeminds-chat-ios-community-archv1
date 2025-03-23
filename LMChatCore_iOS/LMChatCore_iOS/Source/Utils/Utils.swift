@@ -72,7 +72,7 @@ func isOtherUserAIChatbot(chatroom: Chatroom) -> Bool {
 /// Returns the conversation type based on the attachments and ogTags of a conversation.
 /// - Parameter conversation: The conversation from which to determine the type.
 /// - Returns: A string representing the conversation type (e.g., "image", "video", "doc", etc.).
-func getConversationType(_ attachments: [LMChatMessageListView.ContentModel.Attachment]?) -> String {
+func getConversationType(_ attachments: [AttachmentViewData]?) -> String {
 
     // Count how many attachments exist for each media type
     let imageCount = getMediaCount(mediaType: "image", attachments: attachments)
@@ -109,11 +109,11 @@ func getConversationType(_ attachments: [LMChatMessageListView.ContentModel.Atta
 ///   - mediaType: The media type to look for (e.g., IMAGE, VIDEO, etc.).
 ///   - attachments: An optional array of `AttachmentViewData`.
 /// - Returns: The number of attachments matching `mediaType`.
-func getMediaCount(mediaType: String, attachments: [LMChatMessageListView.ContentModel.Attachment]?) -> Int {
+func getMediaCount(mediaType: String, attachments: [AttachmentViewData]?) -> Int {
     guard let attachments = attachments else {
         return 0
     }
-    return attachments.filter { $0.fileType?.rawValue == mediaType }.count
+    return attachments.filter { $0.type?.rawValue == mediaType }.count
 }
 
 /// Returns either the `collabcard_id` or the `chatroom_id` from the given URL string.
@@ -122,7 +122,7 @@ func getMediaCount(mediaType: String, attachments: [LMChatMessageListView.Conten
 /// Examples:
 ///  - "route://collabcard?collabcard_id=99122"    -> "99122"
 ///  - "route://chatroom?chatroom_id=12345"        -> "12345"
-///  - "route://others?some_param=abc"            -> nil
+///  - "route://others?some_param=abc"             -> nil
 ///  - nil                                         -> nil
 ///
 /// - Parameter route: The URL string containing query parameters.

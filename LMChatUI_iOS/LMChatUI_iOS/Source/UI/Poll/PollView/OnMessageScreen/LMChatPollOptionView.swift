@@ -13,43 +13,6 @@ public protocol LMChatDisplayPollWidgetProtocol: AnyObject {
 }
 
 open class LMChatPollOptionView: LMBasePollOptionView {
-    public struct ContentModel {
-        public let pollId: String
-        public let optionId: String
-        public let option: String
-        public let addedBy: String?
-        public let voteCount: Int
-        public let votePercentage: Double
-        public let isOptionSelectedByUser: Bool
-        public var showVoteCount: Bool
-        public var showProgressBar: Bool
-        public var showTickButton: Bool
-        
-        public init(
-            pollId: String,
-            optionId: String,
-            option: String,
-            addedBy: String?,
-            voteCount: Int,
-            votePercentage: Double,
-            isSelected: Bool,
-            showVoteCount: Bool,
-            showProgressBar: Bool,
-            showTickButton: Bool
-        ) {
-            self.pollId = pollId
-            self.optionId = optionId
-            self.option = option
-            self.addedBy = addedBy
-            self.voteCount = voteCount
-            self.votePercentage = votePercentage
-            self.isOptionSelectedByUser = isSelected
-            self.showVoteCount = showVoteCount
-            self.showProgressBar = showProgressBar
-            self.showTickButton = showTickButton
-        }
-    }
-    
     
     // MARK: UI Elements
     open private(set) lazy var outerStackView: LMStackView = {
@@ -210,25 +173,25 @@ open class LMChatPollOptionView: LMBasePollOptionView {
         delegate?.didTapToVote(optionID: optionID)
     }
     
-    open func configure(with data: ContentModel, delegate: LMChatDisplayPollWidgetProtocol?) {
+    open func configure(with data: PollViewData, delegate: LMChatDisplayPollWidgetProtocol?) {
         self.delegate = delegate
-        self.optionID = data.optionId
+        self.optionID = data.id
         
-        optionLabel.text = data.option
+        optionLabel.text = data.text
         
-        addedByLabel.text = "Added By \(data.addedBy ?? "")"
-        addedByLabel.isHidden = data.addedBy?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty != false
+        addedByLabel.text = "Added By \(data.member?.name ?? "")"
+        addedByLabel.isHidden = data.member?.name?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty != false
         
-        voteCountContainer.isHidden = !data.showVoteCount
-        voteCount.setTitle("\(data.voteCount) vote\(data.voteCount < 2 ? "" : "s")", for: .normal)
+        voteCountContainer.isHidden = !(data.showVoteCount ?? false)
+        voteCount.setTitle("\(data.noVotes ?? 0) vote\((data.noVotes ?? 0) < 2 ? "" : "s")", for: .normal)
         
-        checkmarkIcon.isHidden = !data.showTickButton
+        checkmarkIcon.isHidden = !(data.showTickButton ?? false)
         
-        progressView.isHidden = !data.showProgressBar
-        progressView.progress = Float(data.votePercentage / 100)
-        progressView.progressTintColor = data.isOptionSelectedByUser ? selectedPollColor.withAlphaComponent(0.2) : notSelectedPollColor
+        progressView.isHidden = !(data.showProgressBar ?? false)
+        progressView.progress = Float((data.percentage ?? 0) / 100)
+        progressView.progressTintColor = (data.isSelected ?? false) ? selectedPollColor.withAlphaComponent(0.2) : notSelectedPollColor
         
-        innerContainerView.layer.borderColor = data.isOptionSelectedByUser ? selectedPollColor.cgColor : notSelectedPollColor.cgColor
-        optionLabel.textColor = data.isOptionSelectedByUser ? selectedPollColor : Appearance.shared.colors.black
+        innerContainerView.layer.borderColor = (data.isSelected ?? false) ? selectedPollColor.cgColor : notSelectedPollColor.cgColor
+        optionLabel.textColor = (data.isSelected ?? false) ? selectedPollColor : Appearance.shared.colors.black
     }
 }

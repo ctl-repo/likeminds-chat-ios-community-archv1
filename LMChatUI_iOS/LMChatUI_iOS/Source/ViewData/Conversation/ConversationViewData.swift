@@ -5,7 +5,9 @@
 //  Created by Anurag Tyagi on 21/01/25.
 //
 
-/// A view-data class that mirrors the properties of `Conversation`.
+import Foundation
+
+/// A view-data class that mirrors the properties of `ConversationViewData` from Kotlin.
 ///
 /// This class can be used in UI layers or other scenarios where a mutable,
 /// class-based model is preferred. It keeps the domain/networking-focused
@@ -42,17 +44,6 @@ public class ConversationViewData {
     public var temporaryId: String?
     public var localCreatedEpoch: Int?
     public var reactions: [ReactionViewData]?
-    public var isAnonymous: Bool?
-    public var allowAddOption: Bool?
-    public var pollType: Int?
-    public var pollTypeText: String?
-    public var submitTypeText: String?
-    public var expiryTime: Int?
-    public var multipleSelectNum: Int?
-    public var multipleSelectState: Int?
-    public var polls: [PollViewData]?
-    public var toShowResults: Bool?
-    public var pollAnswerText: String?
     public var replyChatroomId: String?
     public var deviceId: String?
     public var hasFiles: Bool?
@@ -63,6 +54,7 @@ public class ConversationViewData {
     public var conversationStatus: ConversationStatusViewData?
     public var widgetId: String
     public var widget: WidgetViewData?
+    public var pollInfoData: PollInfoData?
     
     // MARK: Core Data Variables
     // All the variables are custom generated for handling the cases in UI
@@ -121,17 +113,6 @@ public class ConversationViewData {
         temporaryId: String?,
         localCreatedEpoch: Int?,
         reactions: [ReactionViewData]?,
-        isAnonymous: Bool?,
-        allowAddOption: Bool?,
-        pollType: Int?,
-        pollTypeText: String?,
-        submitTypeText: String?,
-        expiryTime: Int?,
-        multipleSelectNum: Int?,
-        multipleSelectState: Int?,
-        polls: [PollViewData]?,
-        toShowResults: Bool?,
-        pollAnswerText: String?,
         replyChatroomId: String?,
         deviceId: String?,
         hasFiles: Bool?,
@@ -142,6 +123,7 @@ public class ConversationViewData {
         conversationStatus: ConversationStatusViewData?,
         widgetId: String,
         widget: WidgetViewData?,
+        pollInfoData: PollInfoData?,
         isIncoming: Bool?,
         messageType: Int?,
         isShowMore: Bool = false,
@@ -174,17 +156,6 @@ public class ConversationViewData {
         self.temporaryId = temporaryId
         self.localCreatedEpoch = localCreatedEpoch
         self.reactions = reactions
-        self.isAnonymous = isAnonymous
-        self.allowAddOption = allowAddOption
-        self.pollType = pollType
-        self.pollTypeText = pollTypeText
-        self.submitTypeText = submitTypeText
-        self.expiryTime = expiryTime
-        self.multipleSelectNum = multipleSelectNum
-        self.multipleSelectState = multipleSelectState
-        self.polls = polls
-        self.toShowResults = toShowResults
-        self.pollAnswerText = pollAnswerText
         self.replyChatroomId = replyChatroomId
         self.deviceId = deviceId
         self.hasFiles = hasFiles
@@ -195,6 +166,7 @@ public class ConversationViewData {
         self.conversationStatus = conversationStatus
         self.widgetId = widgetId
         self.widget = widget
+        self.pollInfoData = pollInfoData
         self.isIncoming = isIncoming
         self.messageType = messageType
         self.isShowMore = isShowMore
@@ -205,5 +177,4 @@ public class ConversationViewData {
         self.hideLeftProfileImage = hideLeftProfileImage
         self.createdTime = createdTime
     }
-
 }

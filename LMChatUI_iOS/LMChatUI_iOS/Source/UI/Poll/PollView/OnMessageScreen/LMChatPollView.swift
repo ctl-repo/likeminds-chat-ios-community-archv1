@@ -16,111 +16,6 @@ public protocol LMChatPollViewDelegate: AnyObject {
 }
 
 open class LMChatPollView: LMBasePollView {
-    
-    public struct ContentModel: LMBasePollView.Content {
-        public let chatroomId: String
-        public let messageId: String
-        public var question: String
-        public var options: [LMChatPollOptionView.ContentModel]
-        public var expiryDate: Date
-        public var optionState: String
-        public var optionCount: Int
-        public var isAnonymousPoll: Bool
-        public var isInstantPoll: Bool
-        public var allowAddOptions: Bool
-        public var answerText: String
-        public var isShowSubmitButton: Bool
-        public var isShowEditVote: Bool
-        public var enableSubmitButton: Bool = false
-        public var tempSelectedOptions: [String] = []
-        public var isEditingMode: Bool = false
-        public var submitTypeText: String?
-        public var pollTypeText: String?
-        
-        public init(
-            chatroomId: String,
-            messageId: String,
-            question: String,
-            answerText: String,
-            options: [LMChatPollOptionView.ContentModel],
-            expiryDate: Date,
-            optionState: String,
-            optionCount: Int,
-            isAnonymousPoll: Bool,
-            isInstantPoll: Bool,
-            allowAddOptions: Bool,
-            isShowSubmitButton: Bool,
-            isShowEditVote: Bool,
-            submitTypeText: String?,
-            pollTypeText: String?
-        ) {
-            self.chatroomId = chatroomId
-            self.messageId = messageId
-            self.question = question
-            self.options = options
-            self.expiryDate = expiryDate
-            self.optionState = optionState
-            self.optionCount = optionCount
-            self.isAnonymousPoll = isAnonymousPoll
-            self.isInstantPoll = isInstantPoll
-            self.allowAddOptions = allowAddOptions
-            self.answerText = answerText
-            self.isShowSubmitButton = isShowSubmitButton
-            self.isShowEditVote = isShowEditVote
-            self.submitTypeText = submitTypeText
-            self.pollTypeText = pollTypeText
-        }
-        
-        public var isPollExpired: Bool {
-            expiryDate < Date()
-        }
-        
-        public var expiryDateFormatted: String {
-            let now = Date()
-            
-            guard expiryDate > now else {
-                return "Poll Ended"
-            }
-            
-            let components = Calendar.current.dateComponents([.day, .hour, .minute], from: now, to: expiryDate)
-            
-            guard let days = components.day, let hours = components.hour, let minutes = components.minute else {
-                return "Just Now"
-            }
-            
-            switch (days, hours, minutes) {
-            case (0, 0, let min) where min > 0:
-                return "Ends in \(min) \(getPluralText(withNumber: min, text: "min"))"
-            case (0, let hr, _) where hr >= 1:
-                return "Ends in \(hr) \(getPluralText(withNumber: hr, text: "hour"))"
-            case (let d, _, _) where d >= 1:
-                return "Ends in \(d) \(getPluralText(withNumber: d, text: "day"))"
-            default:
-                return "Just Now"
-            }
-        }
-        
-        public mutating func addTempSelectedOptions(_ option: String) {
-            self.tempSelectedOptions.append(option)
-        }
-        
-        public mutating func removeTempSelectedOptions(_ option: String) {
-            guard let index = self.tempSelectedOptions.firstIndex(where: {$0 == option}) else { return }
-            self.tempSelectedOptions.remove(at: index)
-        }
-        
-        func getPluralText(withNumber number: Int, text: String) -> String {
-            number > 1 ? "\(text)s" : text
-        }
-        
-        func pollTypeWithSubmitText() -> String {
-            let submitType = submitTypeText ?? ""
-            let pollType = pollTypeText ?? ""
-            return "\(pollType) \(Constants.shared.strings.dot) \(submitType)"
-        }
-    }
-    
-    
     // MARK: UI Elements
     open private(set) lazy var bottomStack: LMStackView = {
         let stack = LMStackView().translatesAutoresizingMaskIntoConstraints()
@@ -326,36 +221,38 @@ open class LMChatPollView: LMBasePollView {
     
     
     // MARK: configure
-    open func configure(with data: ContentModel, delegate: LMChatPollViewDelegate?) {
+    open func configure(with data: PollInfoData, delegate: LMChatPollViewDelegate?) {
         self.delegate = delegate
         self.chatroomId = data.chatroomId
         self.messageId = data.messageId
         
         questionTitle.text = data.question
         pollTypeLabel.text = data.pollTypeWithSubmitText()
-        optionSelectCountLabel.text = data.optionStringFormatted
-        optionSelectCountLabel.isHidden = !data.isShowOption
+//        optionSelectCountLabel.text = data.optionStringFormatted
+//        optionSelectCountLabel.isHidden = !data.isShowOption
+        
+        optionSelectCountLabel.isHidden = true
         
         optionStackView.removeAllArrangedSubviews()
         
-        data.options.forEach { option in
+        data.options?.forEach { option in
             let optionView = LMUIComponents.shared.pollOptionView.init()
             optionView.translatesAutoresizingMaskIntoConstraints = false
             optionView.configure(with: option, delegate: self)
             optionStackView.addArrangedSubview(optionView)
         }
         
-        answerTitleLabel.text = data.answerText
+        answerTitleLabel.text = data.pollAnswerTextUpdated()
         expiryDateLabel.text = data.expiryDateFormatted
         expiryDateLabel.backgroundColor = data.isPollExpired ? Appearance.shared.colors.red : Appearance.shared.colors.appTintColor
         
-        addOptionButton.isHidden = !data.allowAddOptions
+        addOptionButton.isHidden = !(data.allowAddOption ?? false)
         
-        editVoteButton.isHidden = !data.isShowEditVote
+        editVoteButton.isHidden = !(data.isShowEditVote ?? false)
         
-        submitButton.isHidden = !data.isShowSubmitButton
-        submitButton.isEnabled = data.enableSubmitButton
-        submitButton.alpha = data.enableSubmitButton ? 1 : 0.5
+        submitButton.isHidden = !(data.isShowSubmitButton ?? false)
+        submitButton.isEnabled = (data.enableSubmitButton ?? false)
+        submitButton.alpha = (data.enableSubmitButton ?? false) ? 1 : 0.5
     }
 }
 

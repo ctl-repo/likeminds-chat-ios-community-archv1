@@ -40,17 +40,7 @@ extension Conversation {
         viewData.temporaryId = self.temporaryId
         viewData.localCreatedEpoch = self.localCreatedEpoch
         viewData.reactions = self.reactions?.compactMap { $0.toViewData() }  // Assuming `Reaction` has `toViewData`
-        viewData.isAnonymous = self.isAnonymous
-        viewData.allowAddOption = self.allowAddOption
-        viewData.pollType = self.pollType
-        viewData.pollTypeText = self.pollTypeText
-        viewData.submitTypeText = self.submitTypeText
-        viewData.expiryTime = self.expiryTime
-        viewData.multipleSelectNum = self.multipleSelectNum
-        viewData.multipleSelectState = self.multipleSelectState
-        viewData.polls = self.polls?.compactMap { $0.toViewData() }  // Assuming `Poll` has `toViewData`
-        viewData.toShowResults = self.toShowResults
-        viewData.pollAnswerText = self.pollAnswerText
+
         viewData.replyChatroomId = self.replyChatroomId
         viewData.deviceId = self.deviceId
         viewData.hasFiles = self.hasFiles
@@ -68,7 +58,133 @@ extension Conversation {
         viewData.messageStatus = messageStatus
         viewData.hideLeftProfileImage = hideLeftProfileImage
         viewData.createdTime = createdTime
+        
+        // Create PollInfoData if any poll-related data exists
+        if self.isAnonymous != nil || self.allowAddOption != nil || self.pollType != nil ||
+           self.pollTypeText != nil || self.submitTypeText != nil || self.expiryTime != nil || 
+           self.multipleSelectNum != nil || self.multipleSelectState != nil || self.polls != nil || 
+           self.toShowResults != nil || self.pollAnswerText != nil {
+            
+            let pollInfoData = PollInfoData.Builder()
+                .isAnonymous(self.isAnonymous)
+                .allowAddOption(self.allowAddOption)
+                .pollType(self.pollType)
+                .pollTypeText(self.pollTypeText)
+                .submitTypeText(self.submitTypeText)
+                .expiryTime(self.expiryTime)
+                .multipleSelectNum(self.multipleSelectNum)
+                .multipleSelectState(self.multipleSelectState)
+                .pollViewDataList(self.polls?.compactMap { $0.toViewData() })
+                .pollAnswerText(self.pollAnswerText)
+                .isPollSubmitted(false)
+                .toShowResult(self.toShowResults)
+                .build()
+            
+            viewData.pollInfoData = pollInfoData
+            
+            // The below function updated pollInfoData with
+            // the neccessary data for Core implementation
+            var pollInfoDataUpdated = convertPollData(viewData)
+            
+            viewData.pollInfoData = pollInfoDataUpdated
+        }
+        
         return viewData
+    }
+    
+    public func convertPollData(_ conversation: ConversationViewData) -> PollInfoData? {
+        guard conversation.state == .microPoll else { return nil }
+        var pollInfoDataBuilder : PollInfoData.Builder? = conversation.pollInfoData?
+            .toBuilder()
+
+        // Update the builder with values from the conversation by calling the builder methods.
+        pollInfoDataBuilder =
+            pollInfoDataBuilder?
+            .chatroomId(conversation.chatroomId ?? "")
+            .messageId(conversation.id ?? "")
+            .question(conversation.answer)
+            .pollAnswerText(conversation.pollInfoData?.pollAnswerText ?? "")
+            .options(
+                getPollOptions(conversation.pollInfoData?.pollViewDataList, conversation: conversation)
+            )
+            .expiryDate(
+                Date(milliseconds: Double(conversation.pollInfoData?.expiryTime ?? 0))
+            )
+            .optionState(
+                LMChatPollSelectState(
+                    rawValue: (conversation.pollInfoData?.multipleSelectState ?? 0))?
+                    .description ?? ""
+            )
+            .optionCount(conversation.pollInfoData?.multipleSelectNum ?? 0)
+            .isAnonymous(conversation.pollInfoData?.isAnonymous)
+            .isInstantPoll(conversation.pollInfoData?.pollType == 0)
+            .isShowSubmitButton(isShowSubmitButton(conversation))
+            .isShowEditVote(isShowEditToVoteAgain(conversation))
+            .submitTypeText(conversation.pollInfoData?.submitTypeText)
+            .pollTypeText(conversation.pollInfoData?.pollTypeText)
+            .allowAddOption(isAllowAddOption(conversation))
+
+        return pollInfoDataBuilder?.build()
+    }
+
+    public func isAllowAddOption(_ conversation: ConversationViewData) -> Bool {
+        let isExpired =
+        (conversation.pollInfoData?.expiryTime ?? 0) < Int(Date().millisecondsSince1970)
+        let isAlreadyVoted =
+        conversation.pollInfoData?.pollViewDataList?.contains(where: { $0.isSelected == true })
+            ?? false
+        return !isExpired && !isAlreadyVoted
+        && (conversation.pollInfoData?.allowAddOption ?? false)
+    }
+
+    public func isShowEditToVoteAgain(_ conversation: ConversationViewData) -> Bool {
+        let isDeffered = conversation.pollInfoData?.pollType == 1
+        let isAlreadyVoted =
+        conversation.pollInfoData?.pollViewDataList?.contains(where: { $0.isSelected == true })
+            ?? false
+        let isExpired =
+        (conversation.pollInfoData?.expiryTime ?? 0) < Int(Date().millisecondsSince1970)
+        let isMultipleState = (conversation.pollInfoData?.multipleSelectState != nil)
+        return !isExpired && isAlreadyVoted && isDeffered && isMultipleState
+    }
+
+    public func isShowSubmitButton(_ conversation: ConversationViewData) -> Bool {
+        let isAlreadyVoted =
+        conversation.pollInfoData?.pollViewDataList?.contains(where: { $0.isSelected == true })
+            ?? false
+        let isExpired =
+        (conversation.pollInfoData?.expiryTime ?? 0) < Int(Date().millisecondsSince1970)
+        return !isExpired && !isAlreadyVoted
+        && (conversation.pollInfoData?.multipleSelectState != nil)
+    }
+
+    public func getPollOptions(_ polls: [PollViewData]?, conversation: ConversationViewData)
+        -> [PollViewData]
+    {
+        guard var polls else { return [] }
+        let isAllowAddOption = conversation.pollInfoData?.allowAddOption ?? false
+        polls = polls.reduce([]) { result, element in
+            result.contains(where: { $0.id == element.id })
+                ? result : result + [element]
+        }
+        let pollOptions = polls.sorted(by: { ($0.id ?? "0") < ($1.id ?? "0") })
+        let options = pollOptions.map { poll in
+
+            var pollViewData = PollViewData.init(
+                id: poll.id ?? "", text: poll.text,
+                isSelected: poll.isSelected ?? false,
+                percentage: Double(poll.percentage ?? 0),
+                subText: poll.subText, noVotes: poll.noVotes,
+                member: poll.member, userId: poll.userId,
+                conversationId: poll.conversationId,
+                showVoteCount: conversation.pollInfoData?.toShowResult ?? false,
+                showProgressBar: conversation.pollInfoData?.toShowResult ?? false,
+                showTickButton: poll.isSelected ?? false,
+                addedBy: (isAllowAddOption ? (poll.member?.name ?? "") : ""))
+
+            return pollViewData
+        }
+        return options
     }
 }
 
@@ -79,7 +195,7 @@ extension ConversationViewData {
      - Returns: A `Conversation` created using the data from this `ConversationViewData`.
      */
     public func toConversation() -> Conversation {
-        return Conversation.Builder()
+        var builder = Conversation.Builder()
             .id(self.id)
             .chatroomId(self.chatroomId)
             .communityId(self.communityId)
@@ -101,18 +217,7 @@ extension ConversationViewData {
             .uploadWorkerUUID(self.uploadWorkerUUID)
             .temporaryId(self.temporaryId)
             .localCreatedEpoch(self.localCreatedEpoch)
-            .reactions(self.reactions?.compactMap { $0.toReaction() } ?? [] )  // Assuming `ReactionViewData` has `toReaction`
-            .isAnonymous(self.isAnonymous)
-            .allowAddOption(self.allowAddOption)
-            .pollType(self.pollType)
-            .pollTypeText(self.pollTypeText)
-            .submitTypeText(self.submitTypeText)
-            .expiryTime(self.expiryTime)
-            .multipleSelectNum(self.multipleSelectNum)
-            .multipleSelectState(self.multipleSelectState)
-            .polls(self.polls?.compactMap { $0.toPoll() })  // Assuming `PollViewData` has `toPoll`
-            .toShowResults(self.toShowResults)
-            .pollAnswerText(self.pollAnswerText)
+            .reactions(self.reactions?.compactMap { $0.toReaction() } ?? [])  // Assuming `ReactionViewData` has `toReaction`
             .replyChatroomId(self.replyChatroomId)
             .deviceId(self.deviceId)
             .hasFiles(self.hasFiles)
@@ -120,11 +225,26 @@ extension ConversationViewData {
             .lastUpdated(self.lastUpdated)
             .deletedByMember(self.deletedByMember?.toMember())  // Assuming `MemberViewData` has `toMember`
             .replyConversation(self.replyConversation?.toConversation())  // Assuming `ConversationViewData` has `toConversation`
-            .conversationStatus(
-                self.conversationStatus?.toConversationStatus()
-            )  // Assuming `ConversationStatusViewData` has `toConversationStatus`
+            .conversationStatus(self.conversationStatus?.toConversationStatus())  // Assuming `ConversationStatusViewData` has `toConversationStatus`
             .widgetId(self.widgetId)
             .widget(self.widget?.toWidget())  // Assuming `WidgetViewData` has `toWidget`
-            .build()
+        
+        // Add poll-related data from PollInfoData if it exists
+        if let pollInfoData = self.pollInfoData {
+            builder = builder
+                .isAnonymous(pollInfoData.isAnonymous)
+                .allowAddOption(pollInfoData.allowAddOption)
+                .pollType(pollInfoData.pollType)
+                .pollTypeText(pollInfoData.pollTypeText)
+                .submitTypeText(pollInfoData.submitTypeText)
+                .expiryTime(pollInfoData.expiryTime)
+                .multipleSelectNum(pollInfoData.multipleSelectNum)
+                .multipleSelectState(pollInfoData.multipleSelectState)
+                .polls(pollInfoData.pollViewDataList?.compactMap { $0.toPoll() })
+                .toShowResults(pollInfoData.toShowResult)
+                .pollAnswerText(pollInfoData.pollAnswerTextUpdated())
+        }
+        
+        return builder.build()
     }
 }
