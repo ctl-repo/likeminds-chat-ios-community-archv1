@@ -27,41 +27,44 @@ class LMChatConversationAttachmentUpload {
 
     func uploadAttachments(
         withAttachments attachments: [AttachmentViewData]
-    ) async throws -> [AttachmentViewData] {
+    ) async -> [AttachmentViewData] {
         var updatedAttachments: [AttachmentViewData] = []
-        try await withThrowingTaskGroup(of: AttachmentViewData?.self) {
-            group in
+
+        await withTaskGroup(of: AttachmentViewData?.self) { group in
             for attachment in attachments {
                 group.addTask {
-                    return try await Task.detached(priority: .background) {
-                        // Upload the main file
+                    // Run the upload logic in a detached background task.
+                    return await Task.detached(priority: .background) {
+                        // Validate the main file URL.
                         guard let fileUrl = attachment.localPickedURL else {
-                            throw UploadError(
-                                message:
-                                    "Invalid file URL for attachment: \(attachment.name ?? "Unknown")"
-                            )
+                            attachment.isUploaded = false
+                            return attachment
                         }
 
                         do {
+                            // Attempt to upload the main file.
                             let awsFilePath = try await LMChatAWSManager.shared
                                 .uploadFileAsync(
                                     fileUrl: fileUrl,
                                     awsPath: attachment.awsFolderPath ?? "",
                                     fileName: attachment.name
                                         ?? "\(fileUrl.pathExtension)",
-                                    contentType: attachment.type?.rawValue ?? "",
+                                    contentType: attachment.type?.rawValue
+                                        ?? "",
                                     withTaskGroupId: attachment.name
                                 )
 
                             var awsThumbnailFilePath: String? = nil
-                            if let thumbFileUrl = attachment.localPickedThumbnailURL
+                            if let thumbFileUrl = attachment
+                                .localPickedThumbnailURL
                             {
-                                // Upload the thumbnail file if it exists
+                                // Attempt to upload the thumbnail.
                                 awsThumbnailFilePath =
                                     try await LMChatAWSManager.shared
                                     .uploadFileAsync(
                                         fileUrl: thumbFileUrl,
-                                        awsPath: attachment.thumbnailAWSFolderPath ?? "",
+                                        awsPath: attachment
+                                            .thumbnailAWSFolderPath ?? "",
                                         fileName:
                                             "\(thumbFileUrl.pathExtension)",
                                         contentType: "image",
@@ -70,28 +73,32 @@ class LMChatConversationAttachmentUpload {
                                     )
                             }
 
+                            // Update attachment properties on success.
                             attachment.url = awsFilePath
                             attachment.thumbnailUrl = awsThumbnailFilePath
-
+                            attachment.isUploaded = true
+                            Task{
+                                var _ = await LMChatClient.shared.updateAttachment(attachment: attachment.toAttachment())
+                            }
                             return attachment
                         } catch {
-                            // Throw an error if the upload fails
-                            throw UploadError(
-                                message:
-                                    "Failed to upload file for attachment: \(attachment.name ?? "Unknown") - \(error.localizedDescription)"
-                            )
+                            // On any failure, mark the attachment as not uploaded.
+                            attachment.isUploaded = false
+                            return attachment
                         }
                     }.value
                 }
             }
 
-            // Collect all results from the task group
-            for try await attachment in group {
-                if let attachment = attachment {
+            // Collect all results from the task group.
+            for await result in group {
+                if let attachment = result {
                     updatedAttachments.append(attachment)
                 }
             }
         }
+
         return updatedAttachments
     }
+
 }

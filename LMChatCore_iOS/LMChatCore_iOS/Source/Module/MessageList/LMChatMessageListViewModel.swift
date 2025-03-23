@@ -1458,45 +1458,7 @@ extension LMChatMessageListViewModel {
             fetchBottomConversations()
         }
         let temporaryId = temporaryId ?? ValueUtils.getTemporaryId()
-        Task {
-            if let attachments = filesUrls,
-                containsAttachments(attachments: attachments)
-            {
-                await postConversationWithAttachmentsUpload(
-                    message: message, filesUrls: filesUrls,
-                    shareLink: shareLink,
-                    replyConversationId: replyConversationId,
-                    replyChatRoomId: replyChatRoomId, temporaryId: temporaryId,
-                    metadata: metadata)
-            } else {
-                postConversationWithoutAttachmentsUpload(
-                    message: message, filesUrls: filesUrls,
-                    shareLink: shareLink,
-                    replyConversationId: replyConversationId,
-                    replyChatRoomId: replyChatRoomId, temporaryId: temporaryId,
-                    metadata: metadata)
-            }
-        }
-    }
 
-    public func retryConversation(conversation: ConversationViewData) {
-        postMessage(
-            message: conversation.answer, filesUrls: conversation.attachments,
-            shareLink: nil,
-            replyConversationId: conversation.replyConversationId,
-            replyChatRoomId: conversation.replyChatroomId,
-            temporaryId: conversation.temporaryId,
-            metadata: conversation.widget?.metadata)
-    }
-
-    private func postConversationWithoutAttachmentsUpload(
-        message: String?, filesUrls: [AttachmentViewData]? = nil,
-        shareLink: String?,
-        replyConversationId: String?,
-        replyChatRoomId: String?,
-        temporaryId: String,
-        metadata: [String: Any]? = nil
-    ) {
         guard let communityId = chatroomViewData?.communityId else { return }
 
         var requestBuilder = PostConversationRequest.Builder()
@@ -1517,57 +1479,105 @@ extension LMChatMessageListViewModel {
         // Add the metadata received into post conversation request
         // this will be used to create a widget
         requestBuilder = requestBuilder.metadata(metadata)
-        requestBuilder = requestBuilder.attachments(
-            convertToAttachmentList(from: filesUrls ?? []))
-            
-            let tempConversation = saveTemporaryConversation(
-                uuid: UserPreferences.shared.getClientUUID() ?? "",
-                communityId: communityId, request: requestBuilder.build(),
-                fileUrls: nil)
-            insertOrUpdateConversationIntoList(tempConversation)
-            delegate?.scrollToBottom(forceToBottom: true)
-            
-            if self.chatroomViewData != nil {
-                requestBuilder = requestBuilder.triggerBot(
-                    isOtherUserAIChatbot(chatroom: chatroomViewData!))
+
+        let tempConversation = saveTemporaryConversation(
+            uuid: UserPreferences.shared.getClientUUID() ?? "",
+            communityId: communityId, request: requestBuilder.build(),
+            fileUrls: nil)
+        insertOrUpdateConversationIntoList(tempConversation)
+        delegate?.scrollToBottom(forceToBottom: true)
+
+        if self.chatroomViewData != nil {
+            requestBuilder = requestBuilder.triggerBot(
+                isOtherUserAIChatbot(chatroom: chatroomViewData!))
+        }
+
+        let postConversationRequest = requestBuilder.build()
+
+        Task {
+            if let attachments = filesUrls,
+                containsAttachments(attachments: attachments)
+            {
+                await postConversationWithAttachmentsUpload(
+                    postConversationRequest: postConversationRequest,
+                    filesUrls: filesUrls
+                )
+            } else {
+                postConversationWithoutAttachmentsUpload(
+                    postConversationRequest: postConversationRequest)
             }
-            
-            let postConversationRequest = requestBuilder.build()
-            
-            LMChatClient.shared.postConversation(
-                request: postConversationRequest
-            ) {
-                [weak self] response in
-                guard let self, let conversation = response.data else {
-                    self?.delegate?.showToastMessage(
-                        message: response.errorMessage)
-                    self?.updateConversationUploadingStatus(
-                        messageId: temporaryId, withStatus: .failed)
-                    return
-                }
-                onConversationPosted(
-                    response: conversation.conversation,
-                    updatedFileUrls: nil)
+        }
+    }
+
+    public func retryConversation(conversation: ConversationViewData) {
+        postMessage(
+            message: conversation.answer, filesUrls: conversation.attachments,
+            shareLink: nil,
+            replyConversationId: conversation.replyConversationId,
+            replyChatRoomId: conversation.replyChatroomId,
+            temporaryId: conversation.temporaryId,
+            metadata: conversation.widget?.metadata)
+    }
+
+    private func postConversationWithoutAttachmentsUpload(
+        postConversationRequest: PostConversationRequest
+    ) {
+        LMChatClient.shared.postConversation(
+            request: postConversationRequest
+        ) {
+            [weak self] response in
+            guard let self, let conversation = response.data else {
+                self?.delegate?.showToastMessage(
+                    message: response.errorMessage)
+                self?.updateConversationUploadingStatus(
+                    messageId: postConversationRequest.temporaryId ?? "",
+                    withStatus: .failed)
+                return
             }
+            onConversationPosted(
+                response: conversation.conversation,
+                updatedFileUrls: nil)
+        }
     }
 
     private func postConversationWithAttachmentsUpload(
-        message: String?,
-        filesUrls: [AttachmentViewData]?,
-        shareLink: String?,
-        replyConversationId: String?,
-        replyChatRoomId: String?,
-        temporaryId: String,
-        metadata: [String: Any]? = nil
+        postConversationRequest: PostConversationRequest,
+        filesUrls: [AttachmentViewData]?
     ) async {
         let requestFiles = await handleUploadAttachments(
-            for: filesUrls, temporaryId: temporaryId)
+            for: filesUrls,
+            temporaryId: postConversationRequest.temporaryId ?? "")
+
+        var failedUploads: [Int] = []
+
+        for (index, file) in requestFiles.enumerated() {
+            if !file.isUploaded {
+                failedUploads.append(index)
+            }
+        }
+
+        if !failedUploads.isEmpty {
+            // Handle error appropriately.
+            delegate?.showToastMessage(
+                message: "Failed to upload attachments")
+            updateConversationUploadingStatus(
+                messageId: postConversationRequest.temporaryId ?? "",
+                withStatus: .failed)
+            // TODO: Show Retry Button inside Message Cell
+            return
+        }else{
+            guard let communityId = chatroomViewData?.communityId else { return }
+            
+            let tempConversation = saveTemporaryConversation(
+                uuid: UserPreferences.shared.getClientUUID() ?? "",
+                communityId: communityId, request: postConversationRequest,
+                fileUrls: requestFiles, attachmentUploadedEpoch: Int(Date().timeIntervalSince1970) * 1000)
+            insertOrUpdateConversationIntoList(tempConversation)
+            delegate?.scrollToBottom(forceToBottom: true)
+        }
 
         postConversationWithoutAttachmentsUpload(
-            message: message, filesUrls: requestFiles, shareLink: shareLink,
-            replyConversationId: replyConversationId,
-            replyChatRoomId: replyChatRoomId, temporaryId: temporaryId,
-            metadata: metadata)
+            postConversationRequest: postConversationRequest)
     }
 
     private func handleUploadAttachments(
@@ -1582,21 +1592,11 @@ extension LMChatMessageListViewModel {
                 contentsOf: getUploadFileRequestList(
                     fileUrls: updatedFileUrls,
                     chatroomId: chatroomViewData?.id ?? ""))
-            do {
-                // Await the asynchronous upload.
-                requestFiles =
-                    try await LMChatConversationAttachmentUpload.shared
-                    .uploadAttachments(withAttachments: requestFiles)
-            } catch {
-                // Handle error appropriately.
-                print(
-                    "Failed to upload attachments: \(error.localizedDescription)"
-                )
-                delegate?.showToastMessage(
-                    message: "Failed to upload attachments")
-                updateConversationUploadingStatus(
-                    messageId: temporaryId, withStatus: .failed)
-            }
+
+            requestFiles =
+                await LMChatConversationAttachmentUpload.shared
+                .uploadAttachments(withAttachments: requestFiles)
+
         }
         return requestFiles
     }
@@ -1640,11 +1640,13 @@ extension LMChatMessageListViewModel {
         uuid: String,
         communityId: String,
         request: PostConversationRequest,
-        fileUrls: [AttachmentViewData]?
+        fileUrls: [AttachmentViewData]?,
+        attachmentUploadedEpoch: Int? = nil
     ) -> Conversation {
         var conversation = DataModelConverter.shared.convertPostConversation(
             uuid: uuid, communityId: communityId, request: request,
-            fileUrls: fileUrls)
+            fileUrls: fileUrls, attachmentUploadedEpoch: attachmentUploadedEpoch
+        )
 
         let saveConversationRequest = SaveConversationRequest.builder()
             .conversation(conversation)
