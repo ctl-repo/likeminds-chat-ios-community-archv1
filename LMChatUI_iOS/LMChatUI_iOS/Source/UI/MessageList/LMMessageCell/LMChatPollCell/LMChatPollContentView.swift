@@ -31,7 +31,6 @@ open class LMChatPollContentView: LMChatMessageContentView {
         pollDisplayView.widthAnchor.constraint(equalToConstant: Self.widthOfScreen * 0.70).isActive = true
         cancelRetryContainerStackView.centerXAnchor.constraint(equalTo: pollDisplayView.centerXAnchor).isActive = true
         cancelRetryContainerStackView.centerYAnchor.constraint(equalTo: pollDisplayView.centerYAnchor).isActive = true
-
     }
     
     open override func setDataView(_ data: LMChatMessageCell.ContentModel, index: IndexPath) {

@@ -18,7 +18,7 @@ public protocol LMChatMessageCellDelegate: LMChatMessageBaseProtocol {
     func didCancelAttachmentUploading(indexPath: IndexPath)
     func didRetryAttachmentUploading(indexPath: IndexPath)
     func didTapOnProfileLink(route: String)
-    func onRetryButtonClicked(conversation: ConversationViewData)
+    func onRetryButtonClicked(conversation: ConversationViewData) async
 }
 
 @IBDesignable
@@ -172,9 +172,9 @@ open class LMChatMessageCell: LMTableViewCell {
         selectedButton.isSelected = isSelected
     }
     
-    @objc open func retrySendMessage(_ sender: UIButton) {
+    @objc open func retrySendMessage(_ sender: UIButton) async {
         guard let data else { return }
-        delegate?.onRetryButtonClicked(conversation: data.message)
+        await delegate?.onRetryButtonClicked(conversation: data.message)
     }
 }
 

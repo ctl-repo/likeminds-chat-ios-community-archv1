@@ -9,27 +9,11 @@ import LikeMindsChatData
 import LikeMindsChatUI
 import UIKit
 
-func convertToAttachmentList(from mediaDataList: [LMChatAttachmentUploadModel])
+func convertToAttachmentList(from mediaDataList: [AttachmentViewData])
     -> [Attachment]
 {
     return mediaDataList.map { mediaData in
-        Attachment.builder()
-            .id(nil)  // Assuming id is not available in LMChatAttachmentUploadModel
-            .name(mediaData.name)
-            .url(mediaData.awsUrl ?? "")  // Assuming awsUrl is equivalent to file_url
-            .type(Attachment.AttachmentType(rawValue: mediaData.fileType) ?? Attachment.AttachmentType.unknown)
-            .index(mediaData.index)
-            .width(mediaData.width)
-            .height(mediaData.height)
-            .awsFolderPath(mediaData.awsFolderPath)
-            .localFilePath(mediaData.localFilePath)
-            .thumbnailUrl(mediaData.thumbnailUri?.absoluteString)  // Converting URL to String
-            .thumbnailAWSFolderPath(mediaData.thumbnailAWSFolderPath)
-            .thumbnailLocalFilePath(mediaData.thumbnailLocalFilePath)
-            .meta(nil)  // Assuming the meta field needs further conversion if necessary
-            .createdAt(nil)  // Assuming createdAt is not available
-            .updatedAt(nil)  // Assuming updatedAt is not available
-            .build()
+        mediaData.toAttachment()
     }
 }
 
@@ -109,7 +93,8 @@ func getConversationType(_ attachments: [AttachmentViewData]?) -> String {
 ///   - mediaType: The media type to look for (e.g., IMAGE, VIDEO, etc.).
 ///   - attachments: An optional array of `AttachmentViewData`.
 /// - Returns: The number of attachments matching `mediaType`.
-func getMediaCount(mediaType: String, attachments: [AttachmentViewData]?) -> Int {
+func getMediaCount(mediaType: String, attachments: [AttachmentViewData]?) -> Int
+{
     guard let attachments = attachments else {
         return 0
     }

@@ -7,6 +7,7 @@
 
 import Foundation
 import LikeMindsChatData
+import LikeMindsChatUI
 
 class LMChatConversationAttachmentUpload {
     static let shared: LMChatConversationAttachmentUpload = .init()
@@ -25,16 +26,16 @@ class LMChatConversationAttachmentUpload {
     }
 
     func uploadAttachments(
-        withAttachments attachments: [LMChatAttachmentUploadModel]
-    ) async throws -> [LMChatAttachmentUploadModel] {
-        var updatedAttachments: [LMChatAttachmentUploadModel] = []
-        try await withThrowingTaskGroup(of: LMChatAttachmentUploadModel?.self) {
+        withAttachments attachments: [AttachmentViewData]
+    ) async throws -> [AttachmentViewData] {
+        var updatedAttachments: [AttachmentViewData] = []
+        try await withThrowingTaskGroup(of: AttachmentViewData?.self) {
             group in
             for attachment in attachments {
                 group.addTask {
                     return try await Task.detached(priority: .background) {
                         // Upload the main file
-                        guard let fileUrl = attachment.fileUrl else {
+                        guard let fileUrl = attachment.localPickedURL else {
                             throw UploadError(
                                 message:
                                     "Invalid file URL for attachment: \(attachment.name ?? "Unknown")"
@@ -45,25 +46,22 @@ class LMChatConversationAttachmentUpload {
                             let awsFilePath = try await LMChatAWSManager.shared
                                 .uploadFileAsync(
                                     fileUrl: fileUrl,
-                                    awsPath: attachment.awsFolderPath,
+                                    awsPath: attachment.awsFolderPath ?? "",
                                     fileName: attachment.name
                                         ?? "\(fileUrl.pathExtension)",
-                                    contentType: attachment.fileType,
+                                    contentType: attachment.type?.rawValue ?? "",
                                     withTaskGroupId: attachment.name
                                 )
 
                             var awsThumbnailFilePath: String? = nil
-                            if let thumbFileUrl = URL(
-                                string: attachment.thumbnailLocalFilePath ?? ""),
-                                let thumbnailAWSFolderPath = attachment
-                                    .thumbnailAWSFolderPath
+                            if let thumbFileUrl = attachment.localPickedThumbnailURL
                             {
                                 // Upload the thumbnail file if it exists
                                 awsThumbnailFilePath =
                                     try await LMChatAWSManager.shared
                                     .uploadFileAsync(
                                         fileUrl: thumbFileUrl,
-                                        awsPath: thumbnailAWSFolderPath,
+                                        awsPath: attachment.thumbnailAWSFolderPath ?? "",
                                         fileName:
                                             "\(thumbFileUrl.pathExtension)",
                                         contentType: "image",
@@ -72,14 +70,10 @@ class LMChatConversationAttachmentUpload {
                                     )
                             }
 
-                            var attachmentBuilder = attachment.toBuilder()
-                            attachmentBuilder = attachmentBuilder.awsUrl(
-                                awsFilePath)
-                            attachmentBuilder = attachmentBuilder.thumbnailUri(
-                                URL(string: awsThumbnailFilePath ?? ""))
+                            attachment.url = awsFilePath
+                            attachment.thumbnailUrl = awsThumbnailFilePath
 
-                            return attachmentBuilder.build()
-
+                            return attachment
                         } catch {
                             // Throw an error if the upload fails
                             throw UploadError(

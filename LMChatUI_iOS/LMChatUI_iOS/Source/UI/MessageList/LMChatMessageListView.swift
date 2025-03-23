@@ -68,76 +68,78 @@ open class LMChatMessageListView: LMView {
         public let section: String
         public let timestamp: Int
 
-        public init(data: [ConversationViewData], section: String, timestamp: Int) {
+        public init(
+            data: [ConversationViewData], section: String, timestamp: Int
+        ) {
             self.data = data
             self.section = section
             self.timestamp = timestamp
         }
 
-//        public struct Message {
-//            public let messageId: String
-//            public let memberTitle: String?
-//            public let memberState: Int?
-//            public var message: String?
-//            public let timestamp: Int?
-//            public let reactions: [Reaction]?
-//            public let attachments: [Attachment]?
-//            public let replied: [Message]?
-//            public let isDeleted: Bool?
-//            public let createdBy: String?
-//            public let createdByImageUrl: String?
-//            public let createdById: String?
-//            public let isIncoming: Bool?
-//            public let messageType: Int
-//            public let createdTime: String?
-//            public let ogTags: OgTags?
-//            public let isEdited: Bool?
-//            public let attachmentUploaded: Bool?
-//            public var isShowMore: Bool = false
-//            public var messageStatus: LMMessageStatus?
-//            public var tempId: String?
-//            public var hideLeftProfileImage: Bool?
-//            public var pollData: LMChatPollView.ContentModel?
-//            public var metadata: [String: Any]?
-//
-//            public init(
-//                messageId: String, memberTitle: String?, memberState: Int?,
-//                message: String?, timestamp: Int?, reactions: [Reaction]?,
-//                attachments: [Attachment]?, replied: [Message]?,
-//                isDeleted: Bool?, createdBy: String?,
-//                createdByImageUrl: String?, createdById: String?,
-//                isIncoming: Bool?, messageType: Int, createdTime: String?,
-//                ogTags: OgTags?, isEdited: Bool?, attachmentUploaded: Bool?,
-//                isShowMore: Bool, messageStatus: LMMessageStatus?,
-//                tempId: String?, hideLeftProfileImage: Bool?,
-//                pollData: LMChatPollView.ContentModel?, metadata: [String: Any]?
-//            ) {
-//                self.messageId = messageId
-//                self.memberTitle = memberTitle
-//                self.message = message
-//                self.timestamp = timestamp
-//                self.reactions = reactions
-//                self.attachments = attachments
-//                self.replied = replied
-//                self.isDeleted = isDeleted
-//                self.createdBy = createdBy
-//                self.createdByImageUrl = createdByImageUrl
-//                self.createdById = createdById
-//                self.isIncoming = isIncoming
-//                self.messageType = messageType
-//                self.createdTime = createdTime
-//                self.ogTags = ogTags
-//                self.isEdited = isEdited
-//                self.attachmentUploaded = attachmentUploaded
-//                self.isShowMore = isShowMore
-//                self.messageStatus = messageStatus
-//                self.tempId = tempId
-//                self.memberState = memberState
-//                self.hideLeftProfileImage = hideLeftProfileImage
-//                self.pollData = pollData
-//                self.metadata = metadata
-//            }
-//        }
+        //        public struct Message {
+        //            public let messageId: String
+        //            public let memberTitle: String?
+        //            public let memberState: Int?
+        //            public var message: String?
+        //            public let timestamp: Int?
+        //            public let reactions: [Reaction]?
+        //            public let attachments: [Attachment]?
+        //            public let replied: [Message]?
+        //            public let isDeleted: Bool?
+        //            public let createdBy: String?
+        //            public let createdByImageUrl: String?
+        //            public let createdById: String?
+        //            public let isIncoming: Bool?
+        //            public let messageType: Int
+        //            public let createdTime: String?
+        //            public let ogTags: OgTags?
+        //            public let isEdited: Bool?
+        //            public let attachmentUploaded: Bool?
+        //            public var isShowMore: Bool = false
+        //            public var messageStatus: LMMessageStatus?
+        //            public var tempId: String?
+        //            public var hideLeftProfileImage: Bool?
+        //            public var pollData: LMChatPollView.ContentModel?
+        //            public var metadata: [String: Any]?
+        //
+        //            public init(
+        //                messageId: String, memberTitle: String?, memberState: Int?,
+        //                message: String?, timestamp: Int?, reactions: [Reaction]?,
+        //                attachments: [Attachment]?, replied: [Message]?,
+        //                isDeleted: Bool?, createdBy: String?,
+        //                createdByImageUrl: String?, createdById: String?,
+        //                isIncoming: Bool?, messageType: Int, createdTime: String?,
+        //                ogTags: OgTags?, isEdited: Bool?, attachmentUploaded: Bool?,
+        //                isShowMore: Bool, messageStatus: LMMessageStatus?,
+        //                tempId: String?, hideLeftProfileImage: Bool?,
+        //                pollData: LMChatPollView.ContentModel?, metadata: [String: Any]?
+        //            ) {
+        //                self.messageId = messageId
+        //                self.memberTitle = memberTitle
+        //                self.message = message
+        //                self.timestamp = timestamp
+        //                self.reactions = reactions
+        //                self.attachments = attachments
+        //                self.replied = replied
+        //                self.isDeleted = isDeleted
+        //                self.createdBy = createdBy
+        //                self.createdByImageUrl = createdByImageUrl
+        //                self.createdById = createdById
+        //                self.isIncoming = isIncoming
+        //                self.messageType = messageType
+        //                self.createdTime = createdTime
+        //                self.ogTags = ogTags
+        //                self.isEdited = isEdited
+        //                self.attachmentUploaded = attachmentUploaded
+        //                self.isShowMore = isShowMore
+        //                self.messageStatus = messageStatus
+        //                self.tempId = tempId
+        //                self.memberState = memberState
+        //                self.hideLeftProfileImage = hideLeftProfileImage
+        //                self.pollData = pollData
+        //                self.metadata = metadata
+        //            }
+        //        }
     }
 
     // MARK: UI Elements
@@ -229,15 +231,13 @@ open class LMChatMessageListView: LMView {
     }
 
     public func reloadData() {
-        //        tableSections.sort(by: {$0.timestamp < $1.timestamp})
-        removeShimmer()
-        tableView.reloadData()
-    }
-
-    public func justReloadData() {
-        //        tableSections.sort(by: {$0.timestamp < $1.timestamp})
-        removeShimmer()
-        tableView.reloadData()
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            // Optionally sort your tableSections if needed:
+            // self.tableSections.sort { $0.timestamp < $1.timestamp }
+            self.removeShimmer()
+            self.tableView.reloadData()
+        }
     }
 
     public func removeShimmer() {
@@ -406,7 +406,7 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
                 LMUIComponents.shared.chatMessageCustomCell)
         } else if let attachments = item.attachments,
             !attachments.isEmpty,
-                  let type = attachments.first?.type
+            let type = attachments.first?.type
         {
             switch type {
 
