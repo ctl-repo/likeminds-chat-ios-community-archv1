@@ -58,6 +58,7 @@ extension Conversation {
         viewData.messageStatus = messageStatus
         viewData.hideLeftProfileImage = hideLeftProfileImage
         viewData.createdTime = createdTime
+        viewData.attachmentUploadedEpoch = attachmentUploadedEpoch
         
         // Create PollInfoData if any poll-related data exists
         if self.isAnonymous != nil || self.allowAddOption != nil || self.pollType != nil ||
@@ -228,6 +229,7 @@ extension ConversationViewData {
             .conversationStatus(self.conversationStatus?.toConversationStatus())  // Assuming `ConversationStatusViewData` has `toConversationStatus`
             .widgetId(self.widgetId)
             .widget(self.widget?.toWidget())  // Assuming `WidgetViewData` has `toWidget`
+            .attachmentUploadedEpoch(self.attachmentUploadedEpoch)
         
         // Add poll-related data from PollInfoData if it exists
         if let pollInfoData = self.pollInfoData {

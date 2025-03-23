@@ -25,6 +25,7 @@ public protocol LMMessageListViewModelProtocol: LMBaseViewControllerProtocol {
     func approveRejectView(isShow: Bool)
     func reloadMessage(at index: IndexPath)
     func hideGifButton()
+    func toggleRetryButtonWithMessage(indexPath: IndexPath, isHidden: Bool)
 }
 
 public typealias ChatroomDetailsExtra = (
@@ -1563,15 +1564,38 @@ extension LMChatMessageListViewModel {
             updateConversationUploadingStatus(
                 messageId: postConversationRequest.temporaryId ?? "",
                 withStatus: .failed)
-            // TODO: Show Retry Button inside Message Cell
+
+            let miliseconds = Int(Date().millisecondsSince1970)
+            var date = LMCoreTimeUtils.generateCreateAtDate(
+                miliseconds: Double(miliseconds))
+
+            let section = messagesList.firstIndex(where: {
+                $0.section == date
+            })
+            if let section = section, messagesList.count > section {
+                let index = messagesList[section].data.firstIndex(where: {
+                    $0.id == postConversationRequest.temporaryId ?? ""
+                })
+
+                if let row = index {
+                    delegate?.toggleRetryButtonWithMessage(
+                        indexPath: IndexPath(row: row, section: section),
+                        isHidden: false)
+                }
+            }
+
             return
-        }else{
-            guard let communityId = chatroomViewData?.communityId else { return }
-            
+        } else {
+            guard let communityId = chatroomViewData?.communityId else {
+                return
+            }
+
             let tempConversation = saveTemporaryConversation(
                 uuid: UserPreferences.shared.getClientUUID() ?? "",
                 communityId: communityId, request: postConversationRequest,
-                fileUrls: requestFiles, attachmentUploadedEpoch: Int(Date().timeIntervalSince1970) * 1000)
+                fileUrls: requestFiles,
+                attachmentUploadedEpoch: Int(Date().timeIntervalSince1970)
+                    * 1000)
             insertOrUpdateConversationIntoList(tempConversation)
             delegate?.scrollToBottom(forceToBottom: true)
         }

@@ -613,6 +613,12 @@ open class LMChatMessageListViewController: LMViewController {
 }
 
 extension LMChatMessageListViewController: LMMessageListViewModelProtocol {
+    public func toggleRetryButtonWithMessage(indexPath: IndexPath, isHidden: Bool) {
+        if let cell = self.messageListView.tableView.cellForRow(at: indexPath) as? LMChatMessageCell? {
+            cell?.toggleRetryButtonView(isHidden: isHidden)
+        }
+    }
+    
     public func hideGifButton() {
         bottomMessageBoxView.gifButton.isHidden = true
         bottomMessageBoxView.gifButton.removeFromSuperview()

@@ -23,19 +23,20 @@ public protocol LMChatMessageCellDelegate: LMChatMessageBaseProtocol {
 
 @IBDesignable
 open class LMChatMessageCell: LMTableViewCell {
-    
+
     public struct ContentModel {
         public let message: ConversationViewData
         public var isSelected: Bool = false
     }
-    
+
     // MARK: UI Elements
     open internal(set) lazy var chatMessageView: LMChatMessageContentView = {
-        let view = LMUIComponents.shared.messageContentView.init().translatesAutoresizingMaskIntoConstraints()
+        let view = LMUIComponents.shared.messageContentView.init()
+            .translatesAutoresizingMaskIntoConstraints()
         view.clipsToBounds = true
         return view
     }()
-    
+
     open private(set) lazy var retryContainerStackView: LMStackView = {
         let view = LMStackView().translatesAutoresizingMaskIntoConstraints()
         view.axis = .horizontal
@@ -45,12 +46,15 @@ open class LMChatMessageCell: LMTableViewCell {
         view.addArrangedSubview(retryButton)
         return view
     }()
-    
+
     open private(set) lazy var retryButton: LMButton = {
-        let button =  LMButton()
+        let button = LMButton()
             .translatesAutoresizingMaskIntoConstraints()
-        button.addTarget(self, action: #selector(retrySendMessage), for: .touchUpInside)
-        button.setImage(Constants.shared.images.retryIcon.withSystemImageConfig(pointSize: 25), for: .normal)
+        button.addTarget(
+            self, action: #selector(retrySendMessage), for: .touchUpInside)
+        button.setImage(
+            Constants.shared.images.retryIcon.withSystemImageConfig(
+                pointSize: 25), for: .normal)
         button.backgroundColor = Appearance.shared.colors.clear
         button.tintColor = Appearance.shared.colors.red
         button.setWidthConstraint(with: 30)
@@ -60,14 +64,15 @@ open class LMChatMessageCell: LMTableViewCell {
     }()
 
     open private(set) lazy var selectedButton: LMButton = {
-        let button =  LMButton()
+        let button = LMButton()
             .translatesAutoresizingMaskIntoConstraints()
-        button.addTarget(self, action: #selector(selectedRowButton), for: .touchUpInside)
+        button.addTarget(
+            self, action: #selector(selectedRowButton), for: .touchUpInside)
         button.isHidden = true
         button.backgroundColor = Appearance.shared.colors.clear
         return button
     }()
-    
+
     weak var delegate: LMChatMessageCellDelegate?
     weak var audioDelegate: LMChatAudioProtocol?
     weak var pollDelegate: LMChatPollViewDelegate?
@@ -76,21 +81,23 @@ open class LMChatMessageCell: LMTableViewCell {
     var currentIndexPath: IndexPath?
     var originalCenter = CGPoint()
     var replyActionHandler: (() -> Void)?
-    
-    
+
     open override func prepareForReuse() {
         super.prepareForReuse()
         retryButton.isHidden = true
         chatMessageView.prepareToResuse()
     }
-    
+
     @objc func selectedRowButton(_ sender: UIButton) {
         let isSelected = !sender.isSelected
-        sender.backgroundColor = isSelected ? Appearance.shared.colors.linkColor.withAlphaComponent(0.4) : Appearance.shared.colors.clear
+        sender.backgroundColor =
+            isSelected
+            ? Appearance.shared.colors.linkColor.withAlphaComponent(0.4)
+            : Appearance.shared.colors.clear
         sender.isSelected = isSelected
         delegate?.didTappedOnSelectionButton(indexPath: currentIndexPath)
     }
-    
+
     // MARK: setupViews
     open override func setupViews() {
         super.setupViews()
@@ -99,26 +106,33 @@ open class LMChatMessageCell: LMTableViewCell {
         containerView.addSubview(retryContainerStackView)
         contentView.addSubview(selectedButton)
         chatMessageView.textLabel.canPerformActionRestriction = true
-        chatMessageView.textLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tappedTextView)))
+        chatMessageView.textLabel.addGestureRecognizer(
+            UITapGestureRecognizer(
+                target: self, action: #selector(tappedTextView)))
     }
-    
+
     // MARK: setupLayouts
     open override func setupLayouts() {
         super.setupLayouts()
         contentView.pinSubView(subView: containerView)
         NSLayoutConstraint.activate([
-            retryContainerStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -8),
-            retryContainerStackView.centerYAnchor.constraint(equalTo: chatMessageView.centerYAnchor),
-            
-            chatMessageView.topAnchor.constraint(equalTo: containerView.topAnchor),
-            chatMessageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 8),
-            chatMessageView.trailingAnchor.constraint(equalTo: retryContainerStackView.leadingAnchor),
-            chatMessageView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+            retryContainerStackView.trailingAnchor.constraint(
+                equalTo: containerView.trailingAnchor, constant: -8),
+            retryContainerStackView.centerYAnchor.constraint(
+                equalTo: chatMessageView.centerYAnchor),
+
+            chatMessageView.topAnchor.constraint(
+                equalTo: containerView.topAnchor),
+            chatMessageView.leadingAnchor.constraint(
+                equalTo: containerView.leadingAnchor, constant: 8),
+            chatMessageView.trailingAnchor.constraint(
+                equalTo: retryContainerStackView.leadingAnchor),
+            chatMessageView.bottomAnchor.constraint(
+                equalTo: containerView.bottomAnchor),
         ])
         contentView.pinSubView(subView: selectedButton)
     }
-    
-    
+
     // MARK: setupAppearance
     open override func setupAppearance() {
         super.setupAppearance()
@@ -127,28 +141,29 @@ open class LMChatMessageCell: LMTableViewCell {
         chatMessageView.backgroundColor = Appearance.shared.colors.clear
         containerView.backgroundColor = Appearance.shared.colors.clear
     }
-    
+
     @objc
     open func tappedTextView(tapGesture: UITapGestureRecognizer) {
         guard let textView = tapGesture.view as? LMTextView,
-              let position = textView.closestPosition(to: tapGesture.location(in: textView)),
-              let text = textView.textStyling(at: position, in: .forward) else { return }
+            let position = textView.closestPosition(
+                to: tapGesture.location(in: textView)),
+            let text = textView.textStyling(at: position, in: .forward)
+        else { return }
         if let url = text[.link] as? URL {
             didTapURL(url: url)
         } else if let route = text[.route] as? String {
             didTapRoute(route: route)
         }
     }
-    
+
     open func didTapRoute(route: String) {
         delegate?.didTapRoute(route: route)
     }
-    
+
     open func didTapURL(url: URL) {
         delegate?.didTapURL(url: url)
     }
-    
-    
+
     // MARK: configure
     open func setData(with data: ContentModel, index: IndexPath) {
         self.data = data
@@ -166,15 +181,39 @@ open class LMChatMessageCell: LMTableViewCell {
         }
     }
     
+    open func intialiseRetryView(){
+        var currentTimeStampEpoch = Int(Date().timeIntervalSince1970 * 1000)
+        if (data?.message.attachments?.isEmpty ?? true){
+            if currentTimeStampEpoch - Int(data?.message.localCreatedEpoch ?? 0) > 30000 {
+                guard let data else { return }
+                toggleRetryButtonView(isHidden: false)
+                Task{
+                    await delegate?.onRetryButtonClicked(conversation: data.message)
+                }
+            }
+        }else{
+            if currentTimeStampEpoch - (data?.message.attachmentUploadedEpoch ?? 0) > 30000 {
+                toggleRetryButtonView(isHidden: false)
+            }
+        }
+    }
+
     open func updateSelection(data: ContentModel) {
         let isSelected = data.isSelected
-        selectedButton.backgroundColor = isSelected ? Appearance.shared.colors.linkColor.withAlphaComponent(0.4) : Appearance.shared.colors.clear
+        selectedButton.backgroundColor =
+            isSelected
+            ? Appearance.shared.colors.linkColor.withAlphaComponent(0.4)
+            : Appearance.shared.colors.clear
         selectedButton.isSelected = isSelected
     }
-    
+
     @objc open func retrySendMessage(_ sender: UIButton) async {
         guard let data else { return }
         await delegate?.onRetryButtonClicked(conversation: data.message)
+    }
+
+    open func toggleRetryButtonView(isHidden: Bool) {
+        retryButton.isHidden = isHidden
     }
 }
 
@@ -183,7 +222,7 @@ extension LMChatMessageCell: LMAttachmentLoaderViewDelegate {
         guard let currentIndexPath else { return }
         chatMessageView.loaderView.isHidden = true
         chatMessageView.retryView.isHidden = false
-        delegate?.didCancelAttachmentUploading(indexPath: currentIndexPath )
+        delegate?.didCancelAttachmentUploading(indexPath: currentIndexPath)
     }
 }
 extension LMChatMessageCell: LMAttachmentUploadRetryViewDelegate {
@@ -191,26 +230,27 @@ extension LMChatMessageCell: LMAttachmentUploadRetryViewDelegate {
         guard let currentIndexPath else { return }
         chatMessageView.loaderView.isHidden = false
         chatMessageView.retryView.isHidden = true
-        delegate?.didRetryAttachmentUploading(indexPath: currentIndexPath )
+        delegate?.didRetryAttachmentUploading(indexPath: currentIndexPath)
     }
 }
 
 extension LMChatMessageCell: LMChatMessageContentViewDelegate {
-    
+
     public func didTapOnReplyPreview() {
         delegate?.onClickReplyOfMessage(indexPath: currentIndexPath)
     }
-    
+
     public func didTapOnProfileLink(route: String) {
         delegate?.didTapOnProfileLink(route: route)
     }
-    
+
     public func clickedOnReaction(_ reaction: String) {
-        delegate?.onClickReactionOfMessage(reaction: reaction, indexPath: currentIndexPath)
+        delegate?.onClickReactionOfMessage(
+            reaction: reaction, indexPath: currentIndexPath)
     }
-    
+
     public func clickedOnAttachment(_ url: String) {
-        delegate?.onClickAttachmentOfMessage(url: url, indexPath: currentIndexPath)
+        delegate?.onClickAttachmentOfMessage(
+            url: url, indexPath: currentIndexPath)
     }
 }
-

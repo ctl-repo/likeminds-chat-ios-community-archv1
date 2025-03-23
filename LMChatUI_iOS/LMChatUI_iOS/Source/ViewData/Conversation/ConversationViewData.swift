@@ -55,7 +55,8 @@ public class ConversationViewData {
     public var widgetId: String
     public var widget: WidgetViewData?
     public var pollInfoData: PollInfoData?
-    
+    public var attachmentUploadedEpoch: Int?
+
     // MARK: Core Data Variables
     // All the variables are custom generated for handling the cases in UI
     // Boolean to check if the message is sent by the current user or not
@@ -79,7 +80,7 @@ public class ConversationViewData {
     // True in case the current chatroom is a DM Chatroom
     public var hideLeftProfileImage: Bool? = nil
     // Formatted String for created at to be used in UI
-    public var createdTime : String? = nil
+    public var createdTime: String? = nil
 
     // MARK: - Initializer
     public init(
@@ -132,7 +133,8 @@ public class ConversationViewData {
         message: String? = nil,
         createdBy: String? = nil,
         hideLeftProfileImage: Bool? = nil,
-        createdTime: String? = nil
+        createdTime: String? = nil,
+        attachmentUploadedEpoch: Int?
     ) {
         self.id = id
         self.chatroomId = chatroomId
@@ -176,5 +178,6 @@ public class ConversationViewData {
         self.createdBy = createdBy
         self.hideLeftProfileImage = hideLeftProfileImage
         self.createdTime = createdTime
+        self.attachmentUploadedEpoch = attachmentUploadedEpoch
     }
 }
