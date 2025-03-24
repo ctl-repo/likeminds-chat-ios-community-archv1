@@ -509,7 +509,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
                     withEpoch: replyConversation.createdEpoch ?? 0))
         }
 
-        var conversationViewData = conversation.toViewData(
+        let conversationViewData = conversation.toViewData(
             memberTitle: conversation.member?.communityManager(),
             message: convertMessageIntoFormat(conversation),
             createdBy: conversation.member?.sdkClientInfo?.uuid
@@ -570,7 +570,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
     func addTapToUndoForRejectedNotification(
         _ lastMessage: ConversationViewData
     ) -> ConversationViewData? {
-        var message = lastMessage
+        let message = lastMessage
         if message.messageType
             == ConversationState.directMessageMemberRequestRejected.rawValue,
             UserPreferences.shared.getLMMemberId()
@@ -1087,15 +1087,15 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
                 where: { $0.id == messageId })
             {
                 var sectionData = messagesList[sectionIndex]
-                var rowData = sectionData.data[rowIndex]
-                guard var pollData = rowData.pollInfoData,
+                let rowData = sectionData.data[rowIndex]
+                guard let pollData = rowData.pollInfoData,
                     let optionIndex = pollData.options?.firstIndex(where: {
                         $0.id == optionId
                     })
                 else { return }
                 if pollData.tempSelectedOptions?.isEmpty ?? true {
                     pollData.options = pollData.options?.map { option in
-                        var tempOptions = option
+                        let tempOptions = option
                         tempOptions.showTickButton = false
                         return tempOptions
                     }
@@ -1187,10 +1187,10 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             })
         {
             var sectionData = messagesList[sectionIndex]
-            var rowData = sectionData.data[rowIndex]
-            guard var pollData = rowData.pollInfoData else { return }
+            let rowData = sectionData.data[rowIndex]
+            guard let pollData = rowData.pollInfoData else { return }
             pollData.options = pollData.options?.map { option in
-                var tempOptions = option
+                let tempOptions = option
                 tempOptions.showTickButton = false
                 tempOptions.showVoteCount = false
                 tempOptions.showProgressBar = false
@@ -1444,6 +1444,46 @@ extension LMChatMessageListViewModel {
     }
 
     // MARK: Post Conversation
+    /**
+     Posts a new message to the chatroom with optional attachments, reply references and metadata.
+     
+     This method handles posting a new conversation message to the chatroom. It supports:
+     - Text messages
+     - File attachments (images, videos, documents etc.)
+     - Link sharing with OG tags
+     - Reply to existing conversations
+     - Custom metadata for widgets
+     
+     The method follows these steps:
+     1. Validates required data like communityId
+     2. Creates a temporary conversation while upload is in progress
+     3. Handles file uploads if attachments are present
+     4. Posts the conversation to the server
+     5. Updates UI with success/failure status
+     
+     - Parameters:
+        - message: The text content of the message. Can be nil if only attachments are being sent
+        - filesUrls: Array of AttachmentViewData containing file information to be uploaded
+        - shareLink: URL string if sharing a link in the message
+        - replyConversationId: ID of the conversation being replied to
+        - replyChatRoomId: ID of the chatroom containing the reply conversation
+        - temporaryId: Optional custom temporary ID for the message. Generated if not provided
+        - metadata: Optional dictionary of additional data, used for widget creation
+     
+     - Note:
+        - The method creates a temporary conversation immediately for better UX
+        - File uploads happen asynchronously before the actual conversation is posted
+        - OG tags are automatically attached if detected for the shareLink
+        - Bot triggers are handled automatically based on chatroom type
+     
+     - Important: 
+        - Requires valid communityId from chatroomViewData
+        - Network errors during upload/posting are handled via delegate callbacks
+     
+     - Throws:
+        - Shows error toast via delegate if posting fails
+        - Updates conversation status to failed if upload fails
+     */
     public func postMessage(
         message: String?,
         filesUrls: [AttachmentViewData]?,
@@ -1453,15 +1493,21 @@ extension LMChatMessageListViewModel {
         temporaryId: String? = nil,
         metadata: [String: Any]? = nil
     ) {
+        // Clear any existing draft message for this chatroom
         LMSharedPreferences.removeValue(forKey: chatroomId)
+        
+        // Validate required community ID
         guard let communityId = chatroomViewData?.communityId else { return }
+        
+        // Fetch latest messages if tracking is lost
         if !trackLastConversationExist {
             fetchBottomConversations()
         }
+        
+        // Generate or use provided temporary ID for message tracking
         let temporaryId = temporaryId ?? ValueUtils.getTemporaryId()
 
-        guard let communityId = chatroomViewData?.communityId else { return }
-
+        // Build the base conversation request
         var requestBuilder = PostConversationRequest.Builder()
             .chatroomId(self.chatroomId)
             .text(message ?? "")
@@ -1470,6 +1516,7 @@ extension LMChatMessageListViewModel {
             .repliedChatroomId(replyChatRoomId)
             .shareLink(shareLink)
 
+        // Handle OG tags for link sharing
         if let shareLink, !shareLink.isEmpty,
             self.currentDetectedOgTags?.url == shareLink
         {
@@ -1477,10 +1524,11 @@ extension LMChatMessageListViewModel {
                 .ogTags(currentDetectedOgTags)
             currentDetectedOgTags = nil
         }
-        // Add the metadata received into post conversation request
-        // this will be used to create a widget
+        
+        // Add metadata for widget creation if provided
         requestBuilder = requestBuilder.metadata(metadata)
 
+        // Create and insert temporary conversation for immediate UI feedback
         let tempConversation = saveTemporaryConversation(
             uuid: UserPreferences.shared.getClientUUID() ?? "",
             communityId: communityId, request: requestBuilder.build(),
@@ -1488,6 +1536,7 @@ extension LMChatMessageListViewModel {
         insertOrUpdateConversationIntoList(tempConversation)
         delegate?.scrollToBottom(forceToBottom: true)
 
+        // Configure bot trigger if needed
         if self.chatroomViewData != nil {
             requestBuilder = requestBuilder.triggerBot(
                 isOtherUserAIChatbot(chatroom: chatroomViewData!))
@@ -1495,21 +1544,45 @@ extension LMChatMessageListViewModel {
 
         let postConversationRequest = requestBuilder.build()
 
+        // Handle message posting based on attachment presence
         Task {
             if let attachments = filesUrls,
                 containsAttachments(attachments: attachments)
             {
+                // Upload attachments first, then post conversation
                 await postConversationWithAttachmentsUpload(
                     postConversationRequest: postConversationRequest,
                     filesUrls: filesUrls
                 )
             } else {
+                // Post conversation directly without attachments
                 postConversationWithoutAttachmentsUpload(
                     postConversationRequest: postConversationRequest)
             }
         }
     }
 
+    /**
+     Retries sending a failed conversation message.
+     
+     This method attempts to resend a conversation that previously failed to send. It reuses the original
+     conversation data including any attachments, reply references, and metadata.
+     
+     - Parameters:
+        - conversation: A ConversationViewData object containing all the details of the failed message:
+            - answer: The text content of the message
+            - attachments: Array of AttachmentViewData containing any files/media
+            - replyConversationId: ID of the message being replied to (if any)
+            - replyChatroomId: ID of the chatroom containing the replied message (if any) 
+            - temporaryId: The temporary ID assigned to track this message
+            - widget: Widget metadata if the message contains interactive elements
+     
+     - Note: This method internally calls postMessage() with all the original message parameters
+             to create a fresh attempt at sending the conversation.
+     
+     - Important: The temporaryId is preserved from the original message to maintain continuity
+                 in the message list UI during the retry process.
+     */
     public func retryConversation(conversation: ConversationViewData) {
         postMessage(
             message: conversation.answer, filesUrls: conversation.attachments,
@@ -1520,14 +1593,37 @@ extension LMChatMessageListViewModel {
             metadata: conversation.widget?.metadata)
     }
 
+    /**
+     Posts a conversation message without any attachments to the chatroom.
+     
+     This method handles the posting of text-only messages by making an API call through the LMChatClient.
+     It manages the response and updates the UI accordingly based on success or failure.
+     
+     - Parameters:
+        - postConversationRequest: A PostConversationRequest object containing:
+            - message text
+            - chatroom ID
+            - temporary message ID for tracking
+            - any metadata
+     
+     - Note: This is an asynchronous operation that uses a completion handler to process the response
+     
+     - Error Handling:
+        - If the API call fails, displays error message via delegate
+        - Updates conversation status to failed
+        - Preserves temporary message ID for retry functionality
+     */
     private func postConversationWithoutAttachmentsUpload(
         postConversationRequest: PostConversationRequest
     ) {
+        // Make API call to post the conversation
         LMChatClient.shared.postConversation(
             request: postConversationRequest
         ) {
             [weak self] response in
+            // Verify response contains conversation data
             guard let self, let conversation = response.data else {
+                // Handle error case - show error and mark conversation as failed
                 self?.delegate?.showToastMessage(
                     message: response.errorMessage)
                 self?.updateConversationUploadingStatus(
@@ -1535,22 +1631,49 @@ extension LMChatMessageListViewModel {
                     withStatus: .failed)
                 return
             }
+            // Process successful conversation post
             onConversationPosted(
                 response: conversation.conversation,
                 updatedFileUrls: nil)
         }
     }
 
+    /**
+     Posts a conversation message with attachments to the chatroom.
+     
+     This method handles the uploading of attachments and posting of messages by:
+     1. Uploading all attachments first
+     2. Creating a temporary conversation while uploads are in progress
+     3. Finally posting the conversation with uploaded attachment URLs
+     
+     - Parameters:
+        - postConversationRequest: A PostConversationRequest object containing:
+            - message text
+            - chatroom ID
+            - temporary message ID for tracking
+            - any metadata
+        - filesUrls: Array of AttachmentViewData objects containing file information to be uploaded
+     
+     - Error Handling:
+        - If any attachment upload fails:
+            - Shows error toast message
+            - Marks conversation as failed
+            - Enables retry button for the failed message
+        - If community ID is missing, silently returns
+     
+     - Note: This is an async operation that manages both file uploads and message posting
+     */
     private func postConversationWithAttachmentsUpload(
         postConversationRequest: PostConversationRequest,
         filesUrls: [AttachmentViewData]?
     ) async {
+        // First upload all attachments and get their remote URLs
         let requestFiles = await handleUploadAttachments(
             for: filesUrls,
             temporaryId: postConversationRequest.temporaryId ?? "")
 
+        // Track any failed uploads by checking upload status
         var failedUploads: [Int] = []
-
         for (index, file) in requestFiles.enumerated() {
             if !file.isUploaded {
                 failedUploads.append(index)
@@ -1558,17 +1681,19 @@ extension LMChatMessageListViewModel {
         }
 
         if !failedUploads.isEmpty {
-            // Handle error appropriately.
+            // Handle failed uploads by showing error and updating UI
             delegate?.showToastMessage(
                 message: "Failed to upload attachments")
             updateConversationUploadingStatus(
                 messageId: postConversationRequest.temporaryId ?? "",
                 withStatus: .failed)
 
+            // Get current timestamp for message sorting
             let miliseconds = Int(Date().millisecondsSince1970)
-            var date = LMCoreTimeUtils.generateCreateAtDate(
+            let date = LMCoreTimeUtils.generateCreateAtDate(
                 miliseconds: Double(miliseconds))
 
+            // Find the message in the list to show retry button
             let section = messagesList.firstIndex(where: {
                 $0.section == date
             })
@@ -1586,10 +1711,12 @@ extension LMChatMessageListViewModel {
 
             return
         } else {
+            // All uploads successful, proceed with conversation
             guard let communityId = chatroomViewData?.communityId else {
                 return
             }
 
+            // Create and save temporary conversation while actual post happens
             let tempConversation = saveTemporaryConversation(
                 uuid: UserPreferences.shared.getClientUUID() ?? "",
                 communityId: communityId, request: postConversationRequest,
@@ -1600,10 +1727,28 @@ extension LMChatMessageListViewModel {
             delegate?.scrollToBottom(forceToBottom: true)
         }
 
+        // Finally post the conversation with uploaded attachments
         postConversationWithoutAttachmentsUpload(
             postConversationRequest: postConversationRequest)
     }
 
+    /**
+     Handles the upload process for message attachments asynchronously.
+     
+     This method processes the attachment files provided and uploads them to the server. It performs the following steps:
+     1. Takes the array of attachment files and prepares them for upload
+     2. Uploads the attachments using the shared attachment upload manager
+     3. Returns the array of uploaded attachments with updated URLs and metadata
+     
+     - Parameters:
+        - filesUrls: Optional array of AttachmentViewData objects containing the files to be uploaded
+        - temporaryId: A unique identifier string for the temporary message being created
+     
+     - Returns: An array of AttachmentViewData objects containing the uploaded files with their remote URLs
+     
+     - Note: This method is called internally before posting a new conversation with attachments.
+            If no files are provided or the array is empty, returns an empty array.
+     */
     private func handleUploadAttachments(
         for filesUrls: [AttachmentViewData]?,
         temporaryId: String
@@ -1611,25 +1756,40 @@ extension LMChatMessageListViewModel {
         var requestFiles: [AttachmentViewData] = []
 
         if let updatedFileUrls = filesUrls, !updatedFileUrls.isEmpty {
-            // Prepare the list of upload requests.
+            // Create upload request objects for each file with chatroom context
             requestFiles.append(
                 contentsOf: getUploadFileRequestList(
                     fileUrls: updatedFileUrls,
                     chatroomId: chatroomViewData?.id ?? ""))
 
+            // Upload all attachments in parallel and wait for completion
             requestFiles =
                 await LMChatConversationAttachmentUpload.shared
                 .uploadAttachments(withAttachments: requestFiles)
-
         }
         return requestFiles
     }
 
+    /**
+     Checks if the given array of attachments contains any supported media files.
+     
+     This method examines each attachment in the provided array and determines if it contains
+     any of the supported attachment types (image, video, PDF, GIF, audio, or voice note).
+     
+     - Parameter attachments: An array of `AttachmentViewData` objects to check for supported file types
+     
+     - Returns: `true` if any attachment in the array is of a supported media type, `false` otherwise
+     
+     - Note: This method is used internally to validate attachments before processing them for upload.
+             Unsupported attachment types are ignored in the check.
+     */
     private func containsAttachments(
         attachments: [AttachmentViewData]
     ) -> Bool {
+        // Iterate through each attachment to check its type
         for attachment in attachments {
             if let fileType = attachment.type {
+                // Check if attachment is one of the supported media types
                 if fileType == .image || fileType == .video || fileType == .pdf
                     || fileType == .gif || fileType == .audio
                     || fileType == .voiceNote
@@ -1699,10 +1859,11 @@ extension LMChatMessageListViewModel {
         response: Conversation?,
         updatedFileUrls: [AttachmentViewData]?, isRetry: Bool = false
     ) {
-        guard let conversation = response, let conversId = conversation.id
+        guard let conversation = response, let _ = conversation.id
         else {
             return
         }
+
         trackEventDMSent()
         if !isRetry {
             savePostedConversation(conversation: conversation)
@@ -1718,7 +1879,7 @@ extension LMChatMessageListViewModel {
     func getUploadFileRequestList(
         fileUrls: [AttachmentViewData], chatroomId: String
     ) -> [AttachmentViewData] {
-        var uuid = loggedInUser()?.sdkClientInfo?.uuid
+        let uuid = loggedInUser()?.sdkClientInfo?.uuid
 
         var fileUploadRequests: [AttachmentViewData] = []
         for (index, attachment) in fileUrls.enumerated() {

@@ -7,67 +7,165 @@
 
 import Foundation
 
+/// Represents the direction of scrolling in the chat message list.
+/// Used to determine whether the user is scrolling up or down through messages.
 public enum ScrollDirection: Int {
+    /// Scrolling downward through messages (newer messages)
     case scroll_DOWN = 1
+    /// Scrolling upward through messages (older messages)
     case scroll_UP = 0
+    /// No scrolling direction (initial state)
     case none = -1
 }
 
+/// Base protocol for handling URL and route taps in chat messages.
+/// Provides basic functionality for handling link interactions.
 public protocol LMChatMessageBaseProtocol: AnyObject {
+    /// Called when a URL in a message is tapped.
+    /// - Parameter url: The URL that was tapped.
     func didTapURL(url: URL)
+    
+    /// Called when a route in a message is tapped.
+    /// - Parameter route: The route string that was tapped.
     func didTapRoute(route: String)
 }
 
+/// Delegate protocol for handling various interactions in the chat message list view.
+/// Extends LMChatMessageBaseProtocol to provide additional functionality.
 public protocol LMChatMessageListViewDelegate: LMChatMessageBaseProtocol {
+    /// Called when a cell in the message list is tapped.
+    /// - Parameter indexPath: The index path of the tapped cell.
     func didTapOnCell(indexPath: IndexPath)
+    
+    /// Called when the user scrolls to fetch more messages.
+    /// - Parameters:
+    ///   - indexPath: The current index path where the scroll occurred.
+    ///   - direction: The direction of the scroll.
     func fetchDataOnScroll(indexPath: IndexPath, direction: ScrollDirection)
+    
+    /// Called when a reaction is tapped on a message.
+    /// - Parameters:
+    ///   - reaction: The reaction string that was tapped.
+    ///   - indexPath: The index path of the message.
     func didTappedOnReaction(reaction: String, indexPath: IndexPath)
+    
+    /// Called when an attachment in a message is tapped.
+    /// - Parameters:
+    ///   - url: The URL of the attachment.
+    ///   - indexPath: The index path of the message.
     func didTappedOnAttachmentOfMessage(url: String, indexPath: IndexPath)
+    
+    /// Called when a gallery item in a message is tapped.
+    /// - Parameters:
+    ///   - attachmentIndex: The index of the tapped attachment in the gallery.
+    ///   - indexPath: The index path of the message.
     func didTappedOnGalleryOfMessage(attachmentIndex: Int, indexPath: IndexPath)
+    
+    /// Called when a reply preview in a message is tapped.
+    /// - Parameter indexPath: The index path of the message.
     func didTappedOnReplyPreviewOfMessage(indexPath: IndexPath)
+    
+    /// Called when a context menu item is clicked.
+    /// - Parameters:
+    ///   - type: The type of action that was selected.
+    ///   - indexPath: The index path of the message.
+    ///   - message: The message data associated with the action.
     func contextMenuItemClicked(
         withType type: LMMessageActionType, atIndex indexPath: IndexPath,
         message: ConversationViewData)
+    
+    /// Called when a reaction is added to a message.
+    /// - Parameters:
+    ///   - reaction: The reaction string that was added.
+    ///   - indexPath: The index path of the message.
     func didReactOnMessage(reaction: String, indexPath: IndexPath)
+    
+    /// Returns the context menu for a specific message.
+    /// - Parameters:
+    ///   - indexPath: The index path of the message.
+    ///   - item: The message data.
+    /// - Returns: A UIMenu object containing the available actions.
     func getMessageContextMenu(
         _ indexPath: IndexPath, item: ConversationViewData
     ) -> UIMenu?
+    
+    /// Returns the swipe action for a specific row.
+    /// - Parameter indexPath: The index path of the row.
+    /// - Returns: A UIContextualAction object for the swipe action.
     func trailingSwipeAction(forRowAtIndexPath indexPath: IndexPath)
         -> UIContextualAction?
+    
+    /// Called when the table view is scrolled.
+    /// - Parameter scrollView: The scroll view that was scrolled.
     func didScrollTableView(_ scrollView: UIScrollView)
+    
+    /// Called when uploading of a message is cancelled.
+    /// - Parameters:
+    ///   - tempId: The temporary ID of the message.
+    ///   - messageId: The ID of the message.
     func didCancelUploading(tempId: String, messageId: String)
+    
+    /// Called when uploading of a message needs to be retried.
+    /// - Parameter messageId: The ID of the message to retry.
     func didRetryUploading(messageId: String)
+    
+    /// Called when audio playback should be stopped.
     func stopPlayingAudio()
 }
 
+/// Represents different types of actions that can be performed on a message.
 public enum LMMessageActionType: String {
+    /// Delete the message
     case delete
+    /// Reply to the message
     case reply
+    /// Reply privately to the message
     case replyPrivately
+    /// Copy the message content
     case copy
+    /// Edit the message
     case edit
+    /// Select the message
     case select
+    /// Invite users
     case invite
+    /// Report the message
     case report
+    /// Set topic for the message
     case setTopic
 }
 
+/// Represents the current status of a message.
 public enum LMMessageStatus: String {
+    /// Message is currently being sent
     case sending
+    /// Message has been successfully sent
     case sent
+    /// Message failed to send
     case failed
 }
 
+/// A view that displays a list of chat messages in a table view format.
+/// This class handles message display, scrolling, selection, and interaction with messages.
 @IBDesignable
 open class LMChatMessageListView: LMView {
-
+    /// The message type identifier for chatroom header messages.
     public static var chatroomHeader = 111
 
+    /// A model representing the content of a section in the message list.
     public struct ContentModel {
+        /// Array of conversation data items in this section
         public var data: [ConversationViewData]
+        /// The section header text
         public let section: String
+        /// Timestamp for the section
         public let timestamp: Int
 
+        /// Initializes a new content model.
+        /// - Parameters:
+        ///   - data: Array of conversation data items
+        ///   - section: Section header text
+        ///   - timestamp: Section timestamp
         public init(
             data: [ConversationViewData], section: String, timestamp: Int
         ) {
@@ -78,11 +176,13 @@ open class LMChatMessageListView: LMView {
     }
 
     // MARK: UI Elements
+    /// The main container view that holds the table view.
     open private(set) lazy var containerView: LMView = {
         let view = LMView().translatesAutoresizingMaskIntoConstraints()
         return view
     }()
 
+    /// The table view that displays the chat messages.
     open private(set) lazy var tableView: LMTableView = { [unowned self] in
         let table = LMTableView().translatesAutoresizingMaskIntoConstraints()
         table.register(LMUIComponents.shared.chatMessageCell)
@@ -104,6 +204,7 @@ open class LMChatMessageListView: LMView {
         return table
     }()
 
+    /// The loading shimmer view shown while content is being loaded.
     private(set) lazy var loadingView: LMChatMessageLoadingShimmerView = {
         let view = LMChatMessageLoadingShimmerView()
             .translatesAutoresizingMaskIntoConstraints()
@@ -112,32 +213,53 @@ open class LMChatMessageListView: LMView {
     }()
 
     // MARK: Data Variables
+    /// The default height for message cells
     public let cellHeight: CGFloat = 60
+    /// The delegate for handling message list interactions
     public weak var delegate: LMChatMessageListViewDelegate?
+    /// The delegate for handling cell-specific interactions
     public weak var cellDelegate: LMChatMessageCellDelegate?
+    /// The delegate for handling poll interactions
     public weak var pollDelegate: LMChatPollViewDelegate?
+    /// The delegate for handling chatroom header interactions
     public weak var chatroomHeaderCellDelegate:
         LMChatroomHeaderMessageCellDelegate?
+    /// The delegate for handling audio playback
     public weak var audioDelegate: LMChatAudioProtocol?
+    /// Array of content models representing sections in the table view
     public var tableSections: [ContentModel] = []
+    /// The current playing audio message's index information
     public var audioIndex: (section: Int, messageID: String)?
+    /// The tag format for the current logged-in user
     public var currentLoggedInUserTagFormat: String = ""
+    /// The replacement tag format for the current logged-in user
     public var currentLoggedInUserReplaceTagFormat: String = ""
 
+    /// The height of the reaction view
     public let reactionHeight: CGFloat = 50.0
+    /// The spacing between reaction views
     public let spaceReactionHeight: CGFloat = 10.0
+    /// The height of the context menu
     public let menuHeight: CGFloat = 200
+    /// Whether multiple message selection is enabled
     public var isMultipleSelectionEnable: Bool = false
+    /// Array of currently selected messages
     public var selectedItems: [ConversationViewData] = []
 
+    /// The last content offset of the scroll view, used for scroll direction detection
+    open var lastContentOffset: CGFloat = 0
+
     // MARK: setupViews
+    /// Sets up the initial view hierarchy.
+    /// This method is called during view initialization to add and configure subviews.
     open override func setupViews() {
         super.setupViews()
         addSubview(containerView)
         containerView.addSubview(tableView)
     }
 
-    // MARK: setupLayouts
+    /// Sets up the layout constraints for all subviews.
+    /// This method configures the Auto Layout constraints to position all UI elements correctly.
     open override func setupLayouts() {
         super.setupLayouts()
 
@@ -157,7 +279,8 @@ open class LMChatMessageListView: LMView {
         ])
     }
 
-    // MARK: setupAppearance
+    /// Configures the visual appearance of the view and its subviews.
+    /// This method sets up colors, styles, and other visual properties.
     open override func setupAppearance() {
         super.setupAppearance()
         backgroundColor = Appearance.shared.colors.backgroundColor
@@ -165,6 +288,9 @@ open class LMChatMessageListView: LMView {
         tableView.backgroundColor = Appearance.shared.colors.backgroundColor
     }
 
+    /// Reloads the table view data and removes the loading shimmer effect.
+    /// This method should be called when the message data has been updated.
+    /// The reload is performed on the main thread to ensure UI updates are thread-safe.
     public func reloadData() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -175,10 +301,15 @@ open class LMChatMessageListView: LMView {
         }
     }
 
+    /// Removes the loading shimmer effect from the table view if there is data to display.
+    /// This method is called internally when data is loaded and the shimmer effect is no longer needed.
     public func removeShimmer() {
         if !tableSections.isEmpty { tableView.backgroundView = nil }
     }
 
+    /// Scrolls the table view to the bottom of the content.
+    /// - Parameter animation: A boolean indicating whether the scroll should be animated. Defaults to false.
+    /// - Note: This method includes a small delay to ensure proper layout before scrolling.
     public func scrollToBottom(animation: Bool = false) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
             guard let self else { return }
@@ -199,6 +330,11 @@ open class LMChatMessageListView: LMView {
         }
     }
 
+    /// Scrolls the table view to a specific message at the given index path.
+    /// - Parameters:
+    ///   - indexPath: The index path of the message to scroll to.
+    ///   - animation: A boolean indicating whether the scroll should be animated. Defaults to false.
+    /// - Note: After scrolling, the target message cell will be highlighted briefly to draw attention to it.
     public func scrollAtIndexPath(indexPath: IndexPath, animation: Bool = false)
     {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
@@ -222,9 +358,8 @@ open class LMChatMessageListView: LMView {
         }
     }
 
-    // we set a variable to hold the contentOffSet before scroll view scrolls
-    open var lastContentOffset: CGFloat = 0
-
+    /// Resets the audio playback state for the currently playing audio message.
+    /// This method should be called when audio playback needs to be stopped or reset.
     public func resetAudio() {
         if let audioIndex,
             tableSections.indices.contains(audioIndex.section),
@@ -240,16 +375,30 @@ open class LMChatMessageListView: LMView {
 
 // MARK: UITableView
 extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
+    /// Returns the number of sections in the table view.
+    /// - Parameter tableView: The table view requesting the information.
+    /// - Returns: The number of sections in the table view.
     open func numberOfSections(in tableView: UITableView) -> Int {
         tableSections.count
     }
 
+    /// Returns the number of rows in a given section.
+    /// - Parameters:
+    ///   - tableView: The table view requesting the information.
+    ///   - section: The index of the section.
+    /// - Returns: The number of rows in the specified section.
     open func tableView(
         _ tableView: UITableView, numberOfRowsInSection section: Int
     ) -> Int {
         tableSections[section].data.count
     }
 
+    /// Configures and returns a cell for the specified index path.
+    /// - Parameters:
+    ///   - tableView: The table view requesting the cell.
+    ///   - indexPath: The index path specifying the location of the cell.
+    /// - Returns: A configured UITableViewCell object.
+    /// - Note: This method handles different types of message cells based on the message content type.
     open func tableView(
         _ tableView: UITableView, cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
@@ -298,6 +447,8 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         return tableViewCell
     }
 
+    /// Creates and returns a shimmer cell for loading state.
+    /// - Returns: A UITableViewCell configured as a shimmer loading cell.
     func chatMessageShimmer() -> UITableViewCell {
         var cell: LMChatMessageLoadingShimmerViewCell
         cell = LMChatMessageLoadingShimmerViewCell.init()
@@ -305,6 +456,11 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         return cell
     }
 
+    /// Configures and returns a poll cell for the specified index path.
+    /// - Parameters:
+    ///   - rowAt: The index path of the row.
+    ///   - tableView: The table view requesting the cell.
+    /// - Returns: A configured LMChatMessageCell for displaying polls.
     func pollCellFor(rowAt indexPath: IndexPath, tableView: UITableView)
         -> LMChatMessageCell
     {
@@ -330,6 +486,11 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         return cell
     }
 
+    /// Configures and returns a message cell for the specified index path.
+    /// - Parameters:
+    ///   - rowAt: The index path of the row.
+    ///   - tableView: The table view requesting the cell.
+    /// - Returns: A configured LMChatMessageCell for displaying messages.
     func cellFor(rowAt indexPath: IndexPath, tableView: UITableView)
         -> LMChatMessageCell
     {
@@ -344,7 +505,6 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
             let type = attachments.first?.type
         {
             switch type {
-
             case .image, .video, .gif:
                 cell = tableView.dequeueReusableCell(
                     LMUIComponents.shared.chatMessageGalleryCell)
@@ -384,6 +544,11 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         return cell
     }
 
+    /// Handles the selection of a row in the table view.
+    /// - Parameters:
+    ///   - tableView: The table view informing the delegate about the row selection.
+    ///   - indexPath: The index path of the selected row.
+    /// - Note: Selection behavior varies based on whether multiple selection is enabled.
     open func tableView(
         _ tableView: UITableView, didSelectRowAt indexPath: IndexPath
     ) {
@@ -392,6 +557,11 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         }
     }
 
+    /// Configures and returns the view to be used for the header of a section.
+    /// - Parameters:
+    ///   - tableView: The table view requesting the header view.
+    ///   - section: The index of the section whose header view is being requested.
+    /// - Returns: A view to be used as the header of the specified section.
     open func tableView(
         _ tableView: UITableView, viewForHeaderInSection section: Int
     ) -> UIView? {
@@ -405,7 +575,12 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         return LMView()
     }
 
-    //Swipe to reply
+    /// Configures the swipe actions for a row.
+    /// - Parameters:
+    ///   - tableView: The table view requesting the swipe actions configuration.
+    ///   - indexPath: The index path of the row.
+    /// - Returns: A UISwipeActionsConfiguration object containing the swipe actions.
+    /// - Note: Swipe actions are only available for non-deleted, sent messages when multiple selection is disabled.
     public func tableView(
         _ tableView: UITableView,
         leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath
@@ -425,6 +600,11 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         return swipeConfig
     }
 
+    /// Handles the beginning of row editing.
+    /// - Parameters:
+    ///   - tableView: The table view informing the delegate about the editing state.
+    ///   - indexPath: The index path of the row being edited.
+    /// - Note: This method automatically disables editing after a short delay.
     public func tableView(
         _ tableView: UITableView, willBeginEditingRowAt indexPath: IndexPath
     ) {
@@ -433,6 +613,11 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         }
     }
 
+    /// Determines whether multiple selection interaction should begin at the specified index path.
+    /// - Parameters:
+    ///   - tableView: The table view requesting the information.
+    ///   - indexPath: The index path where the interaction would begin.
+    /// - Returns: A boolean indicating whether multiple selection should be allowed.
     public func tableView(
         _ tableView: UITableView,
         shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath
@@ -441,6 +626,10 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         return true
     }
 
+    /// Handles the beginning of multiple selection interaction.
+    /// - Parameters:
+    ///   - tableView: The table view informing the delegate about the multiple selection state.
+    ///   - indexPath: The index path where the multiple selection interaction began.
     public func tableView(
         _ tableView: UITableView,
         didBeginMultipleSelectionInteractionAt indexPath: IndexPath
@@ -448,11 +637,19 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         //        self.setEditing(true, animated: true)
     }
 
+    /// Handles the end of multiple selection interaction.
+    /// - Parameter tableView: The table view informing the delegate about the end of multiple selection.
     public func tableViewDidEndMultipleSelectionInteraction(
         _ tableView: UITableView
     ) {
     }
 
+    /// Determines whether a row can be edited.
+    /// - Parameters:
+    ///   - tableView: The table view requesting the information.
+    ///   - indexPath: The index path of the row.
+    /// - Returns: A boolean indicating whether the row can be edited.
+    /// - Note: Only non-deleted messages of type 0 or 10 can be edited.
     public func tableView(
         _ tableView: UITableView, canEditRowAt indexPath: IndexPath
     ) -> Bool {
@@ -465,16 +662,27 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         return true
     }
 
-    // this delegate is called when the scrollView (i.e your UITableView) will start scrolling
+    /// Handles the beginning of scroll view dragging.
+    /// - Parameter scrollView: The scroll view that will begin dragging.
+    /// - Note: This method stores the current content offset for scroll direction detection.
     open func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         self.lastContentOffset = scrollView.contentOffset.y
     }
 
-    // while scrolling this delegate is being called so you may now check which direction your scrollView is being scrolled to
+    /// Handles scroll view scrolling.
+    /// - Parameter scrollView: The scroll view that is scrolling.
+    /// - Note: This method notifies the delegate about scroll events.
     open func scrollViewDidScroll(_ scrollView: UIScrollView) {
         delegate?.didScrollTableView(scrollView)
     }
 
+    /// Configures the context menu for a row.
+    /// - Parameters:
+    ///   - tableView: The table view requesting the context menu configuration.
+    ///   - indexPath: The index path of the row.
+    ///   - point: The location of the interaction in the table view's coordinate space.
+    /// - Returns: A UIContextMenuConfiguration object containing the context menu configuration.
+    /// - Note: Context menu is only available for non-deleted, sent messages when multiple selection is disabled.
     @available(iOS 13.0, *)
     public func tableView(
         _ tableView: UITableView,
@@ -496,6 +704,12 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         }
     }
 
+    /// Handles the end of cell display.
+    /// - Parameters:
+    ///   - tableView: The table view informing the delegate about the cell.
+    ///   - cell: The cell that ended displaying.
+    ///   - indexPath: The index path of the cell.
+    /// - Note: This method handles cleanup of audio playback when cells are removed from view.
     open func tableView(
         _ tableView: UITableView, didEndDisplaying cell: UITableViewCell,
         forRowAt indexPath: IndexPath
@@ -541,6 +755,9 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         animator.preferredCommitStyle = .pop
     }
 
+    /// Creates and returns a targeted preview for the context menu.
+    /// - Parameter configuration: The context menu configuration.
+    /// - Returns: A UITargetedPreview object for the context menu.
     @available(iOS 13.0, *)
     func makeTargetedPreview(for configuration: UIContextMenuConfiguration)
         -> UITargetedPreview?
@@ -628,6 +845,9 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
             view: container, parameters: parameters, target: previewTarget)
     }
 
+    /// Creates and returns a targeted preview for dismissing the context menu.
+    /// - Parameter configuration: The context menu configuration.
+    /// - Returns: A UITargetedPreview object for dismissing the context menu.
     @available(iOS 13.0, *)
     func makeTargetedDismissPreview(
         for configuration: UIContextMenuConfiguration

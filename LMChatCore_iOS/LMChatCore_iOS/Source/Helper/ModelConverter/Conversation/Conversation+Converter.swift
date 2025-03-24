@@ -10,9 +10,29 @@ import LikeMindsChatUI
 
 extension Conversation {
     /**
-     Converts a `Conversation` instance into a `ConversationViewData`.
-
-     - Returns: A `ConversationViewData` populated with the data from this `Conversation`.
+     Converts a `Conversation` instance into a `ConversationViewData` for UI representation.
+     
+     This method transforms the data model `Conversation` into a view-specific data model `ConversationViewData`.
+     It handles all properties including basic conversation data, attachments, reactions, and poll information.
+     
+     - Parameters:
+        - memberTitle: Optional title for the member (default: nil)
+        - message: Optional message content (default: nil)
+        - createdBy: Optional creator identifier (default: nil)
+        - isIncoming: Optional flag indicating if message is incoming (default: nil)
+        - messageType: Optional type of the message (default: nil)
+        - messageStatus: Optional status of the message (default: nil)
+        - hideLeftProfileImage: Optional flag to hide profile image (default: nil)
+        - createdTime: Optional creation time string (default: nil)
+        - replyConversation: Optional reply conversation view data (default: nil)
+     
+     - Returns: A `ConversationViewData` instance containing all the transformed data from this `Conversation`.
+     The returned object will have the same content but in a format suitable for UI rendering.
+     
+     - Note: 
+        - All optional parameters are used to override or set specific UI-related properties
+        - Poll information is only included if poll-related data exists in the conversation
+        - Nested objects (attachments, reactions, etc.) are converted using their respective toViewData methods
      */
     public func toViewData(memberTitle: String? = nil, message: String? = nil, createdBy: String? = nil, isIncoming: Bool? = nil, messageType: Int? = nil, messageStatus: LMMessageStatus? = nil, hideLeftProfileImage: Bool? = nil, createdTime: String? = nil, replyConversation: ConversationViewData? = nil) -> ConversationViewData {
         let viewData = ConversationViewData(
@@ -85,7 +105,7 @@ extension Conversation {
             
             // The below function updated pollInfoData with
             // the neccessary data for Core implementation
-            var pollInfoDataUpdated = convertPollData(viewData)
+            let pollInfoDataUpdated = convertPollData(viewData)
             
             viewData.pollInfoData = pollInfoDataUpdated
         }
@@ -93,6 +113,19 @@ extension Conversation {
         return viewData
     }
     
+    /**
+     Converts poll data from a conversation view data into a PollInfoData object.
+     
+     This method processes poll-related information from a conversation and creates a structured PollInfoData object.
+     It handles various poll properties including options, expiry time, and voting states.
+     
+     - Parameter conversation: The ConversationViewData containing poll information to convert
+     
+     - Returns: An optional `PollInfoData` instance containing the processed poll information.
+     Returns nil if the conversation state is not .microPoll.
+     
+     - Note: This method is specifically designed for handling micro-poll conversations and their associated data.
+     */
     public func convertPollData(_ conversation: ConversationViewData) -> PollInfoData? {
         guard conversation.state == .microPoll else { return nil }
         var pollInfoDataBuilder : PollInfoData.Builder? = conversation.pollInfoData?
@@ -128,6 +161,19 @@ extension Conversation {
         return pollInfoDataBuilder?.build()
     }
 
+    /**
+     Determines if adding new options to a poll is allowed.
+     
+     This method checks various conditions to determine if users can add new options to an existing poll.
+     
+     - Parameter conversation: The ConversationViewData containing poll information
+     
+     - Returns: A Boolean indicating whether adding new options is allowed.
+     Returns true only if:
+     - The poll has not expired
+     - No vote has been cast yet
+     - The poll is configured to allow adding options
+     */
     public func isAllowAddOption(_ conversation: ConversationViewData) -> Bool {
         let isExpired =
         (conversation.pollInfoData?.expiryTime ?? 0) < Int(Date().millisecondsSince1970)
@@ -138,6 +184,20 @@ extension Conversation {
         && (conversation.pollInfoData?.allowAddOption ?? false)
     }
 
+    /**
+     Determines if users should be shown the option to edit their vote.
+     
+     This method evaluates conditions to determine if users should be allowed to modify their existing vote.
+     
+     - Parameter conversation: The ConversationViewData containing poll information
+     
+     - Returns: A Boolean indicating whether the edit vote option should be shown.
+     Returns true only if:
+     - The poll has not expired
+     - A vote has already been cast
+     - The poll is a deferred type (pollType == 1)
+     - The poll allows multiple selections
+     */
     public func isShowEditToVoteAgain(_ conversation: ConversationViewData) -> Bool {
         let isDeffered = conversation.pollInfoData?.pollType == 1
         let isAlreadyVoted =
@@ -149,6 +209,19 @@ extension Conversation {
         return !isExpired && isAlreadyVoted && isDeffered && isMultipleState
     }
 
+    /**
+     Determines if the submit button should be shown for a poll.
+     
+     This method evaluates conditions to determine if users should see the submit button for voting.
+     
+     - Parameter conversation: The ConversationViewData containing poll information
+     
+     - Returns: A Boolean indicating whether the submit button should be shown.
+     Returns true only if:
+     - The poll has not expired
+     - No vote has been cast yet
+     - The poll has a multiple selection state defined
+     */
     public func isShowSubmitButton(_ conversation: ConversationViewData) -> Bool {
         let isAlreadyVoted =
         conversation.pollInfoData?.pollViewDataList?.contains(where: { $0.isSelected == true })
@@ -159,9 +232,24 @@ extension Conversation {
         && (conversation.pollInfoData?.multipleSelectState != nil)
     }
 
-    public func getPollOptions(_ polls: [PollViewData]?, conversation: ConversationViewData)
-        -> [PollViewData]
-    {
+    /**
+     Processes and formats poll options for display.
+     
+     This method handles the conversion and formatting of poll options, including:
+     - Removing duplicate options
+     - Sorting options by ID
+     - Adding UI-specific properties like vote counts and progress bars
+     
+     - Parameters:
+        - polls: Optional array of PollViewData to process
+        - conversation: The parent ConversationViewData containing poll information
+     
+     - Returns: An array of processed PollViewData objects ready for display.
+     Returns an empty array if no polls are provided.
+     
+     - Note: The method handles duplicate removal and adds UI-specific properties based on poll settings.
+     */
+    public func getPollOptions(_ polls: [PollViewData]?, conversation: ConversationViewData) -> [PollViewData] {
         guard var polls else { return [] }
         let isAllowAddOption = conversation.pollInfoData?.allowAddOption ?? false
         polls = polls.reduce([]) { result, element in
@@ -171,7 +259,7 @@ extension Conversation {
         let pollOptions = polls.sorted(by: { ($0.id ?? "0") < ($1.id ?? "0") })
         let options = pollOptions.map { poll in
 
-            var pollViewData = PollViewData.init(
+            let pollViewData = PollViewData.init(
                 id: poll.id ?? "", text: poll.text,
                 isSelected: poll.isSelected ?? false,
                 percentage: Double(poll.percentage ?? 0),
@@ -191,9 +279,18 @@ extension Conversation {
 
 extension ConversationViewData {
     /**
-     Converts a `ConversationViewData` instance back into a `Conversation`.
-
-     - Returns: A `Conversation` created using the data from this `ConversationViewData`.
+     Converts a `ConversationViewData` instance back into a `Conversation` data model.
+     
+     This method performs the reverse transformation from the UI representation back to the data model.
+     It handles all properties including basic conversation data, attachments, reactions, and poll information.
+     
+     - Returns: A `Conversation` instance created using the Builder pattern, containing all the data
+     from this `ConversationViewData` transformed into the data model format.
+     
+     - Note: 
+        - Nested objects (attachments, reactions, etc.) are converted using their respective toXXX methods
+        - Poll information is only included if pollInfoData exists in the view data
+        - All optional values are handled appropriately in the builder pattern
      */
     public func toConversation() -> Conversation {
         var builder = Conversation.Builder()
