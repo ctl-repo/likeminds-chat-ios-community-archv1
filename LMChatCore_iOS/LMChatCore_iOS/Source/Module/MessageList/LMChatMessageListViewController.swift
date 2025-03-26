@@ -613,12 +613,16 @@ open class LMChatMessageListViewController: LMViewController {
 }
 
 extension LMChatMessageListViewController: LMMessageListViewModelProtocol {
-    public func toggleRetryButtonWithMessage(indexPath: IndexPath, isHidden: Bool) {
-        if let cell = self.messageListView.tableView.cellForRow(at: indexPath) as? LMChatMessageCell? {
+    public func toggleRetryButtonWithMessage(
+        indexPath: IndexPath, isHidden: Bool
+    ) {
+        if let cell = self.messageListView.tableView.cellForRow(at: indexPath)
+            as? LMChatMessageCell?
+        {
             cell?.toggleRetryButtonView(isHidden: isHidden)
         }
     }
-    
+
     public func hideGifButton() {
         bottomMessageBoxView.gifButton.isHidden = true
         bottomMessageBoxView.gifButton.removeFromSuperview()
@@ -643,9 +647,12 @@ extension LMChatMessageListViewController: LMMessageListViewModelProtocol {
     }
 
     public func showToastMessage(message: String?) {
-        bottomMessageBoxView.inputTextView.resignFirstResponder()
-        self.displayToast(
-            message ?? "", font: Appearance.shared.fonts.headingFont1)
+        DispatchQueue.main.async { [weak self] in
+            self?.bottomMessageBoxView.inputTextView.resignFirstResponder()
+            self?.displayToast(
+                message ?? "", font: Appearance.shared.fonts.headingFont1)
+        }
+
     }
 
     public func scrollToSpecificConversation(
@@ -743,13 +750,13 @@ extension LMChatMessageListViewController: LMMessageListViewModelProtocol {
     }
 
     public func scrollToBottom(forceToBottom: Bool = true) {
-        DispatchQueue.main.async{ [weak self] in
+        DispatchQueue.main.async { [weak self] in
             if self?.viewModel?.fetchingInitialBottomData == true {
                 self?.messageListView.tableView.alpha = 0.001
             }
             self?.reloadChatMessageList()
             self?.bottomMessageBoxView.inputTextView.chatroomId =
-            self?.viewModel?.chatroomViewData?.id ?? ""
+                self?.viewModel?.chatroomViewData?.id ?? ""
             self?.updateChatroomSubtitles()
             if forceToBottom || ((self?.scrollToBottomButton.isHidden) != nil) {
                 LMChatAudioPlayManager.shared.resetAudioPlayer()
@@ -2018,15 +2025,7 @@ extension LMChatMessageListViewController: LMChatMessageCellDelegate,
     LMChatroomHeaderMessageCellDelegate
 {
 
-    public func onRetryButtonClicked(conversation: ConversationViewData) async {
-        conversation.localCreatedEpoch = Int(
-            Date().timeIntervalSince1970 * 1000)
-
-        Task {
-            var response = await LMChatClient.shared.updateConversation(
-                conversation: conversation.toConversation())
-        }
-
+    public func onRetryButtonClicked(conversation: ConversationViewData) {
         viewModel?.retryConversation(conversation: conversation)
     }
 
