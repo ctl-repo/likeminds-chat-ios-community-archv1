@@ -1793,13 +1793,13 @@ extension LMChatMessageListViewController: UIDocumentPickerDelegate {
             else { continue }
             switch MediaPickerManager.shared.fileTypeForDocument {
             case .audio:
-                if let mediaDeatil = FileUtils.getDetail(forVideoUrl: localPath)
+                if let mediaDetails = FileUtils.getDetail(forVideoUrl: localPath)
                 {
                     let mediaModel = MediaPickerModel(
                         with: localPath, type: .audio,
-                        thumbnailPath: mediaDeatil.thumbnailUrl)
-                    mediaModel.duration = mediaDeatil.duration
-                    mediaModel.fileSize = Int(mediaDeatil.fileSize ?? 0)
+                        thumbnailPath: mediaDetails.thumbnailUrl)
+                    mediaModel.duration = mediaDetails.duration
+                    mediaModel.fileSize = Int(mediaDetails.fileSize ?? 0)
                     results.append(mediaModel)
                 }
             case .pdf:
@@ -1848,13 +1848,13 @@ extension LMChatMessageListViewController: LMChatAttachmentViewDelegate {
             switch media.mediaType {
             case .video, .audio, .voice_note:
                 if let url = media.url,
-                    let videoDeatil = FileUtils.getDetail(forVideoUrl: url)
+                    let videoDetails = FileUtils.getDetail(forVideoUrl: url)
                 {
                     metadataBuilder = metadataBuilder.duration(
-                        videoDeatil.duration
-                    ).size(Int(videoDeatil.fileSize ?? 0))
+                        videoDetails.duration
+                    ).size(Int(videoDetails.fileSize ?? 0))
                     mediaData = mediaData.localPickedThumbnailURL(
-                        videoDeatil.thumbnailUrl)
+                        videoDetails.thumbnailUrl)
                 }
             case .pdf:
                 if let url = media.url,

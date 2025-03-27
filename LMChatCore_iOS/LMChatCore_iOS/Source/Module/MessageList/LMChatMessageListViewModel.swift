@@ -1586,7 +1586,7 @@ extension LMChatMessageListViewModel {
      */
     @MainActor
     public func retryConversation(conversation: ConversationViewData) {
-        var convertedConversation = conversation.toConversation()
+        let convertedConversation = conversation.toConversation()
 
         let saveTemporaryConversationRequest =
             SaveConversationRequest.builder().conversation(
@@ -1682,6 +1682,10 @@ extension LMChatMessageListViewModel {
         postConversationRequest: PostConversationRequest,
         filesUrls: [AttachmentViewData]?
     ) async {
+        guard let communityId = chatroomViewData?.communityId else {
+            return
+        }
+        
         // First upload all attachments and get their remote URLs
         let requestFiles = await handleUploadAttachments(
             for: filesUrls,
@@ -1723,13 +1727,17 @@ extension LMChatMessageListViewModel {
                         isHidden: false)
                 }
             }
+            
+            let tempConversation = saveTemporaryConversation(
+                uuid: UserPreferences.shared.getClientUUID() ?? "",
+                communityId: communityId, request: postConversationRequest,
+                fileUrls: requestFiles,
+                attachmentUploadedEpoch: nil)
+            insertOrUpdateConversationIntoList(tempConversation)
+            delegate?.scrollToBottom(forceToBottom: true)
 
             return
         } else {
-            // All uploads successful, proceed with conversation
-            guard let communityId = chatroomViewData?.communityId else {
-                return
-            }
 
             // Create and save temporary conversation while actual post happens
             let tempConversation = saveTemporaryConversation(
@@ -1771,6 +1779,7 @@ extension LMChatMessageListViewModel {
         var requestFiles: [AttachmentViewData] = []
 
         if let updatedFileUrls = filesUrls, !updatedFileUrls.isEmpty {
+
             // Create upload request objects for each file with chatroom context
             requestFiles.append(
                 contentsOf: getUploadFileRequestList(

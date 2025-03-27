@@ -4,7 +4,70 @@ import Foundation
 ///
 /// This class is mutable and can be used in UI layers or intermediate layers
 /// where flexibility in modifying properties is required.
-public class PollInfoData {
+public class PollInfoData : LMBasePollView.Content {    
+    // MARK: - Private Properties
+    private var _question: String?
+    private var _expiryDate: Date?
+    private var _optionState: String?
+    private var _optionCount: Int?
+    
+    // MARK: - Protocol Properties
+    public var question: String {
+        return _question ?? ""
+    }
+    
+    public var expiryDate: Date {
+        return _expiryDate ?? Date()
+    }
+    
+    public var optionState: String {
+        return _optionState ?? ""
+    }
+    
+    public var optionCount: Int {
+        return _optionCount ?? 0
+    }
+    
+    public var expiryDateFormatted: String {
+        let now = Date()
+        
+        guard let expiryDate = _expiryDate else {
+            return "--"
+        }
+        
+        guard expiryDate > now else {
+            return "Poll Ended"
+        }
+        
+        let components = Calendar.current.dateComponents(
+            [.day, .hour, .minute], from: now, to: expiryDate)
+        
+        guard let days = components.day, let hours = components.hour,
+            let minutes = components.minute
+        else {
+            return "Just Now"
+        }
+        
+        switch (days, hours, minutes) {
+        case (0, 0, let min) where min > 0:
+            return "Ends in \(min) \(getPluralText(withNumber: min, text: "min"))"
+        case (0, let hr, _) where hr >= 1:
+            return "Ends in \(hr) \(getPluralText(withNumber: hr, text: "hour"))"
+        case (let d, _, _) where d >= 1:
+            return "Ends in \(d) \(getPluralText(withNumber: d, text: "day"))"
+        default:
+            return "Just Now"
+        }
+    }
+    
+    public var optionStringFormatted: String {
+        "*Select \(optionState.lowercased()) \(optionCount) \(optionCount == 1 ? "option" : "options")"
+    }
+    
+    public var isShowOption: Bool {
+        !optionState.isEmpty && (optionCount != 0)
+    }
+
     // MARK: - Properties
     public var isAnonymous: Bool?
     public var allowAddOption: Bool?
@@ -22,11 +85,7 @@ public class PollInfoData {
     // MARK: - Additional Properties from LMChatPollView.ContentModel
     public var chatroomId: String?
     public var messageId: String?
-    public var question: String?
     public var options: [PollViewData]?
-    public var expiryDate: Date?
-    public var optionState: String?
-    public var optionCount: Int?
     public var isInstantPoll: Bool?
     public var isShowSubmitButton: Bool?
     public var isShowEditVote: Bool?
@@ -76,11 +135,11 @@ public class PollInfoData {
         self.toShowResult = toShowResult
         self.chatroomId = chatroomId
         self.messageId = messageId
-        self.question = question
+        self._question = question
         self.options = options
-        self.expiryDate = expiryDate
-        self.optionState = optionState
-        self.optionCount = optionCount
+        self._expiryDate = expiryDate
+        self._optionState = optionState
+        self._optionCount = optionCount
         self.isInstantPoll = isInstantPoll
         self.isShowSubmitButton = isShowSubmitButton
         self.isShowEditVote = isShowEditVote
@@ -98,44 +157,7 @@ public class PollInfoData {
     }
 
     public var isPollExpired: Bool {
-        if expiryDate == nil {
-            return false
-        }
-        return expiryDate! < Date()
-    }
-
-    public var expiryDateFormatted: String {
-        let now = Date()
-
-        if expiryDate == nil {
-            return "--"
-        }
-
-        guard expiryDate! > now else {
-            return "Poll Ended"
-        }
-
-        let components = Calendar.current.dateComponents(
-            [.day, .hour, .minute], from: now, to: expiryDate!)
-
-        guard let days = components.day, let hours = components.hour,
-            let minutes = components.minute
-        else {
-            return "Just Now"
-        }
-
-        switch (days, hours, minutes) {
-        case (0, 0, let min) where min > 0:
-            return
-                "Ends in \(min) \(getPluralText(withNumber: min, text: "min"))"
-        case (0, let hr, _) where hr >= 1:
-            return
-                "Ends in \(hr) \(getPluralText(withNumber: hr, text: "hour"))"
-        case (let d, _, _) where d >= 1:
-            return "Ends in \(d) \(getPluralText(withNumber: d, text: "day"))"
-        default:
-            return "Just Now"
-        }
+        return expiryDate < Date()
     }
 
     public func addTempSelectedOptions(_ option: String) {
