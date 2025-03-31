@@ -1533,7 +1533,7 @@ extension LMChatMessageListViewModel {
         let tempConversation = saveTemporaryConversation(
             uuid: UserPreferences.shared.getClientUUID() ?? "",
             communityId: communityId, request: requestBuilder.build(),
-            fileUrls: nil)
+            fileUrls: filesUrls)
         insertOrUpdateConversationIntoList(tempConversation)
         delegate?.scrollToBottom(forceToBottom: true)
 
@@ -1649,7 +1649,8 @@ extension LMChatMessageListViewModel {
             // Process successful conversation post
             onConversationPosted(
                 response: conversation.conversation,
-                updatedFileUrls: nil)
+                updatedFileUrls: postConversationRequest.attachments?.compactMap
+                { $0.toViewData() } ?? [])
         }
     }
 
@@ -1686,6 +1687,8 @@ extension LMChatMessageListViewModel {
             return
         }
         
+        var postConversationRequest = postConversationRequest
+
         // First upload all attachments and get their remote URLs
         let requestFiles = await handleUploadAttachments(
             for: filesUrls,
@@ -1727,7 +1730,7 @@ extension LMChatMessageListViewModel {
                         isHidden: false)
                 }
             }
-            
+
             let tempConversation = saveTemporaryConversation(
                 uuid: UserPreferences.shared.getClientUUID() ?? "",
                 communityId: communityId, request: postConversationRequest,
@@ -1748,6 +1751,10 @@ extension LMChatMessageListViewModel {
                     * 1000)
             insertOrUpdateConversationIntoList(tempConversation)
             delegate?.scrollToBottom(forceToBottom: true)
+
+            postConversationRequest = postConversationRequest.toBuilder()
+                .attachments(requestFiles.compactMap { $0.toAttachment() })
+                .build()
         }
 
         // Finally post the conversation with uploaded attachments

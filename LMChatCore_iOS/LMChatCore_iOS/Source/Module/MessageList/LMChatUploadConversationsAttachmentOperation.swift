@@ -141,10 +141,6 @@ class LMChatConversationAttachmentUpload {
                             attachment.thumbnailUrl = awsThumbnailFilePath
                             attachment.isUploaded = true
                             
-                            // Update attachment in the backend
-                            Task{
-                                var _ = await LMChatClient.shared.updateAttachment(attachment: attachment.toAttachment())
-                            }
                             return attachment
                         } catch {
                             // Mark attachment as failed on error
