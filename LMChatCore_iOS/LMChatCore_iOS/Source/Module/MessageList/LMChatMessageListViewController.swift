@@ -616,10 +616,13 @@ extension LMChatMessageListViewController: LMMessageListViewModelProtocol {
     public func toggleRetryButtonWithMessage(
         indexPath: IndexPath, isHidden: Bool
     ) {
-        if let cell = self.messageListView.tableView.cellForRow(at: indexPath)
-            as? LMChatMessageCell?
-        {
-            cell?.toggleRetryButtonView(isHidden: isHidden)
+        // Ensure UI updates occur on the main thread
+        DispatchQueue.main.async {
+            if let cell = self.messageListView.tableView.cellForRow(
+                at: indexPath) as? LMChatMessageCell
+            {
+                cell.toggleRetryButtonView(isHidden: isHidden)
+            }
         }
     }
 
@@ -1793,7 +1796,8 @@ extension LMChatMessageListViewController: UIDocumentPickerDelegate {
             else { continue }
             switch MediaPickerManager.shared.fileTypeForDocument {
             case .audio:
-                if let mediaDetails = FileUtils.getDetail(forVideoUrl: localPath)
+                if let mediaDetails = FileUtils.getDetail(
+                    forVideoUrl: localPath)
                 {
                     let mediaModel = MediaPickerModel(
                         with: localPath, type: .audio,
@@ -1835,6 +1839,7 @@ extension LMChatMessageListViewController: LMChatAttachmentViewDelegate {
             var mediaData = AttachmentViewData.Builder()
                 .url(media.url?.absoluteString)
                 .localPickedURL(media.url)
+                .localFilePath(media.url?.absoluteString)
                 .type(
                     AttachmentViewData.AttachmentType(
                         rawValue: media.mediaType.rawValue)
@@ -1854,7 +1859,9 @@ extension LMChatMessageListViewController: LMChatAttachmentViewDelegate {
                         videoDetails.duration
                     ).size(Int(videoDetails.fileSize ?? 0))
                     mediaData = mediaData.localPickedThumbnailURL(
-                        videoDetails.thumbnailUrl)
+                        videoDetails.thumbnailUrl
+                    ).thumbnailLocalFilePath(
+                        videoDetails.thumbnailUrl?.absoluteString)
                 }
             case .pdf:
                 if let url = media.url,
