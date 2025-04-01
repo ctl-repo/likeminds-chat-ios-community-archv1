@@ -1686,7 +1686,7 @@ extension LMChatMessageListViewModel {
         guard let communityId = chatroomViewData?.communityId else {
             return
         }
-        
+
         var postConversationRequest = postConversationRequest
 
         // First upload all attachments and get their remote URLs
@@ -1703,15 +1703,9 @@ extension LMChatMessageListViewModel {
         }
 
         if !failedUploads.isEmpty {
-            // Handle failed uploads by showing error and updating UI
-            delegate?.showToastMessage(
-                message: "Failed to upload attachments")
-            updateConversationUploadingStatus(
-                messageId: postConversationRequest.temporaryId ?? "",
-                withStatus: .failed)
-
             // Get current timestamp for message sorting
             let miliseconds = Int(Date().millisecondsSince1970)
+
             let date = LMCoreTimeUtils.generateCreateAtDate(
                 miliseconds: Double(miliseconds))
 
@@ -1735,9 +1729,16 @@ extension LMChatMessageListViewModel {
                 uuid: UserPreferences.shared.getClientUUID() ?? "",
                 communityId: communityId, request: postConversationRequest,
                 fileUrls: requestFiles,
-                attachmentUploadedEpoch: nil)
+                attachmentUploadedEpoch: miliseconds)
             insertOrUpdateConversationIntoList(tempConversation)
             delegate?.scrollToBottom(forceToBottom: true)
+
+            // Handle failed uploads by showing error and updating UI
+            delegate?.showToastMessage(
+                message: "Failed to upload attachments")
+            updateConversationUploadingStatus(
+                messageId: postConversationRequest.temporaryId ?? "",
+                withStatus: .failed)
 
             return
         } else {
@@ -1915,15 +1916,6 @@ extension LMChatMessageListViewModel {
         var fileUploadRequests: [AttachmentViewData] = []
         for (index, attachment) in fileUrls.enumerated() {
 
-            attachment.localPickedURL = FileUtils.getFilePath(
-                withFileName: attachment.localPickedURL?
-                    .lastPathComponent)
-            attachment.localFilePath =
-                FileUtils.getFilePath(
-                    withFileName: attachment.localPickedURL?
-                        .lastPathComponent)?
-                .absoluteString
-
             attachment.awsFolderPath =
                 LMChatAWSManager.awsFilePathForConversation(
                     chatroomId: chatroomId,
@@ -1938,17 +1930,11 @@ extension LMChatMessageListViewModel {
                 LMChatAWSManager.awsFilePathForConversation(
                     chatroomId: chatroomId,
                     attachmentType: attachment.type?.rawValue ?? "",
-                    fileExtension: attachment.localPickedURL?.pathExtension
+                    fileExtension: attachment.localPickedThumbnailURL?.pathExtension
                         ?? "",
                     filename: attachment.name
                         ?? "no_name_\(Int.random(in: 1...100))",
                     isThumbnail: true, uuid: uuid ?? "")
-
-            attachment.thumbnailLocalFilePath =
-                FileUtils.getFilePath(
-                    withFileName: attachment.localPickedThumbnailURL?
-                        .lastPathComponent
-                )?.absoluteString ?? ""
 
             attachment.index = index + 1
 
