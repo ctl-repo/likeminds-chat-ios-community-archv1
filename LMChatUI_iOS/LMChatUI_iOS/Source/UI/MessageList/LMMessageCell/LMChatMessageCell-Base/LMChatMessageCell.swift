@@ -266,19 +266,20 @@ open class LMChatMessageCell: LMTableViewCell {
     ///   - index: The index path of the cell in the table view
     open func setData(with data: ContentModel, index: IndexPath) {
         self.data = data
+        retryButton.isHidden = true
         chatMessageView.setDataView(data, index: index)
         chatMessageView.loaderView.delegate = self
         chatMessageView.retryView.delegate = self
         updateSelection(data: data)
         chatMessageView.delegate = self
         if data.message.isIncoming == false {
-            retryButton.isHidden = data.message.messageStatus != .failed
+            intialiseRetryView()
         }
         if data.message.hideLeftProfileImage == true {
             chatMessageView.chatProfileImageView.isHidden = true
             chatMessageView.usernameLabel.isHidden = true
         }
-        intialiseRetryView()
+        
     }
 
     /// Initializes the retry view based on message status and timestamps.
@@ -289,10 +290,14 @@ open class LMChatMessageCell: LMTableViewCell {
             // The string starts with "-", so we return early.
             return
         }
+        
+        if data?.message.messageStatus == .failed {
+            toggleRetryButtonView(isHidden: false)
+        }
 
         let currentTimeStampEpoch = Int(Date().timeIntervalSince1970 * 1000)
         if data?.message.attachments?.isEmpty ?? true {
-            if currentTimeStampEpoch - Int(data?.message.localCreatedEpoch ?? 0)
+            if currentTimeStampEpoch - (data?.message.localCreatedEpoch ?? currentTimeStampEpoch)
                 > 30000
             {
                 guard let data else { return }
@@ -303,7 +308,7 @@ open class LMChatMessageCell: LMTableViewCell {
             }
         } else {
             if currentTimeStampEpoch
-                - (data?.message.attachmentUploadedEpoch ?? 0) > 30000
+                - (data?.message.attachmentUploadedEpoch ?? currentTimeStampEpoch) > 30000
             {
                 toggleRetryButtonView(isHidden: false)
             }
@@ -337,6 +342,8 @@ open class LMChatMessageCell: LMTableViewCell {
     /// - Parameter isHidden: Whether the retry button should be hidden
     open func toggleRetryButtonView(isHidden: Bool) {
         retryButton.isHidden = isHidden
+        chatMessageView.loaderView.isHidden = !isHidden
+        chatMessageView.retryView.isHidden = isHidden
     }
 }
 
