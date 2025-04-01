@@ -39,8 +39,8 @@ class ViewController: LMViewController {
     
     func moveToNextScreen() {
         self.showHideLoaderView(isShow: false, backgroundColor: .clear)
-        let homefeedvc = ChatFeedViewModel.createModule()
-        let navigation = UINavigationController(rootViewController: homefeedvc)
+        let homeVC = HomeViewController()
+        let navigation = UINavigationController(rootViewController: homeVC)
         navigation.modalPresentationStyle = .overFullScreen
         self.window?.rootViewController = navigation
     }
@@ -99,3 +99,42 @@ class ViewController: LMViewController {
         present(alert, animated: true)
     }
 }
+
+class HomeViewController: UIViewController {
+    
+    private let chatButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Open Chat", for: .normal)
+        button.backgroundColor = .systemBlue
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = 8
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+    }
+    
+    private func setupUI() {
+        view.backgroundColor = .white
+        title = "Home"
+        
+        view.addSubview(chatButton)
+        
+        NSLayoutConstraint.activate([
+            chatButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            chatButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            chatButton.widthAnchor.constraint(equalToConstant: 200),
+            chatButton.heightAnchor.constraint(equalToConstant: 44)
+        ])
+        
+        chatButton.addTarget(self, action: #selector(chatButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc private func chatButtonTapped() {
+        let chatFeedVC = ChatFeedViewModel.createModule()
+        navigationController?.pushViewController(chatFeedVC, animated: true)
+    }
+} 
