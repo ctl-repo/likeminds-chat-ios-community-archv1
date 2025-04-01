@@ -216,6 +216,23 @@ public class LMChatGroupFeedViewModel: LMChatBaseViewModel {
         return LMChatHomeFeedChatroomView.ContentModel(
             userName: creatorName,
             lastMessage: lastMessage,
+            lastConversation: chatroom?.lastConversation?.toViewData(
+                memberTitle: chatroom?.lastConversation?.member?
+                    .communityManager(),
+                message: lastMessage,
+                createdBy: chatroom?.lastConversation?.member?.sdkClientInfo?
+                    .uuid
+                    != UserPreferences.shared.getClientUUID()
+                    ? chatroom?.lastConversation?.member?.name : "You",
+                isIncoming: chatroom?.lastConversation?.member?.sdkClientInfo?
+                    .uuid != UserPreferences.shared.getClientUUID(),
+                messageType: chatroom?.lastConversation?.state.rawValue,
+                messageStatus: nil,
+                hideLeftProfileImage: false,
+                createdTime: LMCoreTimeUtils.timestampConverted(
+                    withEpoch: chatroom?.lastConversation?.createdEpoch ?? 0),
+                replyConversation: nil
+            ),
             chatroomName: chatroom?.header ?? "",
             chatroomImageUrl: chatroom?.chatroomImageUrl,
             isMuted: chatroom?.muteStatus ?? false,

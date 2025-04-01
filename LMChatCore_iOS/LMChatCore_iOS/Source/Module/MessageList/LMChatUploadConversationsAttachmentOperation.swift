@@ -27,7 +27,7 @@ import LikeMindsChatUI
 class LMChatConversationAttachmentUpload {
     /// Shared instance of the upload manager
     static let shared: LMChatConversationAttachmentUpload = .init()
-    
+
     /// Private initializer to enforce singleton pattern
     private init() {}
 
@@ -85,6 +85,16 @@ class LMChatConversationAttachmentUpload {
     ) async -> [AttachmentViewData] {
         var updatedAttachments: [AttachmentViewData] = []
 
+        // Check for network connectivity first
+        if !NetworkReachability.isConnected {
+            // If no internet, mark all attachments as failed
+            return attachments.map { attachment in
+                var failedAttachment = attachment
+                failedAttachment.isUploaded = false
+                return failedAttachment
+            }
+        }
+
         // Create a task group for concurrent uploads
         await withTaskGroup(of: AttachmentViewData?.self) { group in
             for attachment in attachments {
@@ -93,7 +103,7 @@ class LMChatConversationAttachmentUpload {
                     updatedAttachments.append(attachment)
                     continue
                 }
-                
+
                 // Add a new task for each attachment
                 group.addTask {
                     // Run the upload logic in a detached background task
@@ -118,33 +128,44 @@ class LMChatConversationAttachmentUpload {
                                 )
 
                             var awsThumbnailFilePath: String? = nil
+
                             // Upload thumbnail if available
                             if let thumbFileUrl = attachment
                                 .localPickedThumbnailURL
                             {
-                                awsThumbnailFilePath =
-                                    try await LMChatAWSManager.shared
-                                    .uploadFileAsync(
-                                        fileUrl: thumbFileUrl,
-                                        awsPath: attachment
-                                            .thumbnailAWSFolderPath ?? "",
-                                        fileName:
-                                            "\(thumbFileUrl.pathExtension)",
-                                        contentType: "image",
-                                        withTaskGroupId:
-                                            "\(thumbFileUrl.pathExtension)"
+                                do {
+                                    awsThumbnailFilePath =
+                                        try await LMChatAWSManager.shared
+                                        .uploadFileAsync(
+                                            fileUrl: thumbFileUrl,
+                                            awsPath: attachment
+                                                .thumbnailAWSFolderPath ?? "",
+                                            fileName:
+                                                "\(thumbFileUrl.pathExtension)",
+                                            contentType: "image",
+                                            withTaskGroupId:
+                                                "\(thumbFileUrl.pathExtension)"
+                                        )
+                                } catch {
+                                    // If thumbnail upload fails, continue with main file
+                                    print(
+                                        "Thumbnail upload failed: \(error.localizedDescription)"
                                     )
+                                }
                             }
 
                             // Update attachment with AWS URLs and mark as uploaded
                             attachment.url = awsFilePath
                             attachment.thumbnailUrl = awsThumbnailFilePath
                             attachment.isUploaded = true
-                            
+
                             return attachment
                         } catch {
                             // Mark attachment as failed on error
                             attachment.isUploaded = false
+                            print(
+                                "Attachment upload failed: \(error.localizedDescription)"
+                            )
                             return attachment
                         }
                     }.value

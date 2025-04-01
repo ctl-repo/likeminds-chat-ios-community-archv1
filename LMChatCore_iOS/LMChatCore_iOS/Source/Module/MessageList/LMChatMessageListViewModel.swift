@@ -151,9 +151,16 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         let chatroomRequest = GetChatroomRequest.Builder().chatroomId(
             chatroomId
         ).build()
+        let response = LMChatClient.shared.getChatroom(
+            request: chatroomRequest)
+        
+        if !(response?.success ?? true) {
+            delegate?.showToastMessage(message: response?.errorMessage ?? "Unable to load conversations")
+            delegate?.showHideLoaderView(isShow: false)
+        }
+        
         guard
-            let chatroom = LMChatClient.shared.getChatroom(
-                request: chatroomRequest)?.data?.chatroom,
+            let chatroom = response?.data?.chatroom,
             chatroom.isConversationStored
         else {
             chatroomWasNotLoaded = true
@@ -1709,22 +1716,6 @@ extension LMChatMessageListViewModel {
             let date = LMCoreTimeUtils.generateCreateAtDate(
                 miliseconds: Double(miliseconds))
 
-            // Find the message in the list to show retry button
-            let section = messagesList.firstIndex(where: {
-                $0.section == date
-            })
-            if let section = section, messagesList.count > section {
-                let index = messagesList[section].data.firstIndex(where: {
-                    $0.id == postConversationRequest.temporaryId ?? ""
-                })
-
-                if let row = index {
-                    delegate?.toggleRetryButtonWithMessage(
-                        indexPath: IndexPath(row: row, section: section),
-                        isHidden: false)
-                }
-            }
-
             let tempConversation = saveTemporaryConversation(
                 uuid: UserPreferences.shared.getClientUUID() ?? "",
                 communityId: communityId, request: postConversationRequest,
@@ -1915,6 +1906,10 @@ extension LMChatMessageListViewModel {
 
         var fileUploadRequests: [AttachmentViewData] = []
         for (index, attachment) in fileUrls.enumerated() {
+            
+            attachment.localPickedURL = FileUtils.getFilePath(
+                withFileName: URL(string: attachment.localFilePath ?? "")?
+                    .lastPathComponent)
 
             attachment.awsFolderPath =
                 LMChatAWSManager.awsFilePathForConversation(
@@ -1925,6 +1920,10 @@ extension LMChatMessageListViewModel {
                     filename: attachment.name
                         ?? "no_name_\(Int.random(in: 1...100))",
                     uuid: uuid ?? "")
+            
+            attachment.localPickedThumbnailURL = FileUtils.getFilePath(
+                withFileName: URL(string: attachment.thumbnailLocalFilePath ?? "")?
+                    .lastPathComponent)
 
             attachment.thumbnailAWSFolderPath =
                 LMChatAWSManager.awsFilePathForConversation(
@@ -1953,54 +1952,6 @@ extension LMChatMessageListViewModel {
         LMChatClient.shared.savePostedConversation(request: request)
 
         insertOrUpdateConversationIntoList(conversation)
-    }
-
-    @MainActor func retryUploadConversation(_ messageId: String) {
-        let request = GetConversationRequest.builder()
-            .conversationId(messageId)
-            .build()
-        guard
-            let conversation = LMChatClient.shared.getConversation(
-                request: request)?.data?.conversation,
-            chatroomViewData?.id != nil
-        else {
-            return
-        }
-        let fileUrls: [AttachmentViewData] =
-            (conversation.attachments ?? []).map { attachment in
-                let attachmentViewData = attachment.toViewData()
-
-                attachmentViewData.localPickedURL = FileUtils.getFilePath(
-                    withFileName: URL(string: attachment.url ?? "")?
-                        .lastPathComponent)
-
-                attachmentViewData.localPickedThumbnailURL =
-                    FileUtils.getFilePath(
-                        withFileName: URL(
-                            string: attachment.thumbnailUrl ?? "")?
-                            .lastPathComponent)
-
-                return attachmentViewData
-            }
-        if let conId = Int(conversation.id ?? "NA"), conId > 0,
-            fileUrls.count > 0
-        {
-            updateConversationUploadingStatus(
-                messageId: conversation.id ?? "", withStatus: .sending)
-            onConversationPosted(
-                response: conversation, updatedFileUrls: fileUrls, isRetry: true
-            )
-        } else {
-            if Int(conversation.id ?? "NA") == nil {
-                self.currentDetectedOgTags = conversation.ogTags
-                postMessage(
-                    message: conversation.answer, filesUrls: fileUrls,
-                    shareLink: conversation.ogTags?.url,
-                    replyConversationId: conversation.replyConversationId,
-                    replyChatRoomId: conversation.replyChatroomId,
-                    temporaryId: conversation.temporaryId)
-            }
-        }
     }
 
     func postEditedConversation(
@@ -2261,8 +2212,30 @@ extension LMChatMessageListViewModel {
     func updateConversationUploadingStatus(
         messageId: String, withStatus status: ConversationStatus
     ) {
+        // Get current timestamp for message sorting
+        let miliseconds = Int(Date().millisecondsSince1970)
+        
+        let date = LMCoreTimeUtils.generateCreateAtDate(
+            miliseconds: Double(miliseconds))
+        
         LMChatClient.shared.updateConversationUploadingStatus(
             withId: messageId, withStatus: status)
+        
+        // Find the message in the list to show retry button
+        let section = messagesList.firstIndex(where: {
+            $0.section == date
+        })
+        if let section = section, messagesList.count > section {
+            let index = messagesList[section].data.firstIndex(where: {
+                $0.id == messageId
+            })
+
+            if let row = index {
+                delegate?.toggleRetryButtonWithMessage(
+                    indexPath: IndexPath(row: row, section: section),
+                    isHidden: false)
+            }
+        }
     }
 
     private func onDeleteConversation(ids: [String]) {

@@ -279,7 +279,7 @@ open class LMChatMessageCell: LMTableViewCell {
             chatMessageView.chatProfileImageView.isHidden = true
             chatMessageView.usernameLabel.isHidden = true
         }
-        
+
     }
 
     /// Initializes the retry view based on message status and timestamps.
@@ -290,14 +290,15 @@ open class LMChatMessageCell: LMTableViewCell {
             // The string starts with "-", so we return early.
             return
         }
-        
+
         if data?.message.messageStatus == .failed {
             toggleRetryButtonView(isHidden: false)
         }
 
         let currentTimeStampEpoch = Int(Date().timeIntervalSince1970 * 1000)
         if data?.message.attachments?.isEmpty ?? true {
-            if currentTimeStampEpoch - (data?.message.localCreatedEpoch ?? currentTimeStampEpoch)
+            if currentTimeStampEpoch
+                - (data?.message.localCreatedEpoch ?? currentTimeStampEpoch)
                 > 30000
             {
                 guard let data else { return }
@@ -308,7 +309,8 @@ open class LMChatMessageCell: LMTableViewCell {
             }
         } else {
             if currentTimeStampEpoch
-                - (data?.message.attachmentUploadedEpoch ?? currentTimeStampEpoch) > 30000
+                - (data?.message.attachmentUploadedEpoch
+                    ?? currentTimeStampEpoch) > 30000
             {
                 toggleRetryButtonView(isHidden: false)
             }
@@ -341,9 +343,11 @@ open class LMChatMessageCell: LMTableViewCell {
     /// This method controls whether the retry button is shown or hidden.
     /// - Parameter isHidden: Whether the retry button should be hidden
     open func toggleRetryButtonView(isHidden: Bool) {
-        retryButton.isHidden = isHidden
-        chatMessageView.loaderView.isHidden = !isHidden
-        chatMessageView.retryView.isHidden = isHidden
+        DispatchQueue.main.async { [weak self] in
+            self?.retryButton.isHidden = isHidden
+            self?.chatMessageView.loaderView.isHidden = !isHidden
+            self?.chatMessageView.retryView.isHidden = isHidden
+        }
     }
 }
 
@@ -405,4 +409,3 @@ extension LMChatMessageCell: LMChatMessageContentViewDelegate {
             url: url, indexPath: currentIndexPath)
     }
 }
- 

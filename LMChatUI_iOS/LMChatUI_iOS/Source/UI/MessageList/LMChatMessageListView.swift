@@ -107,7 +107,7 @@ public protocol LMChatMessageListViewDelegate: LMChatMessageBaseProtocol {
     
     /// Called when uploading of a message needs to be retried.
     /// - Parameter messageId: The ID of the message to retry.
-    func didRetryUploading(messageId: String)
+    func didRetryUploading(message: ConversationViewData)
     
     /// Called when audio playback should be stopped.
     func stopPlayingAudio()

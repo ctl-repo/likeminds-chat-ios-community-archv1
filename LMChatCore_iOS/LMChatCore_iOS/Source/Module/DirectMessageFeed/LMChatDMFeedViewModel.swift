@@ -113,6 +113,21 @@ public class LMChatDMFeedViewModel: LMChatBaseViewModel {
         let directMessageHeader = directMessageTitle(chatroom: chatroom)
         return  LMChatHomeFeedChatroomView.ContentModel(userName: creatorName,
                                                         lastMessage: lastMessage,
+                                                        lastConversation: chatroom?.lastConversation?.toViewData(
+                                                            memberTitle: chatroom?.lastConversation?.member?.communityManager(),
+                                                            message: lastMessage,
+                                                            createdBy: chatroom?.lastConversation?.member?.sdkClientInfo?.uuid
+                                                                != UserPreferences.shared.getClientUUID()
+                                                                ? chatroom?.lastConversation?.member?.name : "You",
+                                                            isIncoming: chatroom?.lastConversation?.member?.sdkClientInfo?
+                                                                .uuid != UserPreferences.shared.getClientUUID(),
+                                                            messageType: chatroom?.lastConversation?.state.rawValue,
+                                                            messageStatus: nil,
+                                                            hideLeftProfileImage: false,
+                                                            createdTime: LMCoreTimeUtils.timestampConverted(
+                                                                withEpoch: chatroom?.lastConversation?.createdEpoch ?? 0),
+                                                            replyConversation: nil
+                                                        ),
                                                         chatroomName: directMessageHeader.title,
                                                         chatroomImageUrl: directMessageHeader.imageUrl,
                                                         isMuted: chatroom?.muteStatus ?? false,

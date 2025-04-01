@@ -14,6 +14,7 @@ open class LMChatHomeFeedChatroomView: LMView {
     public struct ContentModel {
         public let userName: String
         public let lastMessage: String
+        public let lastConversation: ConversationViewData?
         public let chatroomName: String
         public let chatroomImageUrl: String?
         public let isMuted: Bool
@@ -25,7 +26,7 @@ open class LMChatHomeFeedChatroomView: LMView {
         public let messageType: Int
         public let isContainOgTags: Bool
         
-        public init(userName: String, lastMessage: String, chatroomName: String, chatroomImageUrl: String?, isMuted: Bool, isSecret: Bool, isAnnouncementRoom: Bool, unreadCount: Int, timestamp: String, fileTypeWithCount: [(type: String, count: Int)]?, messageType: Int, isContainOgTags: Bool) {
+        public init(userName: String, lastMessage: String, lastConversation: ConversationViewData?, chatroomName: String, chatroomImageUrl: String?, isMuted: Bool, isSecret: Bool, isAnnouncementRoom: Bool, unreadCount: Int, timestamp: String, fileTypeWithCount: [(type: String, count: Int)]?, messageType: Int, isContainOgTags: Bool) {
             self.userName = userName
             self.lastMessage = lastMessage
             self.chatroomName = chatroomName
@@ -38,6 +39,7 @@ open class LMChatHomeFeedChatroomView: LMView {
             self.fileTypeWithCount = fileTypeWithCount
             self.messageType = messageType
             self.isContainOgTags = isContainOgTags
+            self.lastConversation = lastConversation
         }
         
     }
@@ -280,6 +282,11 @@ open class LMChatHomeFeedChatroomView: LMView {
     
     open func lastMessageLabelSet(_ data: ContentModel) {
         let attributedText = NSMutableAttributedString()
+        
+        if data.lastConversation?.isDeleted ?? false {
+            lastMessageLabel.attributedText = NSAttributedString(string: "This message was deleted!")
+            return
+        }
         
         for fileAttachmentType in (data.fileTypeWithCount ?? []) {
             let fileType = fileAttachmentType.type

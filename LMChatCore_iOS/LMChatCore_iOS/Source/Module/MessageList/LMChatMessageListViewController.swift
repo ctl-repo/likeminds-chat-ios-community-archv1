@@ -874,7 +874,7 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
             messageId: messageId, withStatus: .failed)
     }
 
-    public func didRetryUploading(messageId: String) {
+    public func didRetryUploading(message: ConversationViewData) {
 
         let alert = UIAlertController(
             title: nil, message: nil, preferredStyle: .actionSheet)
@@ -889,7 +889,7 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
             title: "Try again", style: UIAlertAction.Style.default
         ) { [weak self] (UIAlertAction) in
             guard let self else { return }
-            viewModel?.retryUploadConversation(messageId)
+            viewModel?.retryConversation(conversation: message)
         }
         let retryIcon = Constants.shared.images.retryIcon
         tryAction.setValue(retryIcon, forKey: "image")
@@ -898,7 +898,7 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
             title: "Delete", style: UIAlertAction.Style.default
         ) { [weak self] (UIAlertAction) in
             guard let self else { return }
-            viewModel?.deleteTempConversation(conversationId: messageId)
+            viewModel?.deleteTempConversation(conversationId: message.id ?? "")
         }
         let deleteIcon = Constants.shared.images.trashIcon
         deleteAction.setValue(deleteIcon, forKey: "image")
@@ -2080,7 +2080,7 @@ extension LMChatMessageListViewController: LMChatMessageCellDelegate,
     public func didRetryAttachmentUploading(indexPath: IndexPath) {
         let item = messageListView.tableSections[indexPath.section].data[
             indexPath.row]
-        didRetryUploading(messageId: item.id ?? "")
+        didRetryUploading(message: item)
     }
 
     public func didTappedOnSelectionButton(indexPath: IndexPath?) {
