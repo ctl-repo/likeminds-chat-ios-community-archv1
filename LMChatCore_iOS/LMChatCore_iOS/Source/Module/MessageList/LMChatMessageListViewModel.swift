@@ -2254,9 +2254,6 @@ extension LMChatMessageListViewModel {
         for conId in ids {
             if let index = chatMessages.firstIndex(where: { $0.id == conId }) {
                 let conversation = chatMessages[index]
-                LMChatClient.shared.updateLastConversationModel(
-                    chatroomId: conversation.id ?? "",
-                    conversation: conversation)
                 let request = GetMemberRequest.builder()
                     .uuid(memberState?.member?.sdkClientInfo?.uuid ?? "")
                     .build()
@@ -2266,6 +2263,9 @@ extension LMChatMessageListViewModel {
                         LMChatClient.shared.getMember(request: request)?.data?
                             .member)
                 let updatedConversation = builder.build()
+                LMChatClient.shared.updateLastConversationModel(
+                    chatroomId: updatedConversation.id ?? "",
+                    conversation: updatedConversation)
                 chatMessages[index] = updatedConversation
                 insertOrUpdateConversationIntoList(updatedConversation)
             }

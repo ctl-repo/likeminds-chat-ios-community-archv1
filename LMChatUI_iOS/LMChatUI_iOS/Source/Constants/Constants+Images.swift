@@ -38,6 +38,7 @@ public extension Constants {
         public var shareIcon = loadSystemImage(with: "arrowshape.turn.up.right")
         public var xmarkIcon = loadSystemImage(with: "xmark")
         public var cloudIcon = loadSystemImage(with: "cloud")
+        public var attachmentUploadRetryIcon = loadSystemImage(with: "arrow.clockwise.icloud")
         public var crossIcon = loadSystemImage(with: "xmark.circle")
         public var ellipsisIcon = loadSystemImage(with: "ellipsis")
         public var ellipsisCircleIcon = loadSystemImage(with: "ellipsis.circle")
