@@ -1955,6 +1955,10 @@ extension LMChatMessageListViewModel {
             .build()
         LMChatClient.shared.savePostedConversation(request: request)
 
+        chatroomViewData = chatroomViewData?.toBuilder().lastConversation(
+            conversation
+        ).lastConversationId(conversation.id).build()
+
         insertOrUpdateConversationIntoList(conversation)
     }
 
@@ -2257,16 +2261,21 @@ extension LMChatMessageListViewModel {
                 let request = GetMemberRequest.builder()
                     .uuid(memberState?.member?.sdkClientInfo?.uuid ?? "")
                     .build()
-                let member = LMChatClient.shared.getMember(request: request)?.data?.member
-                    
+                let member = LMChatClient.shared.getMember(request: request)?
+                    .data?.member
+
                 let builder = conversation.toBuilder()
                     .deletedBy(member?.sdkClientInfo?.uuid)
                     .deletedByMember(
                         member)
                 let updatedConversation = builder.build()
-                LMChatClient.shared.updateLastConversationModel(
-                    chatroomId: updatedConversation.chatroomId ?? "",
-                    conversation: updatedConversation)
+                if updatedConversation.id
+                    == chatroomViewData?.lastConversation?.id
+                {
+                    LMChatClient.shared.updateLastConversationModel(
+                        chatroomId: updatedConversation.chatroomId ?? "",
+                        conversation: updatedConversation)
+                }
                 chatMessages[index] = updatedConversation
                 insertOrUpdateConversationIntoList(updatedConversation)
             }
