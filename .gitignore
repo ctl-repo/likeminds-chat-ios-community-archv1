@@ -3,6 +3,7 @@
 #
 build/
 *.pbxuser
+buildServer.json
 .vscode
 !default.pbxuser
 *.mode1v3
