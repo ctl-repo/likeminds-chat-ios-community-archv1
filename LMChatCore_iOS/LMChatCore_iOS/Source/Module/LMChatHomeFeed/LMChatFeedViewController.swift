@@ -25,8 +25,8 @@ open class LMChatFeedViewController: LMViewController {
         let segment = UISegmentedControl()
         segment.translatesAutoresizingMaskIntoConstraints = false
         segment.setHeightConstraint(with: 40)
-        segment.insertSegment(withTitle: "Group", at: 0, animated: true)
-        segment.insertSegment(withTitle: "DM", at: 1, animated: true)
+        segment.insertSegment(withTitle: "Groups", at: 0, animated: true)
+        segment.insertSegment(withTitle: "DMs", at: 1, animated: true)
         segment.selectedSegmentIndex = 0
         return segment
     }()
@@ -50,8 +50,10 @@ open class LMChatFeedViewController: LMViewController {
     
     open override func viewDidLoad() {
         super.viewDidLoad()
+        viewModel?.checkDMTab()
         segmentControl.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
         pageController.setViewControllers([viewControllers[currentPageIndex]], direction: .forward, animated: false) { _ in }
+        
     }
     
     open override func setupViews() {
@@ -62,19 +64,27 @@ open class LMChatFeedViewController: LMViewController {
         setupSegmentControl()
         addControllers()
         setupPageController()
+        setupLeftItemBars()
     }
     
     open override func setupLayouts() {
         super.setupLayouts()
-        self.view.safeAreaPinSubView(subView: containerStackView, padding: .init(top: 16, left: 0, bottom: 0, right: 0))
-        segmentControl.addConstraint(leading: (containerStackView.leadingAnchor, 16),
-        trailing: (containerStackView.trailingAnchor, -16))
-        pageContainerView.addConstraint(leading: (containerStackView.leadingAnchor, 0),
-                                     trailing: (containerStackView.trailingAnchor, 0))
+        NSLayoutConstraint.activate([
+            containerStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            containerStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            containerStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            containerStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            segmentControl.leadingAnchor.constraint(equalTo: containerStackView.leadingAnchor, constant: 16),
+            segmentControl.trailingAnchor.constraint(equalTo: containerStackView.trailingAnchor, constant: -16),
+            pageContainerView.leadingAnchor.constraint(equalTo: containerStackView.leadingAnchor),
+            pageContainerView.trailingAnchor.constraint(equalTo: containerStackView.trailingAnchor),
+            ])
     }
     
     open override func setupAppearance() {
         super.setupAppearance()
+        self.view.backgroundColor = .white
+        segmentControl.selectedSegmentTintColor = .white
     }
     
     open override func setupActions() {
@@ -112,11 +122,27 @@ open class LMChatFeedViewController: LMViewController {
         pageController.didMove(toParent: self)
     }
     
+    func setupLeftItemBars() {
+        let logoutItem = UIBarButtonItem(image: UIImage(systemName: "power")?.withSystemImageConfig(pointSize: 36, weight: .semibold, scale: .large), style: .plain, target: self, action: #selector(logoutItemClicked))
+        logoutItem.tintColor = Appearance.shared.colors.textColor
+        navigationItem.leftBarButtonItems = [logoutItem]
+    }
+    
+    @objc open func logoutItemClicked() {
+        showAlertWithActions(title: "Logout?", message: "Are you sure, you want logout?", withActions: [
+            ("No", nil),
+            ("Yes", {[weak self] in
+            self?.viewModel?.logout()
+        })
+        ])
+        
+    }
+    
     open func addControllers() {
         guard let homefeedvc = try? LMChatGroupFeedViewModel.createModule() else { return }
         viewControllers.append(homefeedvc)
         
-        guard let homefeedvc2 = try? LMChatGroupFeedViewModel.createModule() else { return }
+        guard let homefeedvc2 = try? LMChatDMFeedViewModel.createModule() else { return }
         viewControllers.append(homefeedvc2)
     }
 
@@ -162,6 +188,22 @@ extension LMChatFeedViewController: UIPageViewControllerDataSource, UIPageViewCo
     }
 }
 
-extension LMChatFeedViewController: LMChatFeedViewModelProtocol {
+extension LMChatFeedViewController: LMChatFeedViewModelProtocol, UINavigationControllerDelegate {
+    public func showDMTab() {
+        if viewModel?.dmTab?.hideDMTab == true {
+            self.segmentControl.isHidden = true
+            if self.viewControllers.count > 1 {
+                self.viewControllers[1] = UIViewController()
+                for view in self.pageController.view.subviews {
+                    if let subView = view as? UIScrollView {
+                        subView.isScrollEnabled = false
+                    }
+                }
+            }
+        }
+    }
     
+    public func onLogout(){
+        self.navigationController?.popViewController(animated: true)
+    }
 }
