@@ -40,7 +40,7 @@ open class LMChatDocumentContentView: LMChatMessageContentView {
     open override func setDataView(_ data: LMChatMessageCell.ContentModel, index: IndexPath) {
         super.setDataView(data, index: index)
         updateRetryButton(data)
-        if data.message?.isDeleted == true {
+        if data.message.isDeleted == true {
             docPreviewContainerStackView.isHidden = true
         } else {
             attachmentView(data, index: index)
@@ -49,17 +49,17 @@ open class LMChatDocumentContentView: LMChatMessageContentView {
     }
     
     func attachmentView(_ data: LMChatMessageCell.ContentModel, index: IndexPath) {
-        guard let attachments = data.message?.attachments,
+        guard let attachments = data.message.attachments,
               !attachments.isEmpty else {
             docPreviewContainerStackView.isHidden = true
             return
         }
         
-        let updatedAttachments = data.message?.isShowMore == true ? attachments : Array(attachments.prefix(2))
+        let updatedAttachments = data.message.isShowMore == true ? attachments : Array(attachments.prefix(2))
         
         docPreview(updatedAttachments)
         
-        if data.message?.isShowMore != true,
+        if data.message.isShowMore != true,
            attachments.count > 2 {
             let button = LMButton()
             button.setTitle("+ \(attachments.count - 2) More", for: .normal)
@@ -71,13 +71,13 @@ open class LMChatDocumentContentView: LMChatMessageContentView {
         }
     }
 
-    func docPreview(_ attachments: [LMChatMessageListView.ContentModel.Attachment]) {
+    func docPreview(_ attachments: [AttachmentViewData]) {
         guard !attachments.isEmpty else {
             docPreviewContainerStackView.isHidden = true
             return
         }
         attachments.forEach { attachment in
-            docPreviewContainerStackView.addArrangedSubview(createDocPreview(.init(fileUrl: attachment.fileUrl, thumbnailUrl: attachment.thumbnailUrl, fileSize: attachment.fileSize, numberOfPages: attachment.numberOfPages, fileType: attachment.fileType, fileName: attachment.fileName)))
+            docPreviewContainerStackView.addArrangedSubview(createDocPreview(.init(fileUrl: attachment.url, thumbnailUrl: attachment.thumbnailUrl, fileSize: attachment.meta?.size, numberOfPages: attachment.meta?.numberOfPage, fileType: attachment.type, fileName: attachment.name)))
         }
         docPreviewContainerStackView.isHidden = false
         docPreviewContainerStackView.bringSubviewToFront(cancelRetryContainerStackView)
@@ -105,8 +105,8 @@ open class LMChatDocumentContentView: LMChatMessageContentView {
     }
     
     func updateRetryButton(_ data: LMChatMessageCell.ContentModel) {
-        loaderView.isHidden = !(data.message?.messageStatus == .sending)
-        retryView.isHidden = !(data.message?.messageStatus == .failed)
+        loaderView.isHidden = !(data.message.messageStatus == .sending)
+        retryView.isHidden = !(data.message.messageStatus == .failed)
     }
 }
 

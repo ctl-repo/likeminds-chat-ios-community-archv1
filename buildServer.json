@@ -1,0 +1,19 @@
+{
+	"name": "xcode build server",
+	"version": "0.2",
+	"bspVersion": "2.0",
+	"languages": [
+		"c",
+		"cpp",
+		"objective-c",
+		"objective-cpp",
+		"swift"
+	],
+	"argv": [
+		"/opt/homebrew/bin/xcode-build-server"
+	],
+	"workspace": "/Users/anuragtyagi/Documents/GitHub/likeminds-chat-ios/LikemindsChatSample/LikemindsChatSample.xcworkspace",
+	"build_root": "/Users/anuragtyagi/Library/Developer/Xcode/DerivedData/LikemindsChatSample-cxlpnfexgohonjdxskglxxcdalxh",
+	"scheme": "LikemindsChatSample-Debug",
+	"kind": "xcode"
+}

@@ -31,7 +31,7 @@ open class LMChatLinkPreviewContentView: LMChatMessageContentView {
     
     open override func setDataView(_ data: LMChatMessageCell.ContentModel, index: IndexPath) {
         super.setDataView(data, index: index)
-        if data.message?.isDeleted == true {
+        if data.message.isDeleted == true {
             linkPreview.isHidden = true
         } else {
             linkPreview(data)
@@ -40,12 +40,12 @@ open class LMChatLinkPreviewContentView: LMChatMessageContentView {
     }
     
     func linkPreview(_ data: LMChatMessageCell.ContentModel) {
-        guard let ogTags = data.message?.ogTags else {
+        guard let ogTags = data.message.ogTags else {
             linkPreview.isHidden = true
             return
         }
         
-        linkPreview.setData(.init(linkUrl: ogTags.link, thumbnailUrl: ogTags.thumbnailUrl, title: ogTags.title, subtitle: ogTags.subtitle))
+        linkPreview.setData(.init(linkUrl: ogTags.url, thumbnailUrl: ogTags.image, title: ogTags.title, subtitle: ogTags.description))
         linkPreview.isHidden = false
     }
     

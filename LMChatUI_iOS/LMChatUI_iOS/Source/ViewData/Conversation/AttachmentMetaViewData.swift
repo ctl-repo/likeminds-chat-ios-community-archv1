@@ -21,4 +21,33 @@ public class AttachmentMetaViewData {
         self.size = size
         self.duration = duration
     }
+
+    // MARK: - Builder Pattern
+    public class Builder {
+        private var numberOfPage: Int?
+        private var size: Int?
+        private var duration: Int?
+
+        public init() {}
+
+        public func numberOfPage(_ numberOfPage: Int?) -> Builder {
+            self.numberOfPage = numberOfPage
+            return self
+        }
+
+        public func size(_ size: Int?) -> Builder {
+            self.size = size
+            return self
+        }
+
+        public func duration(_ duration: Int?) -> Builder {
+            self.duration = duration
+            return self
+        }
+
+        public func build() -> AttachmentMetaViewData {
+            return AttachmentMetaViewData(
+                numberOfPage: numberOfPage, size: size, duration: duration)
+        }
+    }
 }

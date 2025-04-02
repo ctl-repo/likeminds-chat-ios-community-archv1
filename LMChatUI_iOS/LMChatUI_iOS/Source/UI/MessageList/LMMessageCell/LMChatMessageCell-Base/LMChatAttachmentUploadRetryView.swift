@@ -15,7 +15,7 @@ open class LMChatAttachmentUploadRetryView: LMView {
     
     open private(set) lazy var actionButton: LMButton = {
         let button = LMButton().translatesAutoresizingMaskIntoConstraints()
-        button.setImage(Constants.shared.images.cloudIcon.withSystemImageConfig(pointSize: 30), for: .normal)
+        button.setImage(Constants.shared.images.attachmentUploadRetryIcon.withSystemImageConfig(pointSize: 30), for: .normal)
         button.setTitle("Retry", for: .normal)
         button.tintColor = Appearance.shared.colors.white
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -6, bottom: 0, right: 0);

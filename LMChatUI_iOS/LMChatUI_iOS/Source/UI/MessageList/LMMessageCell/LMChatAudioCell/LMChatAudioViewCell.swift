@@ -38,7 +38,7 @@ open class LMChatAudioViewCell: LMChatMessageCell {
         audioMessageView.audioDelegate = audioDelegate
         super.setData(with: data, index: index)
         audioMessageView.onShowMoreCallback = { [weak self] in
-            self?.updateForSeeMore(for: data.message?.messageId ?? "", index: index)
+            self?.updateForSeeMore(for: data.message.id ?? "", index: index)
         }
     }
     

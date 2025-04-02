@@ -216,6 +216,23 @@ public class LMChatGroupFeedViewModel: LMChatBaseViewModel {
         return LMChatHomeFeedChatroomView.ContentModel(
             userName: creatorName,
             lastMessage: lastMessage,
+            lastConversation: chatroom?.lastConversation?.toViewData(
+                memberTitle: chatroom?.lastConversation?.member?
+                    .communityManager(),
+                message: lastMessage,
+                createdBy: chatroom?.lastConversation?.member?.sdkClientInfo?
+                    .uuid
+                    != UserPreferences.shared.getClientUUID()
+                    ? chatroom?.lastConversation?.member?.name : "You",
+                isIncoming: chatroom?.lastConversation?.member?.sdkClientInfo?
+                    .uuid != UserPreferences.shared.getClientUUID(),
+                messageType: chatroom?.lastConversation?.state.rawValue,
+                messageStatus: nil,
+                hideLeftProfileImage: false,
+                createdTime: LMCoreTimeUtils.timestampConverted(
+                    withEpoch: chatroom?.lastConversation?.createdEpoch ?? 0),
+                replyConversation: nil
+            ),
             chatroomName: chatroom?.header ?? "",
             chatroomImageUrl: chatroom?.chatroomImageUrl,
             isMuted: chatroom?.muteStatus ?? false,
@@ -238,7 +255,7 @@ public class LMChatGroupFeedViewModel: LMChatBaseViewModel {
         let groupedBy = Dictionary(grouping: attachments, by: { $0.type })
         var typeArray: [(String, Int)] = []
         for atType in attachmentTypes {
-            typeArray.append((atType, groupedBy[atType]?.count ?? 0))
+            typeArray.append((atType.rawValue, groupedBy[atType]?.count ?? 0))
         }
         typeArray =
             ((typeArray.count) > 0)

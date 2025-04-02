@@ -18,11 +18,11 @@ open class LMChatMessageReplyPreview: LMView {
     public struct ContentModel {
         public let username: String?
         public let replyMessage: String?
-        public let attachmentsUrls: [(thumbnailUrl: String?, fileUrl: String?, fileType: String?)]?
+        public let attachmentsUrls: [(thumbnailUrl: String?, fileUrl: String?, fileType: AttachmentViewData.AttachmentType?)]?
         public let messageType: Int?
         public let isDeleted: Bool
         
-        public init(username: String?, replyMessage: String?, attachmentsUrls: [(thumbnailUrl: String?, fileUrl: String?, fileType: String?)]?, messageType: Int?, isDeleted: Bool = false) {
+        public init(username: String?, replyMessage: String?, attachmentsUrls: [(thumbnailUrl: String?, fileUrl: String?, fileType: AttachmentViewData.AttachmentType?)]?, messageType: Int?, isDeleted: Bool = false) {
             self.username = username
             self.replyMessage = replyMessage
             self.attachmentsUrls = attachmentsUrls
@@ -206,25 +206,25 @@ open class LMChatMessageReplyPreview: LMView {
         }
         var image: UIImage = UIImage()
         var initalType = ""
-        switch fileType.lowercased() {
-        case "image":
+        switch fileType {
+        case .image:
             image = Constants.shared.images.galleryIcon.withSystemImageConfig(pointSize: pointSize)?.withTintColor(Appearance.shared.colors.textColor) ?? UIImage()
             initalType = "Photo"
-        case "video":
+        case .video:
             image = Constants.shared.images.videoSystemIcon.withSystemImageConfig(pointSize: pointSize)?.withTintColor(Appearance.shared.colors.textColor) ?? UIImage()
             initalType = "Video"
-        case "audio":
+        case .audio:
             image = Constants.shared.images.audioIcon.withSystemImageConfig(pointSize: pointSize)?.withTintColor(Appearance.shared.colors.textColor) ?? UIImage()
             initalType = "Audio"
-        case "voice_note":
+        case .voiceNote:
             image = Constants.shared.images.micIcon.withSystemImageConfig(pointSize: pointSize)?.withTintColor(Appearance.shared.colors.textColor) ?? UIImage()
             initalType = "Voice note"
-        case "pdf", "doc":
+        case .pdf, .doc, .document:
             image = Constants.shared.images.documentsIcon.withSystemImageConfig(pointSize: pointSize)?.withTintColor(Appearance.shared.colors.textColor) ?? UIImage()
             initalType = "Document"
-        case "link":
+        case .link:
             image = Constants.shared.images.linkIcon.withSystemImageConfig(pointSize: pointSize)?.withTintColor(Appearance.shared.colors.textColor) ?? UIImage()
-        case "gif":
+        case .gif:
             image = Constants.shared.images.gifBadgeIcon
             initalType = "GIF"
         default:
@@ -233,7 +233,7 @@ open class LMChatMessageReplyPreview: LMView {
         
         let attributedText = NSMutableAttributedString(string: "")
         
-        if fileType.lowercased() == "gif" {
+        if fileType == .gif {
             let textAtt = NSTextAttachment(image: image)
             textAtt.bounds = CGRect(x: 0, y: -4, width: 24, height: 16)
             attributedText.append(NSAttributedString(attachment: textAtt))

@@ -137,7 +137,7 @@ open class LMChatMessageContentView: LMView {
     open var deletedTextLabelColor: UIColor = Appearance.shared.colors.textColor
     
     @objc func didTapOnProfileLink(_ gesture: UITapGestureRecognizer) {
-        delegate?.didTapOnProfileLink(route: Constants.getProfileRoute(withUUID: self.dataView?.message?.createdById ?? "") )
+        delegate?.didTapOnProfileLink(route: Constants.getProfileRoute(withUUID: self.dataView?.message.member?.userUniqueId ?? "") )
     }
     
     // MARK: setupViews
@@ -201,14 +201,14 @@ open class LMChatMessageContentView: LMView {
         dataView = data
         self.textLabel.isUserInteractionEnabled = true
         
-        let formattedString =  GetAttributedTextWithRoutes.getAttributedText(from: (data.message?.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines), font: textLabelFont, withHighlightedColor: Appearance.Colors.shared.linkColor, withTextColor: textLabelColor);
+        let formattedString =  GetAttributedTextWithRoutes.getAttributedText(from: (data.message.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines), font: textLabelFont, withHighlightedColor: Appearance.Colors.shared.linkColor, withTextColor: textLabelColor);
         
         formattedString.applyBoldFormat()
 
         self.textLabel.attributedText = formattedString
         self.textLabel.isHidden = self.textLabel.text.isEmpty
         setTimestamps(data)
-        let isIncoming = data.message?.isIncoming ?? true
+        let isIncoming = data.message.isIncoming ?? true
         bubbleView.bubbleFor(isIncoming)
         
         if !isIncoming {
@@ -219,7 +219,7 @@ open class LMChatMessageContentView: LMView {
             outgoingbubbleLeadingConstraint?.isActive = true
             outgoingbubbleTrailingConstraint?.isActive = true
         } else {
-            chatProfileImageView.imageView.kf.setImage(with: URL(string: data.message?.createdByImageUrl ?? ""), placeholder: UIImage.generateLetterImage(name: data.message?.createdBy?.components(separatedBy: " ").first ?? ""))
+            chatProfileImageView.imageView.kf.setImage(with: URL(string: data.message.member?.imageUrl ?? ""), placeholder: UIImage.generateLetterImage(name: data.message.createdBy?.components(separatedBy: " ").first ?? ""))
             chatProfileImageView.isHidden = false
             messageByName(data)
             usernameLabel.isHidden = false
@@ -229,14 +229,14 @@ open class LMChatMessageContentView: LMView {
             outgoingbubbleTrailingConstraint?.isActive = false
         }
         
-        if data.message?.isDeleted == true {
+        if data.message.isDeleted == true {
             deletedConversationView(data)
             textLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         } else {
             replyView(data)
             reactionsView(data)
         }
-        if (data.message?.attachments?.isEmpty == false || data.message?.ogTags != nil || data.message?.replied?.first != nil) && data.message?.isDeleted == false {
+        if (data.message.attachments?.isEmpty == false || data.message.ogTags != nil || data.message.replyConversation != nil) && data.message.isDeleted == false {
             textLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         } else {
             textLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -245,13 +245,13 @@ open class LMChatMessageContentView: LMView {
     }
     
     open func setTimestamps(_ data: LMChatMessageCell.ContentModel) {
-        let edited = data.message?.isEdited == true ? "Edited \(Constants.shared.strings.dot) " : ""
-        let timestamp = edited + (data.message?.createdTime ?? "")
+        let edited = data.message.isEdited == true ? "Edited \(Constants.shared.strings.dot) " : ""
+        let timestamp = edited + (data.message.createdTime ?? "")
         let attributedText = NSMutableAttributedString()
         attributedText.append(NSAttributedString(string: timestamp))
-        if data.message?.isIncoming == false {
+        if data.message.isIncoming == false {
             bubbleView.updateTimestampLabelTrailingConstraint()
-            let image = ((data.message?.messageStatus == .sent) ? Constants.shared.images.checkmarkIcon.withSystemImageConfig(pointSize: 9)?.withTintColor(Appearance.shared.colors.textColor) :  Constants.shared.images.clockIcon.withSystemImageConfig(pointSize: 9)?.withTintColor(Appearance.shared.colors.textColor)) ?? UIImage()
+            let image = ((data.message.messageStatus == .sent) ? Constants.shared.images.checkmarkIcon.withSystemImageConfig(pointSize: 9)?.withTintColor(Appearance.shared.colors.textColor) :  Constants.shared.images.clockIcon.withSystemImageConfig(pointSize: 9)?.withTintColor(Appearance.shared.colors.textColor)) ?? UIImage()
             let textAtt = NSTextAttachment(image: image)
             textAtt.bounds = CGRect(x: 0, y: -1, width: 11, height: 11)
             attributedText.append(NSAttributedString(string: " "))
@@ -266,8 +266,8 @@ open class LMChatMessageContentView: LMView {
     open func messageByName(_ data: LMChatMessageCell.ContentModel) {
         
         let myAttribute = [ NSAttributedString.Key.font: Appearance.shared.fonts.headingLabel, .foregroundColor: Appearance.shared.colors.red]
-        let myString = NSMutableAttributedString(string: "\(data.message?.createdBy ?? "")", attributes: myAttribute )
-        if let memberTitle = data.message?.memberTitle {
+        let myString = NSMutableAttributedString(string: "\(data.message.createdBy ?? "")", attributes: myAttribute )
+        if let memberTitle = data.message.memberTitle {
             let myAttribute2 = [ NSAttributedString.Key.font: Appearance.shared.fonts.buttonFont1, .foregroundColor: Appearance.shared.colors.textColor]
             myString.append(NSAttributedString(string: " \(Constants.shared.strings.dot) \(memberTitle)", attributes: myAttribute2))
         }
@@ -284,11 +284,11 @@ open class LMChatMessageContentView: LMView {
     }
 
     open func replyView(_ data: LMChatMessageCell.ContentModel) {
-        if let repliedMessage = data.message?.replied?.first {
+        if let repliedMessage = data.message.replyConversation {
             replyMessageView.isHidden = false
             replyMessageView.closeReplyButton.isHidden = true
             let message = repliedMessage.isDeleted == true ? Constants.shared.strings.messageDeleteText : repliedMessage.message
-            replyMessageView.setData(.init(username: repliedMessage.createdBy, replyMessage: message, attachmentsUrls: repliedMessage.attachments?.compactMap({($0.thumbnailUrl, $0.fileUrl, $0.fileType)}), messageType: data.message?.messageType, isDeleted: repliedMessage.isDeleted ?? false))
+            replyMessageView.setData(.init(username: repliedMessage.createdBy, replyMessage: message, attachmentsUrls: repliedMessage.attachments?.compactMap({($0.thumbnailUrl, $0.url, $0.type)}), messageType: data.message.messageType, isDeleted: repliedMessage.isDeleted))
             replyMessageView.onClickReplyPreview = {[weak self] in
                 self?.delegate?.didTapOnReplyPreview()
             }
@@ -298,7 +298,7 @@ open class LMChatMessageContentView: LMView {
     }
     
     open func reactionsView(_ data: LMChatMessageCell.ContentModel) {
-        if let reactions = data.message?.reactions, reactions.count > 0 {
+        if let reactions = data.message.reactions, reactions.count > 0 {
             reactionsView.isHidden = false
             reactionsView.setData(reactions)
         } else {
