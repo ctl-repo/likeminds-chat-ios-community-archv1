@@ -64,7 +64,6 @@ open class LMChatFeedViewController: LMViewController {
         setupSegmentControl()
         addControllers()
         setupPageController()
-        setupLeftItemBars()
     }
     
     open override func setupLayouts() {
@@ -120,22 +119,6 @@ open class LMChatFeedViewController: LMViewController {
         ])
         
         pageController.didMove(toParent: self)
-    }
-    
-    func setupLeftItemBars() {
-        let logoutItem = UIBarButtonItem(image: UIImage(systemName: "power")?.withSystemImageConfig(pointSize: 36, weight: .semibold, scale: .large), style: .plain, target: self, action: #selector(logoutItemClicked))
-        logoutItem.tintColor = Appearance.shared.colors.textColor
-        navigationItem.leftBarButtonItems = [logoutItem]
-    }
-    
-    @objc open func logoutItemClicked() {
-        showAlertWithActions(title: "Logout?", message: "Are you sure, you want logout?", withActions: [
-            ("No", nil),
-            ("Yes", {[weak self] in
-            self?.viewModel?.logout()
-        })
-        ])
-        
     }
     
     open func addControllers() {
@@ -201,9 +184,5 @@ extension LMChatFeedViewController: LMChatFeedViewModelProtocol, UINavigationCon
                 }
             }
         }
-    }
-    
-    public func onLogout(){
-        self.navigationController?.popViewController(animated: true)
     }
 }

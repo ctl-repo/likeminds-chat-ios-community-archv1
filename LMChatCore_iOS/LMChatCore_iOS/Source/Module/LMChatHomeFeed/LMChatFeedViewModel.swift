@@ -11,7 +11,6 @@ import LikeMindsChatUI
 
 public protocol LMChatFeedViewModelProtocol: AnyObject {
     func showDMTab()
-    func onLogout()
 }
 
 public class LMChatFeedViewModel {
@@ -36,17 +35,4 @@ public class LMChatFeedViewModel {
             self?.delegate?.showDMTab()
         }
     }
-    
-    func logout() {
-        let request = LogoutUserRequest.builder().deviceId(UIDevice.current.identifierForVendor?.uuidString ?? "").build()
-        LMChatClient.shared.logoutUser(request: request) {[weak self] response in
-            guard let vc = self?.delegate as? LMChatFeedViewController else { return }
-            let userDefalut = UserDefaults.standard
-            userDefalut.removeObject(forKey: "apiKey")
-            userDefalut.removeObject(forKey: "userId")
-            userDefalut.removeObject(forKey: "username")
-            self?.delegate?.onLogout()
-        }
-    }
-    
 }
