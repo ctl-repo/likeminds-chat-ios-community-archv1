@@ -150,7 +150,7 @@ class HomeViewController: UIViewController {
 
     @objc private func chatButtonTapped() {
         do {
-            let chatFeedVC = try LMChatGroupFeedViewModel.createModule()
+            let chatFeedVC = try LMChatFeedViewModel.createModule()
             navigationController?.pushViewController(chatFeedVC, animated: true)
         } catch {
             let alert = UIAlertController(

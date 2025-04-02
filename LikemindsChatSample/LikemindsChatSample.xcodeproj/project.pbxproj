@@ -19,8 +19,6 @@
 		F4C790E02B296EA90084823E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F4C790DE2B296EA90084823E /* Main.storyboard */; };
 		F4C790E22B296EAE0084823E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4C790E12B296EAE0084823E /* Assets.xcassets */; };
 		F4C790E52B296EAE0084823E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F4C790E32B296EAE0084823E /* LaunchScreen.storyboard */; };
-		F4CB0CAC2C20A8AE00C89A57 /* ChatFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4CB0CA92C20A8AE00C89A57 /* ChatFeedViewController.swift */; };
-		F4CB0CAD2C20A8AE00C89A57 /* ChatFeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4CB0CAA2C20A8AE00C89A57 /* ChatFeedViewModel.swift */; };
 		F4E4CE372C36AB2B00098BB3 /* CustomDMApproveRejectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4CE362C36AB2B00098BB3 /* CustomDMApproveRejectView.swift */; };
 		F4E4CE392C36AE9300098BB3 /* CustomParticipantItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4CE382C36AE9300098BB3 /* CustomParticipantItemView.swift */; };
 		F4E4CE3B2C36B13800098BB3 /* CustomMemberListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4CE3A2C36B13800098BB3 /* CustomMemberListViewController.swift */; };
@@ -71,8 +69,6 @@
 		F4C790E12B296EAE0084823E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F4C790E42B296EAE0084823E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F4C790E62B296EAE0084823E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F4CB0CA92C20A8AE00C89A57 /* ChatFeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatFeedViewController.swift; sourceTree = "<group>"; };
-		F4CB0CAA2C20A8AE00C89A57 /* ChatFeedViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatFeedViewModel.swift; sourceTree = "<group>"; };
 		F4E4CE362C36AB2B00098BB3 /* CustomDMApproveRejectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDMApproveRejectView.swift; sourceTree = "<group>"; };
 		F4E4CE382C36AE9300098BB3 /* CustomParticipantItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomParticipantItemView.swift; sourceTree = "<group>"; };
 		F4E4CE3A2C36B13800098BB3 /* CustomMemberListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomMemberListViewController.swift; sourceTree = "<group>"; };
@@ -176,7 +172,6 @@
 			isa = PBXGroup;
 			children = (
 				917393282D5A139400853A38 /* LikemindsChatSampleDebug.entitlements */,
-				F4CB0CAB2C20A8AE00C89A57 /* ChatHomeFeed */,
 				E5A045352C0AEBC00086C431 /* CustomViews */,
 				F4A82F342BE4170400217D1B /* LikemindsChatSample.entitlements */,
 				F4A82F302BE3B53000217D1B /* GoogleService-Info.plist */,
@@ -189,15 +184,6 @@
 				F4C790DE2B296EA90084823E /* Main.storyboard */,
 			);
 			path = LikemindsChatSample;
-			sourceTree = "<group>";
-		};
-		F4CB0CAB2C20A8AE00C89A57 /* ChatHomeFeed */ = {
-			isa = PBXGroup;
-			children = (
-				F4CB0CA92C20A8AE00C89A57 /* ChatFeedViewController.swift */,
-				F4CB0CAA2C20A8AE00C89A57 /* ChatFeedViewModel.swift */,
-			);
-			path = ChatHomeFeed;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -362,11 +348,9 @@
 				F4E4CE3B2C36B13800098BB3 /* CustomMemberListViewController.swift in Sources */,
 				E5A045372C0AEC880086C431 /* CustomHomeFeedExploreTabView.swift in Sources */,
 				F4C790D92B296EA90084823E /* AppDelegate.swift in Sources */,
-				F4CB0CAC2C20A8AE00C89A57 /* ChatFeedViewController.swift in Sources */,
 				F4FB20682C0B5CA1009C2D73 /* CustomReplyPreview.swift in Sources */,
 				F4FB20662C0B5987009C2D73 /* CustomExploreChatroomView.swift in Sources */,
 				F45B8AAE2B999F4900AB95E4 /* CustomChatroomView.swift in Sources */,
-				F4CB0CAD2C20A8AE00C89A57 /* ChatFeedViewModel.swift in Sources */,
 				F4E4CE372C36AB2B00098BB3 /* CustomDMApproveRejectView.swift in Sources */,
 				F4C790DB2B296EA90084823E /* SceneDelegate.swift in Sources */,
 			);

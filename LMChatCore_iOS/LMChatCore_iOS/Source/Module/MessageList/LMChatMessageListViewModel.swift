@@ -153,12 +153,14 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         ).build()
         let response = LMChatClient.shared.getChatroom(
             request: chatroomRequest)
-        
+
         if !(response?.success ?? true) {
-            delegate?.showToastMessage(message: response?.errorMessage ?? "Unable to load conversations")
+            delegate?.showToastMessage(
+                message: response?.errorMessage
+                    ?? "Unable to load conversations")
             delegate?.showHideLoaderView(isShow: false)
         }
-        
+
         guard
             let chatroom = response?.data?.chatroom,
             chatroom.isConversationStored
@@ -1906,7 +1908,7 @@ extension LMChatMessageListViewModel {
 
         var fileUploadRequests: [AttachmentViewData] = []
         for (index, attachment) in fileUrls.enumerated() {
-            
+
             attachment.localPickedURL = FileUtils.getFilePath(
                 withFileName: URL(string: attachment.localFilePath ?? "")?
                     .lastPathComponent)
@@ -1920,16 +1922,18 @@ extension LMChatMessageListViewModel {
                     filename: attachment.name
                         ?? "no_name_\(Int.random(in: 1...100))",
                     uuid: uuid ?? "")
-            
+
             attachment.localPickedThumbnailURL = FileUtils.getFilePath(
-                withFileName: URL(string: attachment.thumbnailLocalFilePath ?? "")?
+                withFileName: URL(
+                    string: attachment.thumbnailLocalFilePath ?? "")?
                     .lastPathComponent)
 
             attachment.thumbnailAWSFolderPath =
                 LMChatAWSManager.awsFilePathForConversation(
                     chatroomId: chatroomId,
                     attachmentType: attachment.type?.rawValue ?? "",
-                    fileExtension: attachment.localPickedThumbnailURL?.pathExtension
+                    fileExtension: attachment.localPickedThumbnailURL?
+                        .pathExtension
                         ?? "",
                     filename: attachment.name
                         ?? "no_name_\(Int.random(in: 1...100))",
@@ -2214,13 +2218,13 @@ extension LMChatMessageListViewModel {
     ) {
         // Get current timestamp for message sorting
         let miliseconds = Int(Date().millisecondsSince1970)
-        
+
         let date = LMCoreTimeUtils.generateCreateAtDate(
             miliseconds: Double(miliseconds))
-        
+
         LMChatClient.shared.updateConversationUploadingStatus(
             withId: messageId, withStatus: status)
-        
+
         // Find the message in the list to show retry button
         let section = messagesList.firstIndex(where: {
             $0.section == date
@@ -2250,6 +2254,9 @@ extension LMChatMessageListViewModel {
         for conId in ids {
             if let index = chatMessages.firstIndex(where: { $0.id == conId }) {
                 let conversation = chatMessages[index]
+                LMChatClient.shared.updateLastConversationModel(
+                    chatroomId: conversation.id ?? "",
+                    conversation: conversation)
                 let request = GetMemberRequest.builder()
                     .uuid(memberState?.member?.sdkClientInfo?.uuid ?? "")
                     .build()
