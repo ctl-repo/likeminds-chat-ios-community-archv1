@@ -7,6 +7,7 @@
 
 import Foundation
 import LikeMindsChatData
+import LikeMindsChatUI
 
 class DataModelConverter {
     
@@ -28,7 +29,7 @@ class DataModelConverter {
         }
     }
     
-    func convertPostConversation(uuid: String, communityId: String, request: PostConversationRequest, fileUrls: [LMChatAttachmentMediaData]?) -> Conversation {
+    func convertPostConversation(uuid: String, communityId: String, request: PostConversationRequest, fileUrls: [AttachmentViewData]?, attachmentUploadedEpoch: Int?) -> Conversation {
         let miliseconds = Int(Date().millisecondsSince1970)
         let member = LMChatClient.shared.getCurrentMember()?.data?.member
         var widget: Widget? = nil
@@ -63,6 +64,7 @@ class DataModelConverter {
             .attachmentUploaded(false)
             .conversationStatus(.sending)
             .widget(widget)
+            .attachmentUploadedEpoch(attachmentUploadedEpoch)
             .build()
     }
     
@@ -94,7 +96,7 @@ class DataModelConverter {
             .build()
     }
     
-    func convertAttachments(_ fileUrls: [LMChatAttachmentMediaData]?, tempConvId: String?) -> [Attachment]? {
+    func convertAttachments(_ fileUrls: [AttachmentViewData]?, tempConvId: String?) -> [Attachment]? {
         var i = 0
         return fileUrls?.map({ media in
             i += 1
@@ -102,29 +104,9 @@ class DataModelConverter {
         })
     }
     
-    func convertAttachment(mediaData: LMChatAttachmentMediaData, index: Int, tempConvId: String?) -> Attachment {
+    func convertAttachment(mediaData: AttachmentViewData, index: Int, tempConvId: String?) -> Attachment {
         let tempId = "\(tempConvId ?? "")-\(index)"
-        return Attachment.builder()
-            .id(tempId)
-            .name(mediaData.mediaName)
-            .url(mediaData.url?.absoluteString ?? "")
-            .type(mediaData.fileType.rawValue)
-            .index(index)
-            .width(mediaData.width)
-            .height(mediaData.height)
-            .localFilePath(mediaData.url?.absoluteString ?? "")
-            .thumbnailUrl(mediaData.thumbnailurl?.absoluteString)
-            .thumbnailLocalFilePath(mediaData.thumbnailurl?.absoluteString)
-            .awsFolderPath(mediaData.awsFolderPath)
-            .thumbnailAWSFolderPath(mediaData.thumbnailAwsPath)
-            .meta(
-                AttachmentMeta.builder()
-                    .numberOfPage(mediaData.pdfPageCount)
-                    .duration(mediaData.duration)
-                    .size(Int(mediaData.size ?? 0))
-                    .build()
-            )
-            .build()
+        mediaData.id = tempId
+        return mediaData.toAttachment()
     }
-    
 }

@@ -8,6 +8,12 @@
 import AWSS3
 import LikeMindsChatData
 
+/// Custom error type for upload-related errors
+struct UploadError: Error {
+    /// Descriptive message explaining the error
+    let message: String
+}
+
 public protocol LMCDNProtocol: AnyObject {
     associatedtype progressBlock
     associatedtype completionBlock
@@ -55,6 +61,9 @@ final class LMChatAWSManager {
         let configuration = AWSServiceConfiguration(
             region: .APSouth1, credentialsProvider: credentialsProvider)
         AWSServiceManager.default().defaultServiceConfiguration = configuration
+        
+        // Start monitoring network connectivity
+        NetworkReachability.startMonitoring()
     }
 
     func cancelAllTaskFor(groupId: String) {
@@ -120,7 +129,16 @@ final class LMChatAWSManager {
                     AWSS3TransferUtilityUploadCompletionHandlerBlock = {
                         (task, error) in
                         if let error = error {
-                            continuation.resume(throwing: error)  // Resume with an error if upload fails
+                            // Check if error is network related
+                            let isNetworkError = (error as NSError).domain == NSURLErrorDomain &&
+                                ((error as NSError).code == NSURLErrorNotConnectedToInternet ||
+                                 (error as NSError).code == NSURLErrorNetworkConnectionLost)
+                            
+                            if isNetworkError {
+                                continuation.resume(throwing: UploadError(message: "No internet connection"))
+                            } else {
+                                continuation.resume(throwing: error)
+                            }
                             print(
                                 "File Uploading FAILED with error: \(error.localizedDescription)"
                             )
@@ -133,7 +151,7 @@ final class LMChatAWSManager {
                                 print(
                                     "File Uploaded SUCCESSFULLY to: \(publicURLString)"
                                 )
-                                continuation.resume(returning: publicURLString)  // Resume with URL on success
+                                continuation.resume(returning: publicURLString)
                             } else {
                                 continuation.resume(
                                     throwing: NSError(
@@ -157,17 +175,16 @@ final class LMChatAWSManager {
                         print(
                             "Error uploading file: \(error.localizedDescription)\n error: \(error)"
                         )
-                        continuation.resume(throwing: error)  // Resume with an error if the task fails
+                        continuation.resume(throwing: error)
                     }
                     if let groupId = groupId, let uploadTask = task.result {
                         print("Starting upload...")
-                        // Optionally add your task management logic here, if needed.
                     }
                     return nil
                 }
 
             } catch let error {
-                continuation.resume(throwing: error)  // Resume with an error if data reading fails
+                continuation.resume(throwing: error)
             }
         }
     }

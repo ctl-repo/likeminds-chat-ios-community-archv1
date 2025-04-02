@@ -7,97 +7,179 @@
 
 import Foundation
 import LikeMindsChatData
+import LikeMindsChatUI
 
+/// A singleton class responsible for managing the upload of attachments in chat conversations.
+/// This class handles the asynchronous upload of files and their thumbnails to AWS storage.
+///
+/// Example usage:
+/// ```swift
+/// // Upload multiple attachments
+/// let attachments = [attachment1, attachment2, attachment3]
+/// let uploadedAttachments = await LMChatConversationAttachmentUpload.shared.uploadAttachments(withAttachments: attachments)
+///
+/// // Cancel uploads for a specific conversation
+/// LMChatConversationAttachmentUpload.shared.cancelUploadingFor(conversationId: "conversation123")
+///
+/// // Resume uploads for a specific conversation
+/// LMChatConversationAttachmentUpload.shared.resumeUploadingFor(conversationId: "conversation123")
+/// ```
 class LMChatConversationAttachmentUpload {
+    /// Shared instance of the upload manager
     static let shared: LMChatConversationAttachmentUpload = .init()
+
+    /// Private initializer to enforce singleton pattern
     private init() {}
 
+    /// Cancels all ongoing upload tasks for a specific conversation
+    /// - Parameter conversationId: The unique identifier of the conversation
+    ///
+    /// Example:
+    /// ```swift
+    /// LMChatConversationAttachmentUpload.shared.cancelUploadingFor(conversationId: "conversation123")
+    /// ```
     func cancelUploadingFor(conversationId: String) {
         LMChatAWSManager.shared.cancelAllTaskFor(groupId: conversationId)
     }
 
+    /// Resumes all paused upload tasks for a specific conversation
+    /// - Parameter conversationId: The unique identifier of the conversation
+    ///
+    /// Example:
+    /// ```swift
+    /// LMChatConversationAttachmentUpload.shared.resumeUploadingFor(conversationId: "conversation123")
+    /// ```
     func resumeUploadingFor(conversationId: String) {
         LMChatAWSManager.shared.resumeAllTaskFor(groupId: conversationId)
     }
 
+    /// Custom error type for upload-related errors
     struct UploadError: Error {
+        /// Descriptive message explaining the error
         let message: String
     }
 
+    /// Uploads multiple attachments asynchronously to AWS storage
+    /// - Parameter attachments: Array of attachments to upload
+    /// - Returns: Array of updated attachments with their AWS URLs
+    ///
+    /// This method performs the following steps:
+    /// 1. Creates a task group for concurrent uploads
+    /// 2. For each attachment:
+    ///    - Validates the file URL
+    ///    - Uploads the main file to AWS
+    ///    - Uploads the thumbnail if available
+    ///    - Updates the attachment with AWS URLs
+    /// 3. Collects and returns all updated attachments
+    ///
+    /// Example:
+    /// ```swift
+    /// let attachments = [
+    ///     AttachmentViewData(name: "image.jpg", localPickedURL: imageURL),
+    ///     AttachmentViewData(name: "document.pdf", localPickedURL: documentURL)
+    /// ]
+    /// let uploadedAttachments = await uploadAttachments(withAttachments: attachments)
+    /// ```
     func uploadAttachments(
-        withAttachments attachments: [LMChatAttachmentUploadModel]
-    ) async throws -> [LMChatAttachmentUploadModel] {
-        var updatedAttachments: [LMChatAttachmentUploadModel] = []
-        try await withThrowingTaskGroup(of: LMChatAttachmentUploadModel?.self) {
-            group in
+        withAttachments attachments: [AttachmentViewData]
+    ) async -> [AttachmentViewData] {
+        var updatedAttachments: [AttachmentViewData] = []
+
+        // Check for network connectivity first
+        if !NetworkReachability.isConnected {
+            // If no internet, mark all attachments as failed
+            return attachments.map { attachment in
+                var failedAttachment = attachment
+                failedAttachment.isUploaded = false
+                return failedAttachment
+            }
+        }
+
+        // Create a task group for concurrent uploads
+        await withTaskGroup(of: AttachmentViewData?.self) { group in
             for attachment in attachments {
+                // Skip already uploaded attachments
+                if attachment.isUploaded {
+                    updatedAttachments.append(attachment)
+                    continue
+                }
+
+                // Add a new task for each attachment
                 group.addTask {
-                    return try await Task.detached(priority: .background) {
-                        // Upload the main file
-                        guard let fileUrl = attachment.fileUrl else {
-                            throw UploadError(
-                                message:
-                                    "Invalid file URL for attachment: \(attachment.name ?? "Unknown")"
-                            )
+                    // Run the upload logic in a detached background task
+                    return await Task.detached(priority: .background) {
+                        // Validate the main file URL
+                        guard let fileUrl = attachment.localPickedURL else {
+                            attachment.isUploaded = false
+                            return attachment
                         }
 
                         do {
+                            // Upload the main file to AWS
                             let awsFilePath = try await LMChatAWSManager.shared
                                 .uploadFileAsync(
                                     fileUrl: fileUrl,
-                                    awsPath: attachment.awsFolderPath,
+                                    awsPath: attachment.awsFolderPath ?? "",
                                     fileName: attachment.name
                                         ?? "\(fileUrl.pathExtension)",
-                                    contentType: attachment.fileType,
+                                    contentType: attachment.type?.rawValue
+                                        ?? "",
                                     withTaskGroupId: attachment.name
                                 )
 
                             var awsThumbnailFilePath: String? = nil
-                            if let thumbFileUrl = URL(
-                                string: attachment.thumbnailLocalFilePath ?? ""),
-                                let thumbnailAWSFolderPath = attachment
-                                    .thumbnailAWSFolderPath
+
+                            // Upload thumbnail if available
+                            if let thumbFileUrl = attachment
+                                .localPickedThumbnailURL
                             {
-                                // Upload the thumbnail file if it exists
-                                awsThumbnailFilePath =
-                                    try await LMChatAWSManager.shared
-                                    .uploadFileAsync(
-                                        fileUrl: thumbFileUrl,
-                                        awsPath: thumbnailAWSFolderPath,
-                                        fileName:
-                                            "\(thumbFileUrl.pathExtension)",
-                                        contentType: "image",
-                                        withTaskGroupId:
-                                            "\(thumbFileUrl.pathExtension)"
+                                do {
+                                    awsThumbnailFilePath =
+                                        try await LMChatAWSManager.shared
+                                        .uploadFileAsync(
+                                            fileUrl: thumbFileUrl,
+                                            awsPath: attachment
+                                                .thumbnailAWSFolderPath ?? "",
+                                            fileName:
+                                                "\(thumbFileUrl.pathExtension)",
+                                            contentType: "image",
+                                            withTaskGroupId:
+                                                "\(thumbFileUrl.pathExtension)"
+                                        )
+                                } catch {
+                                    // If thumbnail upload fails, continue with main file
+                                    print(
+                                        "Thumbnail upload failed: \(error.localizedDescription)"
                                     )
+                                }
                             }
 
-                            var attachmentBuilder = attachment.toBuilder()
-                            attachmentBuilder = attachmentBuilder.awsUrl(
-                                awsFilePath)
-                            attachmentBuilder = attachmentBuilder.thumbnailUri(
-                                URL(string: awsThumbnailFilePath ?? ""))
+                            // Update attachment with AWS URLs and mark as uploaded
+                            attachment.url = awsFilePath
+                            attachment.thumbnailUrl = awsThumbnailFilePath
+                            attachment.isUploaded = true
 
-                            return attachmentBuilder.build()
-
+                            return attachment
                         } catch {
-                            // Throw an error if the upload fails
-                            throw UploadError(
-                                message:
-                                    "Failed to upload file for attachment: \(attachment.name ?? "Unknown") - \(error.localizedDescription)"
+                            // Mark attachment as failed on error
+                            attachment.isUploaded = false
+                            print(
+                                "Attachment upload failed: \(error.localizedDescription)"
                             )
+                            return attachment
                         }
                     }.value
                 }
             }
 
-            // Collect all results from the task group
-            for try await attachment in group {
-                if let attachment = attachment {
+            // Collect results from all tasks
+            for await result in group {
+                if let attachment = result {
                     updatedAttachments.append(attachment)
                 }
             }
         }
+
         return updatedAttachments
     }
 }

@@ -56,9 +56,20 @@ open class LMChatMessageReactionsView: LMView {
         return view
     }
     
-    func setData(_ data: [LMChatMessageListView.ContentModel.Reaction]) {
+    func setData(_ data: [ReactionViewData]) {
         previewsContainerView.arrangedSubviews.forEach({$0.isHidden = true})
-        for (index, item) in data.enumerated() {
+        
+        // Create a hashmap of unique reactions with their counts
+        var reactionCounts: [String: Int] = [:]
+        for item in data {
+            reactionCounts[item.reaction, default: 0] += 1
+        }
+        
+        // Sort reactions by count in descending order
+        let sortedReactions = reactionCounts.sorted { $0.value > $1.value }
+        
+        // Display up to 3 reactions
+        for (index, (reaction, count)) in sortedReactions.prefix(3).enumerated() {
             if index > 1 {
                 let preview = (previewsContainerView.arrangedSubviews[index] as? LMChatMessageReaction)
                 preview?.setMoreData()
@@ -67,7 +78,7 @@ open class LMChatMessageReactionsView: LMView {
                 return
             }
             let preview = (previewsContainerView.arrangedSubviews[index] as? LMChatMessageReaction)
-            preview?.setData(.init(reaction: item.reaction, reactionCount: "\(item.count)"))
+            preview?.setData(.init(reaction: reaction, reactionCount: "\(count)"))
             preview?.delegate = self
             previewsContainerView.arrangedSubviews[index].isHidden = false
         }

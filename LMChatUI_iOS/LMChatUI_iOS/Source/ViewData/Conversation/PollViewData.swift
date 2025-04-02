@@ -23,6 +23,13 @@ public class PollViewData {
     public var userId: String?
     public var conversationId: String?
 
+    // Core Data Variables
+    // Might be nil for preview
+    public var showVoteCount: Bool?
+    public var showProgressBar: Bool?
+    public var showTickButton: Bool?
+    public var addedBy: String?
+
     // MARK: - Initializer
     /**
      Initializes a new `PollViewData`.
@@ -37,6 +44,9 @@ public class PollViewData {
        - member: The user who created the poll option.
        - userId: The ID of the user who created the poll option.
        - conversationId: The ID of the conversation this poll belongs to.
+       - showVoteCount: Whether to show the vote count.
+       - showProgressBar: Whether to show the progress bar.
+       - showTickButton: Whether to show the tick button.
      */
     public init(
         id: String?,
@@ -47,7 +57,11 @@ public class PollViewData {
         noVotes: Int?,
         member: UserViewData?,
         userId: String?,
-        conversationId: String?
+        conversationId: String?,
+        showVoteCount: Bool? = nil,
+        showProgressBar: Bool? = nil,
+        showTickButton: Bool? = nil,
+        addedBy: String? = nil
     ) {
         self.id = id
         self.text = text
@@ -58,5 +72,9 @@ public class PollViewData {
         self.member = member
         self.userId = userId
         self.conversationId = conversationId
+        self.showVoteCount = showVoteCount
+        self.showProgressBar = showProgressBar
+        self.showTickButton = showTickButton
+        self.addedBy = addedBy
     }
 }

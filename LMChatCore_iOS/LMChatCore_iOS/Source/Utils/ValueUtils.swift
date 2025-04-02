@@ -10,7 +10,7 @@ import Foundation
 class ValueUtils {
     
     static func getTemporaryId() -> String {
-        return UUID().uuidString
+        return "-\(UUID().uuidString)"
     }
     
 }

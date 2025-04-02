@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0B118166F0A0A240DF980384 /* Pods_LikemindsChatSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F16DCCA75EC80706E046730 /* Pods_LikemindsChatSample.framework */; };
 		917393472D5A1C2000853A38 /* LikeMindsNotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 917393402D5A1C2000853A38 /* LikeMindsNotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D9F9260A2BA9EF3E5B25EB0B /* Pods_LikemindsChatSample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA3965CDA3EFABDFFE231317 /* Pods_LikemindsChatSample.framework */; };
 		E5A045372C0AEC880086C431 /* CustomHomeFeedExploreTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A045362C0AEC880086C431 /* CustomHomeFeedExploreTabView.swift */; };
 		E5A045392C0AF0690086C431 /* CustomMessageBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A045382C0AF0690086C431 /* CustomMessageBubbleView.swift */; };
 		F45B8AAE2B999F4900AB95E4 /* CustomChatroomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B8AAD2B999F4900AB95E4 /* CustomChatroomView.swift */; };
@@ -19,8 +19,6 @@
 		F4C790E02B296EA90084823E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F4C790DE2B296EA90084823E /* Main.storyboard */; };
 		F4C790E22B296EAE0084823E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4C790E12B296EAE0084823E /* Assets.xcassets */; };
 		F4C790E52B296EAE0084823E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F4C790E32B296EAE0084823E /* LaunchScreen.storyboard */; };
-		F4CB0CAC2C20A8AE00C89A57 /* ChatFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4CB0CA92C20A8AE00C89A57 /* ChatFeedViewController.swift */; };
-		F4CB0CAD2C20A8AE00C89A57 /* ChatFeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4CB0CAA2C20A8AE00C89A57 /* ChatFeedViewModel.swift */; };
 		F4E4CE372C36AB2B00098BB3 /* CustomDMApproveRejectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4CE362C36AB2B00098BB3 /* CustomDMApproveRejectView.swift */; };
 		F4E4CE392C36AE9300098BB3 /* CustomParticipantItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4CE382C36AE9300098BB3 /* CustomParticipantItemView.swift */; };
 		F4E4CE3B2C36B13800098BB3 /* CustomMemberListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4CE3A2C36B13800098BB3 /* CustomMemberListViewController.swift */; };
@@ -53,11 +51,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2F16DCCA75EC80706E046730 /* Pods_LikemindsChatSample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LikemindsChatSample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C4F31244DFE917A67B7D104 /* Pods-LikemindsChatSample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LikemindsChatSample.debug.xcconfig"; path = "Target Support Files/Pods-LikemindsChatSample/Pods-LikemindsChatSample.debug.xcconfig"; sourceTree = "<group>"; };
+		72F9266A11BF7D4962E7FDE0 /* Pods-LikemindsChatSample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LikemindsChatSample.release.xcconfig"; path = "Target Support Files/Pods-LikemindsChatSample/Pods-LikemindsChatSample.release.xcconfig"; sourceTree = "<group>"; };
 		917393282D5A139400853A38 /* LikemindsChatSampleDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LikemindsChatSampleDebug.entitlements; sourceTree = "<group>"; };
 		917393402D5A1C2000853A38 /* LikeMindsNotificationService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LikeMindsNotificationService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		981995248DA35FC063E9DBE9 /* Pods-LikemindsChatSample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LikemindsChatSample.release.xcconfig"; path = "Target Support Files/Pods-LikemindsChatSample/Pods-LikemindsChatSample.release.xcconfig"; sourceTree = "<group>"; };
-		D7A116F10B48A51ACB9B9BB9 /* Pods-LikemindsChatSample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LikemindsChatSample.debug.xcconfig"; path = "Target Support Files/Pods-LikemindsChatSample/Pods-LikemindsChatSample.debug.xcconfig"; sourceTree = "<group>"; };
+		BA3965CDA3EFABDFFE231317 /* Pods_LikemindsChatSample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LikemindsChatSample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5A045362C0AEC880086C431 /* CustomHomeFeedExploreTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomHomeFeedExploreTabView.swift; sourceTree = "<group>"; };
 		E5A045382C0AF0690086C431 /* CustomMessageBubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomMessageBubbleView.swift; sourceTree = "<group>"; };
 		F45B8AAD2B999F4900AB95E4 /* CustomChatroomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomChatroomView.swift; sourceTree = "<group>"; };
@@ -71,8 +69,6 @@
 		F4C790E12B296EAE0084823E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F4C790E42B296EAE0084823E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F4C790E62B296EAE0084823E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F4CB0CA92C20A8AE00C89A57 /* ChatFeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatFeedViewController.swift; sourceTree = "<group>"; };
-		F4CB0CAA2C20A8AE00C89A57 /* ChatFeedViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatFeedViewModel.swift; sourceTree = "<group>"; };
 		F4E4CE362C36AB2B00098BB3 /* CustomDMApproveRejectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDMApproveRejectView.swift; sourceTree = "<group>"; };
 		F4E4CE382C36AE9300098BB3 /* CustomParticipantItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomParticipantItemView.swift; sourceTree = "<group>"; };
 		F4E4CE3A2C36B13800098BB3 /* CustomMemberListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomMemberListViewController.swift; sourceTree = "<group>"; };
@@ -113,7 +109,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0B118166F0A0A240DF980384 /* Pods_LikemindsChatSample.framework in Frameworks */,
+				D9F9260A2BA9EF3E5B25EB0B /* Pods_LikemindsChatSample.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,16 +119,16 @@
 		3CB88653AE97EF038352749A /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				D7A116F10B48A51ACB9B9BB9 /* Pods-LikemindsChatSample.debug.xcconfig */,
-				981995248DA35FC063E9DBE9 /* Pods-LikemindsChatSample.release.xcconfig */,
+				0C4F31244DFE917A67B7D104 /* Pods-LikemindsChatSample.debug.xcconfig */,
+				72F9266A11BF7D4962E7FDE0 /* Pods-LikemindsChatSample.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		C39A723D18EEA4BFF74EE4ED /* Frameworks */ = {
+		A75D1339B609EE5FC711E3A1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				2F16DCCA75EC80706E046730 /* Pods_LikemindsChatSample.framework */,
+				BA3965CDA3EFABDFFE231317 /* Pods_LikemindsChatSample.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -159,7 +155,7 @@
 				917393412D5A1C2000853A38 /* LikeMindsNotificationService */,
 				F4C790D62B296EA90084823E /* Products */,
 				3CB88653AE97EF038352749A /* Pods */,
-				C39A723D18EEA4BFF74EE4ED /* Frameworks */,
+				A75D1339B609EE5FC711E3A1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -176,7 +172,6 @@
 			isa = PBXGroup;
 			children = (
 				917393282D5A139400853A38 /* LikemindsChatSampleDebug.entitlements */,
-				F4CB0CAB2C20A8AE00C89A57 /* ChatHomeFeed */,
 				E5A045352C0AEBC00086C431 /* CustomViews */,
 				F4A82F342BE4170400217D1B /* LikemindsChatSample.entitlements */,
 				F4A82F302BE3B53000217D1B /* GoogleService-Info.plist */,
@@ -189,15 +184,6 @@
 				F4C790DE2B296EA90084823E /* Main.storyboard */,
 			);
 			path = LikemindsChatSample;
-			sourceTree = "<group>";
-		};
-		F4CB0CAB2C20A8AE00C89A57 /* ChatHomeFeed */ = {
-			isa = PBXGroup;
-			children = (
-				F4CB0CA92C20A8AE00C89A57 /* ChatFeedViewController.swift */,
-				F4CB0CAA2C20A8AE00C89A57 /* ChatFeedViewModel.swift */,
-			);
-			path = ChatHomeFeed;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -227,12 +213,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F4C790E92B296EAE0084823E /* Build configuration list for PBXNativeTarget "LikemindsChatSample" */;
 			buildPhases = (
-				B00908DEA2B6B263D1CD0EE8 /* [CP] Check Pods Manifest.lock */,
+				C636B8F6EB08D965BDFD6F82 /* [CP] Check Pods Manifest.lock */,
 				F4C790D12B296EA90084823E /* Sources */,
 				F4C790D22B296EA90084823E /* Frameworks */,
 				F4C790D32B296EA90084823E /* Resources */,
 				918CF2122D59FCB500026607 /* Embed Foundation Extensions */,
-				8828B3F44F717DBF3220C174 /* [CP] Embed Pods Frameworks */,
+				5D883C73558C78C004A2D90F /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -303,7 +289,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		8828B3F44F717DBF3220C174 /* [CP] Embed Pods Frameworks */ = {
+		5D883C73558C78C004A2D90F /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -320,7 +306,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-LikemindsChatSample/Pods-LikemindsChatSample-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B00908DEA2B6B263D1CD0EE8 /* [CP] Check Pods Manifest.lock */ = {
+		C636B8F6EB08D965BDFD6F82 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -362,11 +348,9 @@
 				F4E4CE3B2C36B13800098BB3 /* CustomMemberListViewController.swift in Sources */,
 				E5A045372C0AEC880086C431 /* CustomHomeFeedExploreTabView.swift in Sources */,
 				F4C790D92B296EA90084823E /* AppDelegate.swift in Sources */,
-				F4CB0CAC2C20A8AE00C89A57 /* ChatFeedViewController.swift in Sources */,
 				F4FB20682C0B5CA1009C2D73 /* CustomReplyPreview.swift in Sources */,
 				F4FB20662C0B5987009C2D73 /* CustomExploreChatroomView.swift in Sources */,
 				F45B8AAE2B999F4900AB95E4 /* CustomChatroomView.swift in Sources */,
-				F4CB0CAD2C20A8AE00C89A57 /* ChatFeedViewModel.swift in Sources */,
 				F4E4CE372C36AB2B00098BB3 /* CustomDMApproveRejectView.swift in Sources */,
 				F4C790DB2B296EA90084823E /* SceneDelegate.swift in Sources */,
 			);
@@ -586,7 +570,7 @@
 		};
 		F4C790EA2B296EAE0084823E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D7A116F10B48A51ACB9B9BB9 /* Pods-LikemindsChatSample.debug.xcconfig */;
+			baseConfigurationReference = 0C4F31244DFE917A67B7D104 /* Pods-LikemindsChatSample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -621,7 +605,7 @@
 		};
 		F4C790EB2B296EAE0084823E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 981995248DA35FC063E9DBE9 /* Pods-LikemindsChatSample.release.xcconfig */;
+			baseConfigurationReference = 72F9266A11BF7D4962E7FDE0 /* Pods-LikemindsChatSample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

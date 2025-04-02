@@ -19,7 +19,7 @@ open class LMChatMessageGallaryView: LMView {
         public let thumbnailUrl: String?
         public let fileSize: Int?
         public let duration: Int?
-        public let fileType: String?
+        public let fileType: AttachmentViewData.AttachmentType?
         public let fileName: String?
     }
     
@@ -259,7 +259,7 @@ open class LMChatMessageGallaryView: LMView {
         
         imagePreview.isHidden = false
         
-        if item.fileType == "video" {
+        if item.fileType == .video {
             imagePreview.setData(imageUrl, withPlaceholder: nil)
             imagePreview.playIconImage.isHidden = false
         } else {
