@@ -2257,14 +2257,15 @@ extension LMChatMessageListViewModel {
                 let request = GetMemberRequest.builder()
                     .uuid(memberState?.member?.sdkClientInfo?.uuid ?? "")
                     .build()
+                let member = LMChatClient.shared.getMember(request: request)?.data?.member
+                    
                 let builder = conversation.toBuilder()
-                    .deletedBy(conId)
+                    .deletedBy(member?.sdkClientInfo?.uuid)
                     .deletedByMember(
-                        LMChatClient.shared.getMember(request: request)?.data?
-                            .member)
+                        member)
                 let updatedConversation = builder.build()
                 LMChatClient.shared.updateLastConversationModel(
-                    chatroomId: updatedConversation.id ?? "",
+                    chatroomId: updatedConversation.chatroomId ?? "",
                     conversation: updatedConversation)
                 chatMessages[index] = updatedConversation
                 insertOrUpdateConversationIntoList(updatedConversation)
