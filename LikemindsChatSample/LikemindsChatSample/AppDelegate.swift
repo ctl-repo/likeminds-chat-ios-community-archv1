@@ -10,6 +10,7 @@ import FirebaseMessaging
 import LikeMindsChatCore
 import LikeMindsChatUI
 import UIKit
+import LikeMindsChatData
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -23,7 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Messaging.messaging().delegate = self
         registerForPushNotifications(application: application)
         let deviceId = UIDevice.current.identifierForVendor?.uuidString
-        LMChatCore.shared.setupChat(deviceId: deviceId)
+        LMChatCore.shared.setupChat(deviceId: deviceId,excludedConversationStates: [ConversationState.chatRoomFollowed,ConversationState.chatRoomUnFollowed])
         return true
     }
 
