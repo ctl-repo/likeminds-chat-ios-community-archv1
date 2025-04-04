@@ -24,7 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Messaging.messaging().delegate = self
         registerForPushNotifications(application: application)
         let deviceId = UIDevice.current.identifierForVendor?.uuidString
-        LMChatCore.shared.setupChat(deviceId: deviceId,excludedConversationStates: [ConversationState.chatRoomFollowed,ConversationState.chatRoomUnFollowed])
+        LMChatCore.shared.setupChat(deviceId: deviceId)
         return true
     }
 

@@ -435,11 +435,6 @@ public class LMChatCore {
             LMChatAttachmentViewController.self,
         ]
     }
-//
-//    / Method for exclude/filter conversation state
-//    public func excludeConversations(_ states: [ConversationState]) {
-//        LMChatClient.shared.excludeConversationStates(states)
-//    }
 }
 
 extension LMChatCore: LMChatSDKCallback {
