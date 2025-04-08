@@ -9,7 +9,7 @@ target 'community-hybrid-chat' do
   
   use_frameworks!
 
-  # Pods for community-hybrid-chat
+ # Pods for community-hybrid-chat
  pod 'LikeMindsChatData', path: '../../likeminds-chat-ios-data/LikeMindsChatData.podspec'
  pod 'LikeMindsChatUI', path: '../LikeMindsChatUI.podspec'
  pod 'LikeMindsChatCore', path: '../LikeMindsChatCore.podspec'

@@ -25,18 +25,20 @@ extension UIViewController {
     }
 }
 
-class NetworkingViewController: LMViewController {
+class NetworkingChatViewController: LMViewController {
 
     @IBOutlet weak var apiKeyField: UITextField?
     @IBOutlet weak var userIdField: UITextField?
     @IBOutlet weak var userNameField: UITextField?
     @IBOutlet weak var loginButton: UIButton?
 
-    static func createViewController() -> ViewController {
+    static func createViewController() -> NetworkingChatViewController {
         let main: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         return main.instantiateViewController(
-            withIdentifier: "LoginViewController") as! ViewController
+            withIdentifier: "LoginViewController")
+            as! NetworkingChatViewController
     }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         isSavedData()
@@ -44,10 +46,16 @@ class NetworkingViewController: LMViewController {
 
     func moveToNextScreen() {
         self.showHideLoaderView(isShow: false, backgroundColor: .clear)
-        let networkingChatViewController = try LMNetworkingChatViewModel.createModule()
-        let navigation = UINavigationController(rootViewController: networkingChatViewController)
-        navigation.modalPresentationStyle = .overFullScreen
-        self.window?.rootViewController = navigation
+        do {
+            let networkingChatViewController =
+                try LMNetworkingChatViewModel.createModule()
+            let navigation = UINavigationController(
+                rootViewController: networkingChatViewController)
+            navigation.modalPresentationStyle = .overFullScreen
+            self.window?.rootViewController = navigation
+        } catch let error {
+            self.showAlert(message: error.localizedDescription)
+        }
     }
 
     @IBAction func loginAsCMButtonClicked(_ sender: UIButton) {

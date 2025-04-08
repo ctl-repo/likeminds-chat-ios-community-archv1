@@ -32,11 +32,13 @@ class CommunityChatViewController: LMViewController {
     @IBOutlet weak var userNameField: UITextField?
     @IBOutlet weak var loginButton: UIButton?
 
-    static func createViewController() -> ViewController {
+    static func createViewController() -> CommunityChatViewController {
         let main: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         return main.instantiateViewController(
-            withIdentifier: "LoginViewController") as! ViewController
+            withIdentifier: "LoginViewController")
+            as! CommunityChatViewController
     }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         isSavedData()
@@ -44,10 +46,16 @@ class CommunityChatViewController: LMViewController {
 
     func moveToNextScreen() {
         self.showHideLoaderView(isShow: false, backgroundColor: .clear)
-        let communityChatViewController = try LMCommunityChatViewModel.createModule()
-        let navigation = UINavigationController(rootViewController: communityChatViewController)
-        navigation.modalPresentationStyle = .overFullScreen
-        self.window?.rootViewController = navigation
+        do {
+            let communityChatViewController =
+                try LMCommunityChatViewModel.createModule()
+            let navigation = UINavigationController(
+                rootViewController: communityChatViewController)
+            navigation.modalPresentationStyle = .overFullScreen
+            self.window?.rootViewController = navigation
+        } catch let error {
+            self.showAlert(message: error.localizedDescription)
+        }
     }
 
     @IBAction func loginAsCMButtonClicked(_ sender: UIButton) {

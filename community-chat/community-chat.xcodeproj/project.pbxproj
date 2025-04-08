@@ -7,14 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9F8D1C83AE0741B5C5DDC6D3 /* Pods_community_chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2AF42BDFE165A2CA923B733 /* Pods_community_chat.framework */; };
+		26716ACA518A0A4950EAFABC /* Pods_community_chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F7FBF443AAA33127587217BC /* Pods_community_chat.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		77FDA0505683A4912832B548 /* Pods-community-chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-community-chat.release.xcconfig"; path = "Target Support Files/Pods-community-chat/Pods-community-chat.release.xcconfig"; sourceTree = "<group>"; };
 		912E32D42DA003740080234C /* community-chat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "community-chat.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		F2AF42BDFE165A2CA923B733 /* Pods_community_chat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_community_chat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F3160A7EFF7880E20565116B /* Pods-community-chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-community-chat.debug.xcconfig"; path = "Target Support Files/Pods-community-chat/Pods-community-chat.debug.xcconfig"; sourceTree = "<group>"; };
+		E7F0798902E77C3E169EBBF9 /* Pods-community-chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-community-chat.release.xcconfig"; path = "Target Support Files/Pods-community-chat/Pods-community-chat.release.xcconfig"; sourceTree = "<group>"; };
+		EA40ABF48CE1E1FE19A447C5 /* Pods-community-chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-community-chat.debug.xcconfig"; path = "Target Support Files/Pods-community-chat/Pods-community-chat.debug.xcconfig"; sourceTree = "<group>"; };
+		F7FBF443AAA33127587217BC /* Pods_community_chat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_community_chat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -43,27 +43,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9F8D1C83AE0741B5C5DDC6D3 /* Pods_community_chat.framework in Frameworks */,
+				26716ACA518A0A4950EAFABC /* Pods_community_chat.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		72D9A60C65523853393A1D8D /* Pods */ = {
+		1B5D78F497F2BBFAA0D99746 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				F3160A7EFF7880E20565116B /* Pods-community-chat.debug.xcconfig */,
-				77FDA0505683A4912832B548 /* Pods-community-chat.release.xcconfig */,
+				EA40ABF48CE1E1FE19A447C5 /* Pods-community-chat.debug.xcconfig */,
+				E7F0798902E77C3E169EBBF9 /* Pods-community-chat.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		8674B741657D0B5154944E76 /* Frameworks */ = {
+		2077052F2E6009AE373D9DA2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				F2AF42BDFE165A2CA923B733 /* Pods_community_chat.framework */,
+				F7FBF443AAA33127587217BC /* Pods_community_chat.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -73,8 +72,8 @@
 			children = (
 				912E32D62DA003740080234C /* community-chat */,
 				912E32D52DA003740080234C /* Products */,
-				72D9A60C65523853393A1D8D /* Pods */,
-				8674B741657D0B5154944E76 /* Frameworks */,
+				1B5D78F497F2BBFAA0D99746 /* Pods */,
+				2077052F2E6009AE373D9DA2 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -93,11 +92,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 912E32E72DA003760080234C /* Build configuration list for PBXNativeTarget "community-chat" */;
 			buildPhases = (
-				3F3D996DD43EDAEF92982850 /* [CP] Check Pods Manifest.lock */,
+				956B35B8E9242D51DAB68E68 /* [CP] Check Pods Manifest.lock */,
 				912E32D02DA003740080234C /* Sources */,
 				912E32D12DA003740080234C /* Frameworks */,
 				912E32D22DA003740080234C /* Resources */,
-				2C265EAA1C188F231415037C /* [CP] Embed Pods Frameworks */,
+				463D436CBDCB9B873BC6EE93 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -156,7 +155,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2C265EAA1C188F231415037C /* [CP] Embed Pods Frameworks */ = {
+		463D436CBDCB9B873BC6EE93 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -173,7 +172,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-community-chat/Pods-community-chat-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		3F3D996DD43EDAEF92982850 /* [CP] Check Pods Manifest.lock */ = {
+		956B35B8E9242D51DAB68E68 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -210,7 +209,7 @@
 /* Begin XCBuildConfiguration section */
 		912E32E82DA003760080234C /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F3160A7EFF7880E20565116B /* Pods-community-chat.debug.xcconfig */;
+			baseConfigurationReference = EA40ABF48CE1E1FE19A447C5 /* Pods-community-chat.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -239,7 +238,7 @@
 		};
 		912E32E92DA003760080234C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 77FDA0505683A4912832B548 /* Pods-community-chat.release.xcconfig */;
+			baseConfigurationReference = E7F0798902E77C3E169EBBF9 /* Pods-community-chat.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -303,7 +302,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -366,7 +365,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

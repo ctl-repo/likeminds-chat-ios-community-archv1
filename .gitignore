@@ -25,6 +25,7 @@ DerivedData
 # CocoaPods
 Pods
 # Othercustomfolders
+*/Podfile.lock
 LMChatMMFramework
 ProdLMChatMMFramework
 BetaLMChatMMFramework
