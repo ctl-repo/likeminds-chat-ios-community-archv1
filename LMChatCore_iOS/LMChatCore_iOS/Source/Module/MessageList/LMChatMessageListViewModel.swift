@@ -564,7 +564,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             case .directMessageMemberRequestApproved:
                 message = message.replacingOccurrences(
                     of: loggedInUserTag, with: "You")
-            case .chatRoomHeader:
+            case .firstConversation:
                 message = message.replacingOccurrences(
                     of: loggedInUserTag, with: "")
             default:
@@ -1352,7 +1352,7 @@ extension LMChatMessageListViewModel {
             .allowAddOption(pollData.allowAddOptions)
             .multipleSelectNo(selectStateCount)
             .multipleSelectState(selectState)
-            .state(.microPoll)
+            .state(.poll)
             .build()
         let tempConversation = saveTemporaryPollConversation(
             uuid: UserPreferences.shared.getClientUUID() ?? "",
