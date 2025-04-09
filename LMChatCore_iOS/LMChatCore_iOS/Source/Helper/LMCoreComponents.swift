@@ -14,8 +14,8 @@ public struct LMCoreComponents {
     public static var shared = Self()
     
     // MARK: HomeFeed Screen
-    public var groupChatFeedScreen: LMCommunityChatViewController.Type = LMCommunityChatViewController.self
-    public var chatFeedScreen: LMCommunityHybridChatViewController.Type = LMCommunityHybridChatViewController.self
+    public var communityChatScreen: LMCommunityChatViewController.Type = LMCommunityChatViewController.self
+    public var communityHybridChatScreen: LMCommunityHybridChatViewController.Type = LMCommunityHybridChatViewController.self
     
     public var exploreChatroomListScreen: LMExploreChatroomListView.Type = LMExploreChatroomListView.self
     public var exploreChatroomScreen: LMExploreChatroomViewController.Type = LMExploreChatroomViewController.self
@@ -40,7 +40,7 @@ public struct LMCoreComponents {
     public var searchConversationListScreen: LMChatSearchConversationListViewController.Type = LMChatSearchConversationListViewController.self
     
     //MARK: DM Screen
-    public var dmChatFeedScreen: LMNetworkingChatViewController.Type = LMNetworkingChatViewController.self
+    public var networkingChatScreen: LMNetworkingChatViewController.Type = LMNetworkingChatViewController.self
     public var dmMemberListScreen: LMChatMemberListViewController.Type = LMChatMemberListViewController.self
     
     //MARK: Poll
