@@ -34,7 +34,7 @@
 			</array>
 		</dict>
 	</dict>
-		<key>UIBackgroundModes</key>
+	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
 		<string>processing</string>
