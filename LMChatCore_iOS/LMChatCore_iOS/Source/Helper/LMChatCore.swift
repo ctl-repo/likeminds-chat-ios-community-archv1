@@ -203,6 +203,17 @@ public class LMChatCore {
             self.registerDevice(deviceId: deviceId)
         }
 
+        // Fetch community configurations in background
+        LMChatClient.shared.getCommunityConfigurations { response in
+            guard response.success, let configurations = response.data else {
+                print("Failed to fetch community configurations: \(response.errorMessage ?? "")")
+                return
+            }
+            
+            // Save configurations
+            LMConfigurationManager.saveConfigurations(configurations)
+        }
+        
         // Mark the initialization process as complete.
         Self.isInitialized = true
     }
@@ -384,6 +395,12 @@ public class LMChatCore {
                     .failure(.logoutFailed(error: response.errorMessage)))
             }
         }
+    }
+
+    /// Returns the reply privately configuration if available
+    /// - Returns: Configuration object for reply privately feature or nil if not found
+    public func getReplyPrivatelyConfiguration() -> Configuration? {
+        return LMConfigurationManager.getReplyPrivatelyConfiguration()
     }
 
     public func parseDeepLink(routeUrl: String) {
