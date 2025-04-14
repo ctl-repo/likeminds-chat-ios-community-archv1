@@ -71,7 +71,7 @@ public class LMNetworkingChatViewModel: LMChatBaseViewModel {
         guard LMChatCore.isInitialized else {
             throw LMChatError.chatNotInitialized
         }
-        let viewController = LMCoreComponents.shared.dmChatFeedScreen.init()
+        let viewController = LMCoreComponents.shared.networkingChatScreen.init()
         viewController.viewModel = LMNetworkingChatViewModel(viewController)
         return viewController
     }
