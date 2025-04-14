@@ -12,8 +12,7 @@ target 'community-hybrid-chat' do
  # Pods for community-hybrid-chat
  pod 'LikeMindsChatData', path: '../../likeminds-chat-ios-data/LikeMindsChatData.podspec'
  pod 'LikeMindsChatUI', path: '../LikeMindsChatUI.podspec'
-  pod 'LikeMindsChatCore','~>1.7.1'
-#  pod 'LikeMindsChatCore', path: '../LikeMindsChatCore.podspec'
+ pod 'LikeMindsChatCore', path: '../LikeMindsChatCore.podspec'
  
 end
 

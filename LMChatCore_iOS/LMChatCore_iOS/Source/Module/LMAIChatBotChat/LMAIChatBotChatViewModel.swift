@@ -37,11 +37,11 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
    ///
    /// - Throws: `LMChatError.chatNotInitialized` if the chat core is not initialized.
    /// - Returns: An instance of `LMAIChatBotViewController`.
-   public static func createModule() throws -> LMAIChatBotViewController {
+   public static func createModule() throws -> LMChatAIBotInitiationViewController {
        guard LMChatCore.isInitialized else {
            throw LMChatError.chatNotInitialized
        }
-       let viewController = LMCoreComponents.shared.aiChatBotScreen.init()
+       let viewController = LMCoreComponents.shared.aiChatBotIntiationScreen.init()
        viewController.viewModel = LMAIChatBotChatViewModel(viewController)
        return viewController
    }

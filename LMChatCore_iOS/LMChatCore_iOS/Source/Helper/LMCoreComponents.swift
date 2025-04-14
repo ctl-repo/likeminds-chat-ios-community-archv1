@@ -52,6 +52,6 @@ public struct LMCoreComponents {
     public var pollResultList: LMChatPollResultListScreen.Type = LMChatPollResultListScreen.self
     
     //MARK : AI CHAT BOT
-    public var aiChatBotScreen: LMAIChatBotViewController.Type = LMAIChatBotViewController.self
+
     public var aiChatBotIntiationScreen : LMChatAIBotInitiationViewController.Type = LMChatAIBotInitiationViewController.self
 }

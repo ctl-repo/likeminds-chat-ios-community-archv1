@@ -47,16 +47,13 @@ class AIChatBotViewController: LMViewController {
 
     func moveToNextScreen() {
         self.showHideLoaderView(isShow: false, backgroundColor: .clear)
-        do {
-            let AIChatBotViewController =
-            try LMAIChatBotChatViewModel.createModule()
+        
+            let AIChatBotViewController = LMAIChatBotViewController()
             let navigation = UINavigationController(
                 rootViewController: AIChatBotViewController)
             navigation.modalPresentationStyle = .overFullScreen
             self.window?.rootViewController = navigation
-        } catch let error {
-            self.showAlert(message: error.localizedDescription)
-        }
+        
     }
 
     @IBAction func loginAsCMButtonClicked(_ sender: UIButton) {

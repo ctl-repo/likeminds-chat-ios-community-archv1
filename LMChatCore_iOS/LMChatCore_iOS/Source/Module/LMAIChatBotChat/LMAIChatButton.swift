@@ -61,6 +61,8 @@ open class LMChatAIButton: LMButton {
     private let defaultTextColor = UIColor.white
     private let defaultBackgroundColor = UIColor(red: 2/255, green: 13/255, blue: 66/255, alpha: 1.0)
     private let defaultBorderRadius: CGFloat = 28
+    private let defaultIcon = UIImage(named: "lm_ai_chat_bot")
+    private let defaultSpacing: CGFloat = 8
     
     // MARK: - Initialization
     public override init(frame: CGRect) {
@@ -76,44 +78,42 @@ open class LMChatAIButton: LMButton {
     // MARK: - Setup
     private func setupDefaultAppearance() {
         setTitle(defaultText, for: .normal)
-        titleLabel?.font = .systemFont(ofSize: defaultTextSize)
+        setFont(.systemFont(ofSize: defaultTextSize))
         setTitleColor(defaultTextColor, for: .normal)
         backgroundColor = defaultBackgroundColor
         layer.cornerRadius = defaultBorderRadius
         
+        // Set default icon with proper spacing
+        if let icon = defaultIcon {
+                let resizedIcon = resizeImage(icon, targetSize: CGSize(width: 20, height: 20))
+                setImage(resizedIcon, for: .normal)
+            }
+        configureIconPlacement(.start, spacing: defaultSpacing)
+        
         // Add target for tap
         addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
     }
-    
-    // MARK: - Customization Methods
-    open func setText(_ text: String) {
-        setTitle(text, for: .normal)
+    private func resizeImage(_ image: UIImage, targetSize: CGSize) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: targetSize)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: targetSize))
+        }
     }
     
-    open func setTextSize(_ size: CGFloat) {
-        titleLabel?.font = .systemFont(ofSize: size)
-    }
     
-    open func setTextColor(_ color: UIColor) {
-        setTitleColor(color, for: .normal)
-    }
-    
-    open func setBackgroundColor(_ color: UIColor) {
-        backgroundColor = color
-    }
-    
-    open func setBorderRadius(_ radius: CGFloat) {
-        layer.cornerRadius = radius
-    }
-    
-    open func setIcon(_ image: UIImage?, placement: IconPlacement = .start) {
-        setImage(image, for: .normal)
+    private func configureIconPlacement(_ placement: IconPlacement, spacing: CGFloat) {
         switch placement {
         case .start:
             semanticContentAttribute = .forceLeftToRight
+            setInsets(forContentPadding: .zero, imageTitlePadding: spacing)
         case .end:
             semanticContentAttribute = .forceRightToLeft
+            setInsets(forContentPadding: .zero, imageTitlePadding: spacing)
         }
+        
+        // Adjust content insets to maintain proper padding around the content
+        let horizontalInset = max(spacing, 16)
+        setContentInsets(with: UIEdgeInsets(top: 8, left: horizontalInset, bottom: 8, right: horizontalInset))
     }
     
     // MARK: - Props Methods
@@ -127,5 +127,17 @@ open class LMChatAIButton: LMButton {
         if let props = props {
             delegate?.didTapAIButtonWithProps(self, props: props)
         }
+    }
+    
+    // MARK: - Layout
+    open override var intrinsicContentSize: CGSize {
+        let size = super.intrinsicContentSize
+        return CGSize(width: size.width, height: max(44, size.height))
+    }
+    
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        // Ensure the image and title are properly aligned
+        contentHorizontalAlignment = .center
     }
 }

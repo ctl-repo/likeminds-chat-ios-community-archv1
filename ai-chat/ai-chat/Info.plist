@@ -25,5 +25,9 @@
 		<string>remote-notification</string>
 		<string>processing</string>
 	</array>
+	<key>UILaunchStoryboardName</key>
+	<string>Main</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
 </dict>
 </plist>
