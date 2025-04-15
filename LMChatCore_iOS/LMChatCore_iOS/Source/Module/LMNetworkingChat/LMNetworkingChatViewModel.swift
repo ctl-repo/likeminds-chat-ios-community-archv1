@@ -99,6 +99,7 @@ public class LMNetworkingChatViewModel: LMChatBaseViewModel {
     /// Registers this view model as an observer for DM chatrooms and
     /// starts observing live DM feed updates for the community.
     func getChatrooms() {
+        
         LMChatClient.shared.getDMChatrooms(withObserver: self)
         LMChatClient.shared.observeLiveDMFeed(
             withCommunityId: SDKPreferences.shared.getCommunityId() ?? "")

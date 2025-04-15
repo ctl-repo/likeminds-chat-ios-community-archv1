@@ -1,10 +1,3 @@
-//
-//  LMChatAIBotInitiationViewController.swift
-//  LikeMindsChatCore
-//
-//  Created by Arpit Verma on 13/04/25.
-//
-
 import UIKit
 import Lottie
 import LikeMindsChatUI
@@ -16,7 +9,7 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     private let previewLabelBottomPadding: CGFloat = 40
     private let previewLabelSidePadding: CGFloat = 20
     private let animationDuration: TimeInterval = 3.0
-    private let animationName = "lottie" // Updated animation name
+    private let animationName = "ai_chat_loading"
     
     // MARK: - Data Properties
     var viewModel: LMAIChatBotChatViewModel?
@@ -211,4 +204,4 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     private func startAnimation() {
         animationView?.play()
     }
-}
+} 

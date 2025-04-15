@@ -48,12 +48,11 @@ class AIChatBotViewController: LMViewController {
     func moveToNextScreen() {
         self.showHideLoaderView(isShow: false, backgroundColor: .clear)
         
-            let AIChatBotViewController = LMAIChatBotViewController()
-            let navigation = UINavigationController(
-                rootViewController: AIChatBotViewController)
-            navigation.modalPresentationStyle = .overFullScreen
-            self.window?.rootViewController = navigation
+        let aiChatBotVC = LMAIChatBotViewController()
         
+        let navigation = UINavigationController(rootViewController: aiChatBotVC)
+        navigation.modalPresentationStyle = .overFullScreen
+        self.window?.rootViewController = navigation
     }
 
     @IBAction func loginAsCMButtonClicked(_ sender: UIButton) {
@@ -98,18 +97,7 @@ class AIChatBotViewController: LMViewController {
 
     func callInitiateApi(userId: String, username: String, apiKey: String) {
         self.showHideLoaderView(isShow: true, backgroundColor: .clear)
-
-        LMChatCore.shared.showChat(
-            apiKey: apiKey, username: username, uuid: userId
-        ) { [weak self] result in
-            switch result {
-            case .success:
-                self?.moveToNextScreen()
-            case .failure(let error):
-                self?.showAlert(message: error.localizedDescription)
-            }
-        }
-
+            moveToNextScreen()
     }
 
     func showAlert(message: String) {
