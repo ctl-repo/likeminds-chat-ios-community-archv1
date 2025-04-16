@@ -1,10 +1,3 @@
-//
-//  LMAIChatBotChatViewModel.swift
-//  LikeMindsChatCore
-//
-//  Created by Arpit Verma on 13/04/25.
-//
-
 import Foundation
 import LikeMindsChatData
 import LikeMindsChatUI

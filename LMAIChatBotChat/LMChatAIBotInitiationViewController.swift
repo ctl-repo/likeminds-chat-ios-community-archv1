@@ -5,6 +5,7 @@
 //  Created by Arpit Verma on 13/04/25.
 //
 
+
 import UIKit
 import Lottie
 import LikeMindsChatUI
@@ -15,8 +16,7 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     private let animationContainerSize: CGFloat = 450
     private let previewLabelBottomPadding: CGFloat = 40
     private let previewLabelSidePadding: CGFloat = 20
-    private let animationDuration: TimeInterval = 3.0
-    private let animationName = "ai_chat_loading"
+    private let animationName = "lottie"
     
     // MARK: - Data Properties
     var viewModel: LMAIChatBotChatViewModel?
@@ -80,10 +80,7 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     
     public func didCompleteInitialization() {
         stopAnimation()
-        // Dismiss the view controller after a short delay to allow navigation to complete
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            self?.dismiss(animated: true)
-        }
+        // Don't dismiss here, let the view model handle navigation and dismissal
     }
     
     public func didFailInitialization(with error: String) {
@@ -191,4 +188,4 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     private func startAnimation() {
         animationView?.play()
     }
-} 
+}

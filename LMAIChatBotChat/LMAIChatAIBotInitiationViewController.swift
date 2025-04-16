@@ -5,13 +5,17 @@
 //  Created by Arpit Verma on 13/04/25.
 //
 
-
 import UIKit
 import Lottie
 import LikeMindsChatUI
 
 open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotChatViewModelProtocol {
     
+    // MARK: - UI Constants
+    private let animationContainerSize: CGFloat = 450
+    private let previewLabelBottomPadding: CGFloat = 40
+    private let previewLabelSidePadding: CGFloat = 20
+    private let animationName = "ai_chat_loading"
     
     // MARK: - Data Properties
     var viewModel: LMAIChatBotChatViewModel?
@@ -53,10 +57,11 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
         fatalError("init(coder:) has not been implemented")
     }
     
-
     // MARK: - View Lifecycle
     open override func viewDidLoad() {
         super.viewDidLoad()
+        setupViews()
+        setupLayouts()
         setupAnimation()
     }
     
@@ -74,12 +79,13 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     
     public func didCompleteInitialization() {
         stopAnimation()
-        // Don't dismiss here, let the view model handle navigation and dismissal
+        // Dismiss immediately after navigation is complete
+        dismiss(animated: true)
     }
     
     public func didFailInitialization(with error: String) {
         stopAnimation()
-        showErrorAlert(message: error)
+        showError(message: error)
     }
     
     // MARK: - Private Methods
@@ -87,7 +93,18 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     private func stopAnimation() {
         animationView?.stop()
     }
-
+    
+    private func showError(message: String) {
+        let alert = UIAlertController(
+            title: nil,
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
+            self?.dismiss(animated: true)
+        })
+        present(alert, animated: true)
+    }
     
     // MARK: - Setup Methods
     open override func setupViews() {
@@ -110,25 +127,42 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
             // Animation Container
             animationContainerView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
             animationContainerView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-            animationContainerView.widthAnchor.constraint(equalToConstant: 450),
-            animationContainerView.heightAnchor.constraint(equalToConstant: 450),
+            animationContainerView.widthAnchor.constraint(equalToConstant: animationContainerSize),
+            animationContainerView.heightAnchor.constraint(equalToConstant: animationContainerSize),
             
             // Preview Label
-            previewLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 40),
-            previewLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -40),
-            previewLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -40)
+            previewLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: previewLabelSidePadding),
+            previewLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -previewLabelSidePadding),
+            previewLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -previewLabelBottomPadding)
         ])
     }
     
     private func setupAnimation() {
         // Try loading from main bundle first
-        if let animation = LottieAnimation.named(Constants.shared.strings.aiSetupAnimationName) {
+        if let animation = LottieAnimation.named(animationName) {
             setupAnimationView(with: animation)
             return
         }
         
+        // Try loading from framework bundle
+        let frameworkBundle = Bundle(for: type(of: self))
+        if let animation = LottieAnimation.named(animationName, bundle: frameworkBundle) {
+            setupAnimationView(with: animation)
+            return
+        }
         
-        print("Error: Could not load animation named \(Constants.shared.strings.aiSetupAnimationName) from any source")
+        // Try loading from file path
+        if let path = frameworkBundle.path(forResource: animationName, ofType: "json") {
+            let animation = LottieAnimation.filepath(path)
+            guard let animation = animation else {
+                print("Error: Could not load animation from path: \(path)")
+                return
+            }
+            setupAnimationView(with: animation)
+            return
+        }
+        
+        print("Error: Could not load animation named \(animationName) from any source")
     }
     
     private func setupAnimationView(with animation: LottieAnimation) {
@@ -154,4 +188,4 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     private func startAnimation() {
         animationView?.play()
     }
-}
+} 

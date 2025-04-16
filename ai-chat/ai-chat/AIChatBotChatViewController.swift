@@ -8,7 +8,8 @@
 import FirebaseMessaging
 import LikeMindsChatUI
 import UIKit
-import LikeMindsChatCore 
+import LikeMindsChatCore
+import LikeMindsChatUI
 
  class LMAIChatBotViewController: LMViewController {
     
@@ -210,19 +211,9 @@ extension LMAIChatBotViewController: UICollectionViewDelegateFlowLayout {
 
 // MARK: - LMChatAIButtonDelegate
 extension LMAIChatBotViewController: LMChatAIButtonDelegate {
-    public func didTapAIButton(_ button: LMChatAIButton) {
+    public func didTapAIButton(_ button: LMChatAIButton,props: LMChatAIButtonProps) {
         guard let props = button.props,
               let apiKey = props.apiKey,
-              let username = props.userName,
-              let userId = props.uuid else {
-            showAlert(message: "Missing required credentials")
-            return
-        }
-        startAIChatBot(apiKey: apiKey, username: username, userId: userId)
-    }
-    
-    public func didTapAIButtonWithProps(_ button: LMChatAIButton, props: LMChatAIButtonProps) {
-        guard let apiKey = props.apiKey,
               let username = props.userName,
               let userId = props.uuid else {
             showAlert(message: "Missing required credentials")

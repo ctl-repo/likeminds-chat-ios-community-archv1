@@ -64,5 +64,8 @@ public extension Constants {
         public var cancelAllCaps = "CANCEL"
         
         public var  aiSetupText = "Setting up AI chatbot..."
+        public var aiSetupAnimationName = "lottie"
+        public var aiChatBotButtonText = "AI Bot"
+        
     }
 }

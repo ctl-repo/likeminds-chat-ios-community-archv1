@@ -83,7 +83,7 @@ PODS:
     - Giphy
     - LikeMindsChatData (~> 1.7.1)
     - LikeMindsChatUI (~> 1.7.1)
-    - lottie-ios
+    - lottie-ios (~> 4.5.1)
   - LikeMindsChatData (1.7.1):
     - Alamofire (~> 5.7.1)
     - FirebaseCore
@@ -161,7 +161,7 @@ SPEC CHECKSUMS:
   Kingfisher: 53a10ea35051a436b5fb626ca2dd8f3144d755e9
   leveldb-library: cc8b8f8e013647a295ad3f8cd2ddf49a6f19be19
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
-  LikeMindsChatCore: e414b980568e968a5b9f4941d9aa8cc06b426046
+  LikeMindsChatCore: e2c51fafd74ca3ea6ad41a0682ccb12ee277e224
   LikeMindsChatData: b454c90afa3728e8095996f14fda48516b31de81
   LikeMindsChatUI: a433b12c21484bd04c451fd2535076ea0372c6a0
   lottie-ios: 248b380fa1b97d18e792c37d90da7ab2aa0d6562
