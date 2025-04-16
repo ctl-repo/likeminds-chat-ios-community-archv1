@@ -7,7 +7,7 @@
 import LikeMindsChatData
 
 /// A utility class that handles Direct Message (DM) chatroom operations.
-class LMDMChatUtil {
+public class LMDMChatUtil {
 
     /// Creates a new direct message (DM) chatroom with a given user, or returns an existing one if it already exists.
     ///
@@ -88,5 +88,28 @@ class LMDMChatUtil {
                 completion(nil, "DM Limit Exceeded")
             }
         }
+    }
+
+    /// Updates the DM request settings in shared preferences.
+    /// This method is typically called when community settings are fetched or updated.
+    ///
+    /// - Parameter isEnabled: A boolean value indicating whether DM requests are enabled.
+    ///                       If true, users can send DM requests without requiring a connection.
+    ///                       If false, connection requests are required before sending DMs.
+    public static func updateDMRequestSettings(isEnabled: Bool) {
+        LMSharedPreferences.setValue(
+            isEnabled,
+            key: LMSharedPreferencesKeys.isDMWithRequestEnabled.rawValue
+        )
+    }
+
+    /// Retrieves the current DM request settings from shared preferences.
+    ///
+    /// - Returns: A boolean value indicating whether DM requests are enabled.
+    ///           Returns false if the setting is not found.
+    public static func isDMRequestEnabled() -> Bool {
+        return LMSharedPreferences.bool(
+            forKey: LMSharedPreferencesKeys.isDMWithRequestEnabled.rawValue
+        ) ?? false
     }
 }
