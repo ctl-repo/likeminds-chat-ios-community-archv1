@@ -1,3 +1,10 @@
+//
+//  LMChatAIBotInitiationViewController.swift
+//  LikeMindsChatCore
+//
+//  Created by Arpit Verma on 13/04/25.
+//
+
 import UIKit
 import Lottie
 import LikeMindsChatUI
@@ -73,7 +80,10 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     
     public func didCompleteInitialization() {
         stopAnimation()
-        navigateToChatroom()
+        // Dismiss the view controller after a short delay to allow navigation to complete
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.dismiss(animated: true)
+        }
     }
     
     public func didFailInitialization(with error: String) {
@@ -85,29 +95,6 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     
     private func stopAnimation() {
         animationView?.stop()
-    }
-    
-    private func navigateToChatroom() {
-        guard let chatroomId = UserDefaults.standard.string(forKey: "chatroomIdWithAIChatbot") else {
-            showError(message: "Chatroom ID not found")
-            return
-        }
-        
-        // Navigate to chatroom screen
-        NavigationScreen.shared.perform(
-            .chatroom(chatroomId: chatroomId),
-            from: self,
-            params: nil
-        )
-        
-        // Remove this screen from the navigation stack
-        if let navigationController = navigationController {
-            var viewControllers = navigationController.viewControllers
-            if let index = viewControllers.firstIndex(of: self) {
-                viewControllers.remove(at: index)
-                navigationController.setViewControllers(viewControllers, animated: false)
-            }
-        }
     }
     
     private func showError(message: String) {

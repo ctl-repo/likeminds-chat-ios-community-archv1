@@ -57,6 +57,14 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
     func initializeChatbot() {
         delegate?.didStartInitialization()
         
+        // First check if we already have a chatroom ID
+        if let existingChatroomId = LMSharedPreferences.getString(forKey: "chatroomIdWithAIChatbot") {
+            // If we have an existing chatroom ID, navigate directly
+            saveAndNavigateToChatroom(existingChatroomId)
+            return
+        }
+        
+        // If no existing chatroom, proceed with the normal flow
         // Step 1: Get AI Chatbots
         do {
             let request = try GetAIChatbotsRequest.builder()
@@ -69,9 +77,10 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
                 
                 // Check if we have chatbots available
                 guard let chatbots = response.data?.users, !chatbots.isEmpty else {
-                    self.delegate?.didFailInitialization(with: "No chatbots available \(response.data)")
+                    self.delegate?.didFailInitialization(with: "No chatbots available")
                     return
                 }
+                print("chatbotData \(response.data)")
                 
                 // Store pagination info if needed
                 print("Total chatbots: \(response.data?.totalChatbots ?? 0)")
@@ -99,6 +108,7 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
         
         LMChatClient.shared.checkDMStatus(request: request) { [weak self] response in
             guard let self = self else { return }
+            print("dmResponse is \(response.data)")
             
             // Check if DM is enabled
             guard let showDM = response.data?.showDM, showDM else {
@@ -141,9 +151,21 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
     /// Saves the chatroom ID and navigates to the chatroom screen
     private func saveAndNavigateToChatroom(_ chatroomId: String) {
         // Save chatroom ID to local prefs
-        UserDefaults.standard.set(chatroomId, forKey: "chatroomIdWithAIChatbot")
+        LMSharedPreferences.setString(chatroomId, forKey: "chatroomIdWithAIChatbot")
         
-        // Notify completion
-        delegate?.didCompleteInitialization()
+        // Navigate to chatroom first
+        DispatchQueue.main.async { [weak self] in
+            guard let viewController = self?.delegate as? LMViewController else { return }
+            
+            // Navigate to the chatroom screen
+            NavigationScreen.shared.perform(
+                .chatroom(chatroomId: chatroomId, conversationID: nil),
+                from: viewController,
+                params: nil
+            )
+            
+            // Then notify completion which will trigger dismissal
+            self?.delegate?.didCompleteInitialization()
+        }
     }
 }
