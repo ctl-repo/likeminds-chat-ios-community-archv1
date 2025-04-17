@@ -57,8 +57,6 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     // MARK: - View Lifecycle
     open override func viewDidLoad() {
         super.viewDidLoad()
-        setupViews()
-        setupLayouts()
         setupAnimation()
     }
     
