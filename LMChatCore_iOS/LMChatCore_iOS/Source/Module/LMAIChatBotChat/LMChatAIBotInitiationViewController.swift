@@ -77,12 +77,19 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     public func didCompleteInitialization(chatroomId: String) {
         stopAnimation()
         
-        // Navigate directly to the chatroom screen
-        NavigationScreen.shared.perform(
-            .chatroom(chatroomId: chatroomId, conversationID: nil),
-            from: self,
-            params: nil
-        )
+        
+        
+        // Dismiss the current view controller first
+        dismiss(animated: true) { [weak self] in
+            guard let self = self else { return }
+            
+            // Navigate to the chatroom screen after dismissal
+            NavigationScreen.shared.perform(
+                .chatroom(chatroomId: chatroomId, conversationID: nil),
+                from: self,
+                params: nil
+            )
+        }
     }
     
     public func didFailInitialization(with error: String) {
@@ -129,19 +136,27 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     }
     
     private func setupAnimation() {
-        // Try loading from main bundle
-        if let animation = LottieAnimation.named(Constants.shared.strings.aiSetupAnimationName) {
-            setupAnimationView(with: animation)
-            return
-        }
-        
+    
+    
         // Try loading from framework bundle
-        let bundle = Bundle(for: type(of: self))
-        if let animation = LottieAnimation.named(Constants.shared.strings.aiSetupAnimationName, bundle: bundle) {
+        let frameworkBundle = Bundle(for: type(of: self))
+        if let animation = LottieAnimation.named(Constants.shared.strings.aiSetupAnimationName, bundle: frameworkBundle) {
             setupAnimationView(with: animation)
             return
         }
-        
+
+        // Try loading from file path
+        if let path = frameworkBundle.path(forResource: Constants.shared.strings.aiSetupAnimationName, ofType: "json") {
+            let animation = LottieAnimation.filepath(path)
+            guard let animation = animation else {
+                print("Error: Could not load animation from path: \(path)")
+                return
+            }
+            setupAnimationView(with: animation)
+            return
+        }
+
+
         print("Error: Could not load animation named \(Constants.shared.strings.aiSetupAnimationName)")
     }
     

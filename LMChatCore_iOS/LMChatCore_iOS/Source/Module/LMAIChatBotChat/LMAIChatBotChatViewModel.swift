@@ -126,8 +126,10 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
                let components = URLComponents(url: ctaURL, resolvingAgainstBaseURL: false),
                let chatroomId = components.queryItems?.first(where: { $0.name == "chatroom_id" })?.value {
                 
+                
                 // Chatroom exists, save ID and proceed
                 self.saveAndNavigateToChatroom(chatroomId)
+                
             } else {
                 // No existing chatroom, create new one
                 self.createDMChatroom(with: chatbotUUID)
@@ -144,7 +146,7 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
         LMChatClient.shared.createDMChatroom(request: request) { [weak self] response in
             guard let self = self else { return }
             
-            if let chatroomId = response.data?.chatroomData?.communityId {
+            if let chatroomId = response.data?.chatroomData?.id {
                 self.saveAndNavigateToChatroom(chatroomId)
             } else {
                 self.delegate?.didFailInitialization(with: "Failed to create chatroom")

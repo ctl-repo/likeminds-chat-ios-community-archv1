@@ -121,12 +121,16 @@ import LikeMindsChatUI
              case .success:
                  do {
                      let initiationVC = try LMAIChatBotChatViewModel.createModule()
-                     initiationVC.modalPresentationStyle = .fullScreen
                      
+                     
+                     let navigation = UINavigationController(
+                        rootViewController: initiationVC)
                      // Ensure we're on the main thread and the view is in the window hierarchy
                      DispatchQueue.main.async {
                          if let window = self.window {
-                             window.rootViewController?.present(initiationVC, animated: true)
+                             navigation.modalPresentationStyle = .overFullScreen
+                             self.window?.rootViewController = navigation
+//                             window.rootViewController?.present(initiationVC, animated: true)
                          } else {
                              self.present(initiationVC, animated: true)
                          }
