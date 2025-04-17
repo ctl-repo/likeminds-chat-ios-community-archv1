@@ -107,7 +107,6 @@ import LikeMindsChatUI
     }
     
      private func startAIChatBot(apiKey: String, username: String, userId: String) {
-         self.showHideLoaderView(isShow: true, backgroundColor: .clear)
          
          LMChatCore.shared.showChat(
              apiKey: apiKey,
@@ -133,57 +132,14 @@ import LikeMindsChatUI
                          }
                      }
                  } catch {
-                     self.showAlert(message: "Failed to create AI Chat module: \(error.localizedDescription)")
+                     self.showErrorAlert(message: "Failed to create AI Chat module: \(error.localizedDescription)")
                  }
              case .failure(let error):
-                 self.showAlert(message: error.localizedDescription)
+                 self.showErrorAlert(message: error.localizedDescription)
              }
          }
      }
-      
-      private func startAIChatBot(accessToken: String?, refreshToken: String?) {
-          self.showHideLoaderView(isShow: true, backgroundColor: .clear)
-          
-          LMChatCore.shared.showChat(
-             accessToken: accessToken,
-             refreshToken: refreshToken
-          ) { [weak self] result in
-             guard let self = self else { return }
-             
-             self.showHideLoaderView(isShow: false, backgroundColor: .clear)
-             
-             switch result {
-             case .success:
-                 do {
-                     let initiationVC = try LMAIChatBotChatViewModel.createModule()
-                     initiationVC.modalPresentationStyle = .fullScreen
-                     
-                     // Ensure we're on the main thread and the view is in the window hierarchy
-                     DispatchQueue.main.async {
-                         if let window = self.window {
-                             window.rootViewController?.present(initiationVC, animated: true)
-                         } else {
-                             self.present(initiationVC, animated: true)
-                         }
-                     }
-                 } catch {
-                     self.showAlert(message: "Failed to create AI Chat module: \(error.localizedDescription)")
-                 }
-             case .failure(let error):
-                 self.showAlert(message: error.localizedDescription)
-             }
-          }
-      }
-    
-    private func showAlert(message: String) {
-        let alert = UIAlertController(
-            title: nil,
-            message: message,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "Ok", style: .cancel))
-        present(alert, animated: true)
-    }
+
 }
 
 
@@ -216,7 +172,7 @@ extension LMAIChatBotViewController: LMChatAIButtonDelegate {
               let apiKey = props.apiKey,
               let username = props.userName,
               let userId = props.uuid else {
-            showAlert(message: "Missing required credentials")
+            showErrorAlert(message: "Missing required credentials")
             return
         }
         startAIChatBot(apiKey: apiKey, username: username, userId: userId)

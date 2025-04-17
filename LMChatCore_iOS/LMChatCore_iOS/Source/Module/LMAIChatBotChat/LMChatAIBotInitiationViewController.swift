@@ -57,6 +57,8 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     // MARK: - View Lifecycle
     open override func viewDidLoad() {
         super.viewDidLoad()
+        setupViews()
+        setupLayouts()
         setupAnimation()
     }
     
@@ -72,9 +74,15 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
         // Animation is already running, no need to do anything
     }
     
-    public func didCompleteInitialization() {
+    public func didCompleteInitialization(chatroomId: String) {
         stopAnimation()
-        // Don't dismiss here, let the view model handle navigation and dismissal
+        
+        // Navigate directly to the chatroom screen
+        NavigationScreen.shared.perform(
+            .chatroom(chatroomId: chatroomId, conversationID: nil),
+            from: self,
+            params: nil
+        )
     }
     
     public func didFailInitialization(with error: String) {
@@ -121,14 +129,20 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     }
     
     private func setupAnimation() {
-        // Try loading from main bundle first
+        // Try loading from main bundle
         if let animation = LottieAnimation.named(Constants.shared.strings.aiSetupAnimationName) {
             setupAnimationView(with: animation)
             return
         }
         
+        // Try loading from framework bundle
+        let bundle = Bundle(for: type(of: self))
+        if let animation = LottieAnimation.named(Constants.shared.strings.aiSetupAnimationName, bundle: bundle) {
+            setupAnimationView(with: animation)
+            return
+        }
         
-        print("Error: Could not load animation named \(Constants.shared.strings.aiSetupAnimationName) from any source")
+        print("Error: Could not load animation named \(Constants.shared.strings.aiSetupAnimationName)")
     }
     
     private func setupAnimationView(with animation: LottieAnimation) {

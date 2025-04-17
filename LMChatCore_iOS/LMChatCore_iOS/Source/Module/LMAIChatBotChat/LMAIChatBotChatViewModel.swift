@@ -15,8 +15,8 @@ public protocol LMAIChatBotChatViewModelProtocol: AnyObject {
     /// Called when the chatbot initialization process starts
     func didStartInitialization()
     
-    /// Called when the chatbot initialization process completes
-    func didCompleteInitialization()
+    /// Called when the chatbot initialization process completes with chatroom ID
+    func didCompleteInitialization(chatroomId: String)
     
     /// Called when an error occurs during initialization
     func didFailInitialization(with error: String)
@@ -88,10 +88,6 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
                     self.delegate?.didFailInitialization(with: "No chatbots available")
                     return
                 }
-                print("chatbotData \(response.data)")
-                
-                // Store pagination info if needed
-                print("Total chatbots: \(response.data?.totalChatbots ?? 0)")
                 
                 // Select the first chatbot
                 self.chatbot = chatbots[0]
@@ -156,28 +152,13 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
         }
     }
     
-    /// Saves the chatroom ID and navigates to the chatroom screen
+    /// Saves the chatroom ID and notifies completion
     private func saveAndNavigateToChatroom(_ chatroomId: String) {
-        print("Saving and navigating to chatroom: \(chatroomId)")
+        print("Saving chatroom ID: \(chatroomId)")
         // Save chatroom ID to local prefs
         LMSharedPreferences.setString(chatroomId, forKey: "chatroomIdWithAIChatbot")
         
-        // Ensure we're on the main thread and the view is in the window hierarchy
-        DispatchQueue.main.async { [weak self] in
-            guard let viewController = self?.delegate as? LMViewController else { return }
-            
-            // First dismiss the current view controller
-            viewController.dismiss(animated: true) { [weak self] in
-                // Then navigate to the chatroom screen
-                NavigationScreen.shared.perform(
-                    .chatroom(chatroomId: chatroomId, conversationID: nil),
-                    from: viewController,
-                    params: nil
-                )
-                
-                // Finally notify completion
-                self?.delegate?.didCompleteInitialization()
-            }
-        }
+        // Notify completion with chatroom ID
+        delegate?.didCompleteInitialization(chatroomId: chatroomId)
     }
 }
