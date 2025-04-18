@@ -121,20 +121,11 @@ import LikeMindsChatUI
              case .success:
                  do {
                      let initiationVC = try LMAIChatBotChatViewModel.createModule()
+                     initiationVC.modalPresentationStyle = .overFullScreen
                      
+                     // Present initiation screen modally
+                     self.present(initiationVC, animated: true)
                      
-                     let navigation = UINavigationController(
-                        rootViewController: initiationVC)
-                     // Ensure we're on the main thread and the view is in the window hierarchy
-                     DispatchQueue.main.async {
-                         if let window = self.window {
-                             navigation.modalPresentationStyle = .overFullScreen
-                             self.window?.rootViewController = navigation
-//                             window.rootViewController?.present(initiationVC, animated: true)
-                         } else {
-                             self.present(initiationVC, animated: true)
-                         }
-                     }
                  } catch {
                      self.showErrorAlert(message: "Failed to create AI Chat module: \(error.localizedDescription)")
                  }

@@ -71,7 +71,6 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
             saveAndNavigateToChatroom(existingChatroomId)
             return
         }
-        
         // If no existing chatroom, proceed with the normal flow
         // Step 1: Get AI Chatbots
         do {

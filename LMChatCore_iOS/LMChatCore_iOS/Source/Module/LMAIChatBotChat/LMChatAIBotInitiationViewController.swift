@@ -53,7 +53,7 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
         fatalError("init(coder:) has not been implemented")
     }
     
-
+    
     // MARK: - View Lifecycle
     open override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,20 +75,20 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     public func didCompleteInitialization(chatroomId: String) {
         stopAnimation()
         
-        
-        
-        // Dismiss the current view controller first
-        dismiss(animated: true) { [weak self] in
-            guard let self = self else { return }
-            
-            // Navigate to the chatroom screen after dismissal
-            NavigationScreen.shared.perform(
-                .chatroom(chatroomId: chatroomId, conversationID: nil),
-                from: self,
-                params: nil
-            )
+        if let presentingVC = presentingViewController {
+            dismiss(animated: true) { [weak self] in
+                guard let self = self else { return }
+                if let chatMessageVC = try? LMChatMessageListViewModel.createModule(withChatroomId: chatroomId, conversationId: nil) {
+                    if let navController = presentingVC as? UINavigationController {
+                        navController.pushViewController(chatMessageVC, animated: true)
+                    } else if let navController = presentingVC.navigationController {
+                        navController.pushViewController(chatMessageVC, animated: true)
+                    }
+                }
+            }
         }
     }
+   
     
     public func didFailInitialization(with error: String) {
         stopAnimation()
@@ -100,7 +100,6 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     private func stopAnimation() {
         animationView?.stop()
     }
-
     
     // MARK: - Setup Methods
     open override func setupViews() {
@@ -134,15 +133,14 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     }
     
     private func setupAnimation() {
-    
-    
+        
+        
         // Try loading from framework bundle
         let frameworkBundle = Bundle(for: type(of: self))
         if let animation = LottieAnimation.named(Constants.shared.strings.aiSetupAnimationName, bundle: frameworkBundle) {
             setupAnimationView(with: animation)
             return
         }
-
         // Try loading from file path
         if let path = frameworkBundle.path(forResource: Constants.shared.strings.aiSetupAnimationName, ofType: "json") {
             let animation = LottieAnimation.filepath(path)
@@ -153,8 +151,7 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
             setupAnimationView(with: animation)
             return
         }
-
-
+        
         print("Error: Could not load animation named \(Constants.shared.strings.aiSetupAnimationName)")
     }
     
