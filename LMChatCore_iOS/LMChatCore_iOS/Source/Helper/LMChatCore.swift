@@ -384,6 +384,9 @@ public class LMChatCore {
                     .failure(.logoutFailed(error: response.errorMessage)))
             }
         }
+        LMSharedPreferences.removeValue(forKey: "chatroomIdWithAIChatbot")
+        
+        
     }
 
     public func parseDeepLink(routeUrl: String) {

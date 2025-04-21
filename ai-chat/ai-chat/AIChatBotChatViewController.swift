@@ -24,6 +24,7 @@ class LMAIChatBotViewController: LMViewController {
         return button
     }()
     
+    
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -85,8 +86,50 @@ class LMAIChatBotViewController: LMViewController {
         
         // Add notification button to navigation bar
         let notificationBarButton = UIBarButtonItem(customView: notificationButton)
-        navigationItem.rightBarButtonItem = notificationBarButton
+        
+        // Create logout button
+        let logoutButton = UIBarButtonItem(
+            image: UIImage(systemName: "power"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapLogout)
+        )
+        logoutButton.tintColor = .black
+        
+        // Add both buttons to navigation bar
+        navigationItem.rightBarButtonItems = [notificationBarButton, logoutButton]
     }
+    @objc private func didTapLogout() {
+        // Clear any user data if needed
+        
+        
+        
+        if let deviceId = UIDevice.current.identifierForVendor?.uuidString {
+            UserDefaults.standard.removeObject(forKey: "apiKey")
+            UserDefaults.standard.removeObject(forKey: "userId")
+            UserDefaults.standard.removeObject(forKey: "username")
+            LMChatCore.shared.logoutUser(deviceId: deviceId)
+            
+            // Get the scene delegate's window
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let sceneDelegate = windowScene.delegate as? SceneDelegate else {
+                return
+            }
+            
+            // Create and set new root view controller
+            let loginVC = AIChatBotViewController.createViewController()
+            let navController = UINavigationController(rootViewController: loginVC)
+            sceneDelegate.window?.rootViewController = navController
+            
+            // Optional: Add animation
+            UIView.transition(with: sceneDelegate.window!,
+                              duration: 0.3,
+                              options: .transitionCrossDissolve,
+                              animations: nil,
+                              completion: nil)
+        }
+    }
+    
     
     private func setupAIChatButton() {
         let userDefaults = UserDefaults.standard
