@@ -11,7 +11,7 @@ import UIKit
 import LikeMindsChatCore
 import LikeMindsChatUI
 
- class LMAIChatBotViewController: LMViewController {
+class LMAIChatBotViewController: LMViewController {
     
     
     var viewModel: LMAIChatBotChatViewModel?
@@ -48,7 +48,7 @@ import LikeMindsChatUI
     }()
     
     // MARK: - Lifecycle
-   open override func viewDidLoad() {
+    open override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupNavigationBar()
@@ -106,46 +106,54 @@ import LikeMindsChatUI
         aiChatButton.clipsToBounds = true
     }
     
-     private func startAIChatBot(apiKey: String, username: String, userId: String) {
-         
-         LMChatCore.shared.showChat(
-             apiKey: apiKey,
-             username: username,
-             uuid: userId
-         ) { [weak self] result in
-             guard let self = self else { return }
-             
-             self.showHideLoaderView(isShow: false, backgroundColor: .clear)
-             
-             switch result {
-             case .success:
-                 do {
-                     let initiationVC = try LMAIChatBotChatViewModel.createModule()
-                     initiationVC.modalPresentationStyle = .overFullScreen
-                     
-                     // Present initiation screen modally
-                     self.present(initiationVC, animated: true)
-                     
-                 } catch {
-                     self.showErrorAlert(message: "Failed to create AI Chat module: \(error.localizedDescription)")
-                 }
-             case .failure(let error):
-                 self.showErrorAlert(message: error.localizedDescription)
-             }
-         }
-     }
-
+    private func startAIChatBot(apiKey: String, username: String, userId: String) {
+        
+        LMChatCore.shared.showChat(
+            apiKey: apiKey,
+            username: username,
+            uuid: userId
+        ) { [weak self] result in
+            guard let self = self else { return }
+            
+            self.showHideLoaderView(isShow: false, backgroundColor: .clear)
+            
+            switch result {
+            case .success:
+                do {
+                    
+                    let vc = try LMAIChatBotChatViewModel.createModule()
+                    
+                    // If it's a chat screen (LMChatMessageListViewController), push it
+                    if vc is LMChatMessageListViewController {
+                        self.navigationController?.pushViewController(vc, animated: true)
+                    }
+                    // If it's the initiation screen, present it modally
+                    else {
+                        
+                        vc.modalPresentationStyle = .overFullScreen
+                        self.present(vc, animated: true)
+                    }
+                    
+                } catch {
+                    self.showErrorAlert(message: "Failed to create AI Chat module: \(error.localizedDescription)")
+                }
+            case .failure(let error):
+                self.showErrorAlert(message: error.localizedDescription)
+            }
+        }
+    }
+    
 }
 
 
 
 // MARK: - UICollectionViewDataSource
 extension LMAIChatBotViewController: UICollectionViewDataSource {
-   open func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    open func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 4 // Show exactly 4 placeholder cards
     }
     
-   open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PlaceholderCell", for: indexPath) as! PlaceholderCell
         return cell
     }
@@ -154,7 +162,7 @@ extension LMAIChatBotViewController: UICollectionViewDataSource {
 
 // MARK: - UICollectionViewDelegateFlowLayout
 extension LMAIChatBotViewController: UICollectionViewDelegateFlowLayout {
-   open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = (collectionView.bounds.width - 16) / 2
         return CGSize(width: width, height: width)
     }

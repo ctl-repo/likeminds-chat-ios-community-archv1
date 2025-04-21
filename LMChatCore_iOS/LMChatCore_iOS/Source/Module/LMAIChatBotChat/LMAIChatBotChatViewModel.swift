@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import LikeMindsChatData
 import LikeMindsChatUI
+import LikeMindsChatData
 
 /// A protocol defining the methods that the view model uses to communicate
 /// changes or updates back to its view controller.
@@ -49,13 +49,25 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
     
     /// Factory method to create an instance of `LMAIChatBotViewController`
     /// wired up with an `LMAIChatBotChatViewModel`.
-    public static func createModule() throws -> LMChatAIBotInitiationViewController {
+    public static func createModule() throws -> LMViewController {
         guard LMChatCore.isInitialized else {
             throw LMChatError.chatNotInitialized
         }
-        let viewController = LMCoreComponents.shared.aiChatBotIntiationScreen.init()
-        viewController.viewModel = LMAIChatBotChatViewModel(viewController)
-        return viewController
+        
+        
+        if let existingChatroomId = LMSharedPreferences.getString(forKey: "chatroomIdWithAIChatbot") {
+            // If we have an existing chatroom ID, navigate directly to the chat screen
+            return try LMChatMessageListViewModel.createModule(
+                withChatroomId: existingChatroomId,
+                conversationId: nil
+            )
+        } else {
+            // If no existing chatroom, show the initiation screen
+            let viewController = LMCoreComponents.shared.aiChatBotIntiationScreen.init()
+            viewController.viewModel = LMAIChatBotChatViewModel(viewController)
+            return viewController
+        }
+        
     }
     
     // MARK: - Initialization Logic
@@ -64,15 +76,6 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
     func initializeChatbot() {
         delegate?.didStartInitialization()
         
-        // First check if we already have a chatroom ID
-        if let existingChatroomId = LMSharedPreferences.getString(forKey: "chatroomIdWithAIChatbot") {
-            print("Found existing chatroom ID: \(existingChatroomId)")
-            // If we have an existing chatroom ID, navigate directly
-            saveAndNavigateToChatroom(existingChatroomId)
-            return
-        }
-        // If no existing chatroom, proceed with the normal flow
-        // Step 1: Get AI Chatbots
         do {
             let request = try GetAIChatbotsRequest.builder()
                 .page(1)
@@ -88,7 +91,6 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
                     return
                 }
                 
-                // Select the first chatbot
                 self.chatbot = chatbots[0]
                 self.checkDMStatus(for: chatbots[0])
             }
@@ -111,7 +113,7 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
         
         LMChatClient.shared.checkDMStatus(request: request) { [weak self] response in
             guard let self = self else { return }
-            print("dmResponse is \(response.data)")
+           
             
             // Check if DM is enabled
             guard let showDM = response.data?.showDM, showDM else {
@@ -125,8 +127,6 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
                let components = URLComponents(url: ctaURL, resolvingAgainstBaseURL: false),
                let chatroomId = components.queryItems?.first(where: { $0.name == "chatroom_id" })?.value {
                 
-                
-                // Chatroom exists, save ID and proceed
                 self.saveAndNavigateToChatroom(chatroomId)
                 
             } else {
@@ -155,7 +155,7 @@ public class LMAIChatBotChatViewModel: LMChatBaseViewModel {
     
     /// Saves the chatroom ID and notifies completion
     private func saveAndNavigateToChatroom(_ chatroomId: String) {
-        print("Saving chatroom ID: \(chatroomId)")
+        
         // Save chatroom ID to local prefs
         LMSharedPreferences.setString(chatroomId, forKey: "chatroomIdWithAIChatbot")
         

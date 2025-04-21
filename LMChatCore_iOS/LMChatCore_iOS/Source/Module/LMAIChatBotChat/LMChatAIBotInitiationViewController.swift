@@ -16,6 +16,7 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     // MARK: - Data Properties
     var viewModel: LMAIChatBotChatViewModel?
     
+    private var wasDismissed = false
     // MARK: - UI Components
     private lazy var containerView: LMView = {
         let view = LMView()
@@ -59,6 +60,13 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
         super.viewDidLoad()
         setupAnimation()
     }
+    open override func viewWillDisappear(_ animated: Bool) {
+            super.viewWillDisappear(animated)
+            if isBeingDismissed || isMovingFromParent {
+                wasDismissed = true
+                print("is dismissed1 \(wasDismissed)")
+            }
+        }
     
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -75,9 +83,21 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     public func didCompleteInitialization(chatroomId: String) {
         stopAnimation()
         
+        guard !wasDismissed,
+                      self.view.window != nil else {
+                    return
+                }
+        print("View hierarchy: \(self.view.window != nil ? "attached" : "detached")")
+        print("Is being dismissed: \(isBeingDismissed)")
+        print("Is moving from parent: \(isMovingFromParent)")
+        
+        print("is dismissed \(wasDismissed)")
+        
         if let presentingVC = presentingViewController {
             dismiss(animated: true) { [weak self] in
                 guard let self = self else { return }
+                
+                
                 if let chatMessageVC = try? LMChatMessageListViewModel.createModule(withChatroomId: chatroomId, conversationId: nil) {
                     if let navController = presentingVC as? UINavigationController {
                         navController.pushViewController(chatMessageVC, animated: true)
@@ -88,7 +108,7 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
             }
         }
     }
-   
+    
     
     public func didFailInitialization(with error: String) {
         stopAnimation()
