@@ -115,7 +115,7 @@ public class LMNetworkingChatViewModel: LMChatBaseViewModel {
     /// like `show_list`.
     func checkDMStatus() {
         let request = CheckDMStatusRequest.builder()
-            .requestFrom("dm_feed_v2")
+            .requestFrom(.dmFeed)
             .uuid(UserPreferences.shared.getClientUUID() ?? "")
             .build()
 

@@ -75,8 +75,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         guard LMChatCore.isInitialized else {
             throw LMChatError.chatNotInitialized
         }
-        
-        print("/chatview controller intialized")
+    
         
 
         let viewcontroller = LMCoreComponents.shared.messageListScreen.init()
@@ -240,7 +239,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             delegate?.directMessageStatus()
             checkDMStatus()
         } else {
-            checkDMStatus(requestFrom: "group_channel")
+            checkDMStatus(requestFrom: .groupChannel)
         }
         fetchChatroomActions()
         markChatroomAsRead()
@@ -862,7 +861,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         (chatroomViewData?.type == type)
     }
 
-    func checkDMStatus(requestFrom: String = "chatroom") {
+    func checkDMStatus(requestFrom: DMStatusRequestFrom = .chatroom) {
         let request = CheckDMStatusRequest.builder()
             .requestFrom(requestFrom)
             .chatroomId(chatroomId)

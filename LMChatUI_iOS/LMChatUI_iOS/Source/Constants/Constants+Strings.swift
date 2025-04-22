@@ -68,5 +68,12 @@ public extension Constants {
         public var aiChatBotButtonText = "AI Bot"
         public var aiChatBotRoomKey = "chatroomIdWithAIChatbot"
         
+        
+        public var chatBotNotAvailable = "No chatbots available"
+        public var invalidChatBotUUID = "Invalid chatbot UUID"
+        public var dmNotAllowed  = "Direct messaging is not enabled"
+        public var chatroomCreateFail = "Failed to create chatroom"
+        
+        
     }
 }

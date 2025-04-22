@@ -50,8 +50,8 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     }
     
     required public init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+        super.init(coder: coder)
+        }
     
     
     // MARK: - View Lifecycle
@@ -68,10 +68,6 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
     
     // MARK: - LMAIChatBotChatViewModelProtocol
     
-    public func didStartInitialization() {
-        // Animation is already running, no need to do anything
-    }
-    
     public func didCompleteInitialization(chatroomId: String) {
         stopAnimation()
         
@@ -81,7 +77,7 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
                 
                 // Handle the case where presentingVC IS the navigation controller
                 if let navController = presentingVC as? UINavigationController {
-                    print("here i m")
+                  
                     if let chatMessageVC = try? LMChatMessageListViewModel.createModule(
                         withChatroomId: chatroomId,
                         conversationId: nil
@@ -150,14 +146,11 @@ open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotCha
         if let path = frameworkBundle.path(forResource: Constants.shared.strings.aiSetupAnimationName, ofType: "json") {
             let animation = LottieAnimation.filepath(path)
             guard let animation = animation else {
-                print("Error: Could not load animation from path: \(path)")
                 return
             }
             setupAnimationView(with: animation)
             return
         }
-        
-        print("Error: Could not load animation named \(Constants.shared.strings.aiSetupAnimationName)")
     }
     
     private func setupAnimationView(with animation: LottieAnimation) {

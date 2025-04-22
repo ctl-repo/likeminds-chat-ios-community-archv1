@@ -126,7 +126,7 @@ open class LMChatAIButton: LMButton {
     // MARK: - Actions
     @objc private func buttonTapped() {
         guard let props = props else {
-                print("Props not set for AI button")
+              
                 return
             }
         delegate?.didTapAIButton(self,props: props)

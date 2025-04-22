@@ -12,8 +12,6 @@ import LikeMindsChatData
 /// A protocol defining the methods that the view model uses to communicate
 /// changes or updates back to its view controller.
 public protocol LMAIChatBotChatViewModelProtocol: AnyObject {
-    /// Called when the chatbot initialization process starts
-    func didStartInitialization()
     
     /// Called when the chatbot initialization process completes with chatroom ID
     func didCompleteInitialization(chatroomId: String)
@@ -74,7 +72,6 @@ public class LMChatAIBotInitiationViewModel: LMChatBaseViewModel {
     
     /// Starts the chatbot initialization process
     func initializeChatbot() {
-        delegate?.didStartInitialization()
         
         do {
             let request = try GetAIChatbotsRequest.builder()
@@ -87,12 +84,12 @@ public class LMChatAIBotInitiationViewModel: LMChatBaseViewModel {
                 
                 // Check if we have chatbots available
                 guard let chatbots = response.data?.users, !chatbots.isEmpty else {
-                    self.delegate?.didFailInitialization(with: "No chatbots available")
+                    self.delegate?.didFailInitialization(with: Constants.shared.strings.chatBotNotAvailable)
                     return
                 }
-                
-                self.chatbot = chatbots[0]
-                self.checkDMStatus(for: chatbots[0])
+                let firstChatbot = chatbots[0]
+                self.chatbot = firstChatbot
+                self.checkDMStatus(for: firstChatbot)
             }
         } catch {
             delegate?.didFailInitialization(with: error.localizedDescription)
@@ -102,12 +99,12 @@ public class LMChatAIBotInitiationViewModel: LMChatBaseViewModel {
     /// Checks DM status for the given chatbot
     private func checkDMStatus(for chatbot: Member) {
         guard let chatbotUUID = chatbot.sdkClientInfo?.uuid else {
-            delegate?.didFailInitialization(with: "Invalid chatbot UUID")
+            delegate?.didFailInitialization(with:Constants.shared.strings.invalidChatBotUUID)
             return
         }
         
         let request = CheckDMStatusRequest.builder()
-            .requestFrom("member_profile")
+            .requestFrom(.memberProfile)
             .uuid(chatbotUUID)
             .build()
         
@@ -117,7 +114,7 @@ public class LMChatAIBotInitiationViewModel: LMChatBaseViewModel {
             
             // Check if DM is enabled
             guard let showDM = response.data?.showDM, showDM else {
-                self.delegate?.didFailInitialization(with: "Direct messaging is not enabled")
+                self.delegate?.didFailInitialization(with:Constants.shared.strings.dmNotAllowed)
                 return
             }
             
@@ -148,7 +145,7 @@ public class LMChatAIBotInitiationViewModel: LMChatBaseViewModel {
             if let chatroomId = response.data?.chatroomData?.id {
                 self.saveAndNavigateToChatroom(chatroomId)
             } else {
-                self.delegate?.didFailInitialization(with: "Failed to create chatroom")
+                self.delegate?.didFailInitialization(with: Constants.shared.strings.chatroomCreateFail)
             }
         }
     }
