@@ -2168,6 +2168,25 @@ extension LMChatMessageListViewController: LMChatAudioProtocol {
 extension LMChatMessageListViewController: LMChatMessageCellDelegate,
     LMChatroomHeaderMessageCellDelegate
 {
+    public func didTapOnReplyPrivatelyCell(indexPath: IndexPath) {
+        let item = messageListView.tableSections[indexPath.section].data[
+            indexPath.row]
+        
+        guard let chatroomId = item.widget?.lmMeta?.sourceChatroomId, let conversationId = item.widget?.lmMeta?.sourceConversation?.id else {
+            return
+        }
+        DispatchQueue.main.async {
+            NavigationScreen.shared.perform(
+                .chatroom(
+                    chatroomId: chatroomId,
+                    conversationID: conversationId,
+                    replyPrivatelyExtras: nil),
+                from: self,
+                params: nil
+            )
+        }
+    }
+
 
     public func onRetryButtonClicked(conversation: ConversationViewData) {
         viewModel?.retryConversation(conversation: conversation)
