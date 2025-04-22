@@ -66,6 +66,7 @@ public extension Constants {
         public var  aiSetupText = "Setting up AI chatbot..."
         public var aiSetupAnimationName = "ai_chatBot_setup_lottie"
         public var aiChatBotButtonText = "AI Bot"
+        public var aiChatBotRoomKey = "chatroomIdWithAIChatbot"
         
     }
 }

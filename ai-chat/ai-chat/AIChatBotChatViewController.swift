@@ -14,7 +14,7 @@ import LikeMindsChatUI
 class LMAIChatBotViewController: LMViewController {
     
     
-    var viewModel: LMAIChatBotChatViewModel?
+    var viewModel: LMChatAIBotInitiationViewModel?
     // MARK: - UI Components
     private lazy var notificationButton: UIButton = {
         let button = UIButton(type: .system)
@@ -164,7 +164,7 @@ class LMAIChatBotViewController: LMViewController {
             case .success:
                 do {
                     
-                    let vc = try LMAIChatBotChatViewModel.createModule()
+                    let vc = try LMChatAIBotInitiationViewModel.createModule()
                     
                     // If it's a chat screen (LMChatMessageListViewController), push it
                     if vc is LMChatMessageListViewController {
