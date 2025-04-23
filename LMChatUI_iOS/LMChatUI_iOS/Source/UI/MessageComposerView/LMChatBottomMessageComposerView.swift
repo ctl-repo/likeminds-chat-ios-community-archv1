@@ -32,6 +32,7 @@ public protocol LMChatBottomMessageComposerDelegate: AnyObject {
 open class LMChatBottomMessageComposerView: LMView {
     
     open weak var delegate: LMChatBottomMessageComposerDelegate?
+    
     public let audioButtonTag = 10
     public let messageButtonTag = 11
     
@@ -140,8 +141,9 @@ open class LMChatBottomMessageComposerView: LMView {
     // MARK: Send Button
     open private(set) lazy var sendButton: LMButton = {
         let button = LMButton().translatesAutoresizingMaskIntoConstraints()
-        button.setImage(micButtonIcon, for: .normal)
+        // Initialize with default values
         button.tag = audioButtonTag
+        button.setImage(micButtonIcon, for: .normal)
         button.contentMode = .scaleToFill
         return button
     }()
@@ -480,6 +482,17 @@ open class LMChatBottomMessageComposerView: LMView {
     public func showEditView(withData data: LMChatMessageReplyPreview.ContentModel) {
         replyMessageView.setDataForEdit(data)
         replyMessageViewContainer.isHidden = false
+    }
+    
+    // Add method to update send button state
+    public func updateSendButtonState() {
+        if delegate?.isOtherUserAIChatbotInChatroom() ?? false {
+            sendButton.tag = messageButtonTag
+            sendButton.setImage(sendButtonIcon, for: .normal)
+        } else {
+            sendButton.tag = audioButtonTag
+            sendButton.setImage(micButtonIcon, for: .normal)
+        }
     }
 }
 

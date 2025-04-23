@@ -125,6 +125,7 @@ public class LMChatAIBotInitiationViewModel: LMChatBaseViewModel {
                let chatroomId = components.queryItems?.first(where: { $0.name == "chatroom_id" })?.value {
                 
                 self.saveAndNavigateToChatroom(chatroomId)
+                return
                 
             } else {
                 // No existing chatroom, create new one

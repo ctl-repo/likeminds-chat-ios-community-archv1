@@ -143,6 +143,9 @@ open class LMChatMessageListViewController: LMViewController {
 
         viewModel?.getInitialData()
         viewModel?.syncConversation()
+        
+        // Update send button state after getting initial data
+        bottomMessageBoxView.updateSendButtonState()
 
         setRightNavigationWithAction(
             title: nil, image: Constants.shared.images.ellipsisCircleIcon,
@@ -435,8 +438,6 @@ open class LMChatMessageListViewController: LMViewController {
     public func updateChatroomSubtitles() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            // Optionally sort your tableSections if needed:
-            // self.tableSections.sort { $0.timestamp < $1.timestamp }
             navigationTitleView.isHidden = false
         }
 
@@ -450,6 +451,8 @@ open class LMChatMessageListViewController: LMViewController {
         setNavigationTitleAndSubtitle(
             with: viewModel?.chatroomViewData?.header, subtitle: subtitle)
         memberRightsCheck()
+        // Update send button state after updating chatroom subtitles
+        bottomMessageBoxView.updateSendButtonState()
     }
 
     func topicBarClicked(topicId: String) {
@@ -500,6 +503,8 @@ open class LMChatMessageListViewController: LMViewController {
                     withMessage: "", isEnable: true)
             }
         }
+        // Update send button state after updating direct message status
+        bottomMessageBoxView.updateSendButtonState()
     }
 
     public func directMessageValidation() {
@@ -594,6 +599,8 @@ open class LMChatMessageListViewController: LMViewController {
                 break
             }
         }
+        // Update send button state after updating direct message status
+        bottomMessageBoxView.updateSendButtonState()
     }
 
     func updateBottomBar(footerView: UITableViewHeaderFooterView) {
@@ -681,6 +688,8 @@ extension LMChatMessageListViewController: LMMessageListViewModelProtocol {
         bottomMessageBoxView.inputTextView.chatroomId =
             viewModel?.chatroomViewData?.id ?? ""
         hideShowTopicBarView()
+        // Update send button state after reloading messages
+        bottomMessageBoxView.updateSendButtonState()
     }
 
     func modifyMessageWithTapToUndo() {
@@ -860,6 +869,8 @@ extension LMChatMessageListViewController: LMMessageListViewModelProtocol {
 
     public func directMessageStatus() {
         directMessageValidation()
+        // Update send button state after updating direct message status
+        bottomMessageBoxView.updateSendButtonState()
     }
 }
 

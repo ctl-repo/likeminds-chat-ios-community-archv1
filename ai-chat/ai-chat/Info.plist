@@ -25,9 +25,9 @@
 		<string>remote-notification</string>
 		<string>processing</string>
 	</array>
-	<key>UILaunchStoryboardName</key>
-	<string>Main</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs the camera to scan documents and take photos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs microphone access for video recording.</string>
 </dict>
 </plist>

@@ -42,7 +42,6 @@ func isOtherUserAIChatbot(chatroom: Chatroom) -> Bool {
             return false
         }
     }
-
     // Check if the other member's roles contain "chatbot"
     if otherMember != nil && otherMember?.roles != nil
         && otherMember!.roles!.contains(where: { $0 == .chatbot })
