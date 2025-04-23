@@ -14,6 +14,7 @@ public protocol LMChatGroupFeedViewModelProtocol: AnyObject {
     func updateHomeFeedChatroomsData()
     func updateHomeFeedExploreCountData()
     func updateHomeFeedSecretChatroomInvitesData(chatroomId: String?)
+    func checkDMStatus(showDM: Bool)
 }
 
 public class LMChatBaseViewModel {
@@ -60,6 +61,7 @@ public class LMChatGroupFeedViewModel: LMChatBaseViewModel {
         LMChatClient.shared.getChatrooms(withObserver: self)
         LMChatClient.shared.observeLiveHomeFeed(
             withCommunityId: SDKPreferences.shared.getCommunityId() ?? "")
+        self.delegate?.checkDMStatus(showDM: true)
     }
 
     func syncChatroom() {

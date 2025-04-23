@@ -7,18 +7,25 @@
 
 import Foundation
 import Kingfisher
-
+enum CustomEventNames: String {
+    case companyInfo = "Company_Info"
+    case buyStock = "Buy_Stock"
+    case sellStock = "Sell_Stock"
+    case defaultValue = "Default_Value"
+}
 public protocol LMChatMessageContentViewDelegate: AnyObject {
     func clickedOnReaction(_ reaction: String)
     func clickedOnAttachment(_ url: String)
     func didTapOnProfileLink(route: String)
     func didTapOnReplyPreview()
+    func didTapButton(btnName: String, metaData: [String: Any])
 }
 
 extension LMChatMessageContentViewDelegate {
     public func clickedOnReaction(_ reaction: String) {}
     public func clickedOnAttachment(_ url: String) {}
     func didTapOnProfileLink(route: String) {}
+    public func didTapButton(btnName: String, metaData: [String: Any]) {}
 }
 
 @IBDesignable
@@ -57,6 +64,121 @@ open class LMChatMessageContentView: LMView {
         view.distribution = .fill
         view.spacing = 0
         view.addArrangedSubview(reactionsView)
+        return view
+    }()
+    var stopLossLbl : LMTextView = {
+        let label =  LMTextView()
+            .translatesAutoresizingMaskIntoConstraints()
+        label.isScrollEnabled = false
+        label.font = Appearance.shared.fonts.textFont1
+        label.backgroundColor = .clear
+        label.textColor = .black
+        label.textAlignment = .left
+        label.isEditable = false
+        label.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        label.text = ""
+        return label
+    }()
+    var entryPriceLbl : LMTextView = {
+        let label =  LMTextView()
+            .translatesAutoresizingMaskIntoConstraints()
+        label.isScrollEnabled = false
+        label.font = Appearance.shared.fonts.textFont1
+        label.backgroundColor = .clear
+        label.textColor = .black
+        label.textAlignment = .left
+        label.isEditable = false
+        label.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        label.text = ""
+        return label
+    }()
+    var targetPriceLbl : LMTextView = {
+        let label =  LMTextView()
+            .translatesAutoresizingMaskIntoConstraints()
+        label.isScrollEnabled = false
+        label.font = Appearance.shared.fonts.textFont1
+        label.backgroundColor = .clear
+        label.textColor = .black
+        label.textAlignment = .left
+        label.isEditable = false
+        label.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        label.text = ""
+        return label
+    }()
+    
+    open private(set) lazy var stockInfo: LMStackView = {
+        let view = LMStackView().translatesAutoresizingMaskIntoConstraints()
+        view.axis = .horizontal
+        view.distribution = .fill
+        view.spacing = 2
+        view.addArrangedSubview(stopLossLbl)
+        view.addArrangedSubview(entryPriceLbl)
+        view.addArrangedSubview(targetPriceLbl)
+        return view
+    }()
+    open var companyInfoButtonTitle: String = "Company Info"
+    open private(set) lazy var companyInfoButton: LMButton = {
+        let button = LMButton().translatesAutoresizingMaskIntoConstraints()
+        button.setTitle(companyInfoButtonTitle, for: .normal)
+        button.titleLabel?.font = Appearance.shared.fonts.buttonFont3
+        button.tintColor = .black
+//        button.sizeToFit()
+        button.setInsets(forContentPadding: UIEdgeInsets(
+            top: 8, left: 16, bottom: 8, right: 16), imageTitlePadding: 0)
+        button.backgroundColor = Appearance.shared.colors.gray1
+        button.cornerRadius(with: 8)
+        button.setHeightConstraint(with: 40)
+        button.setWidthConstraint(with: 116)
+        button.addTarget(self, action: #selector(companyInfoClicked), for: .touchUpInside)
+        return button
+    }()
+    open var buyButtonTitle: String = "Buy"
+    open private(set) lazy var buyButton: LMButton = {
+        let button = LMButton().translatesAutoresizingMaskIntoConstraints()
+        button.setTitle(buyButtonTitle, for: .normal)
+        button.titleLabel?.font = Appearance.shared.fonts.buttonFont3
+        button.tintColor = Appearance.shared.colors.blueGray
+//        button.sizeToFit()
+        button.setInsets(forContentPadding: UIEdgeInsets(
+            top: 8, left: 16, bottom: 8, right: 16), imageTitlePadding: 0)
+        button.backgroundColor = Appearance.shared.colors.gray1
+        button.cornerRadius(with: 8)
+        button.setHeightConstraint(with: 40)
+        button.setWidthConstraint(with: 56)
+        button.addTarget(self, action: #selector(buyBtnClicked), for: .touchUpInside)
+        return button
+    }()
+    open var sellButtonTitle: String = "Sell"
+    open private(set) lazy var sellButton: LMButton = {
+        let button = LMButton().translatesAutoresizingMaskIntoConstraints()
+        button.setTitle(sellButtonTitle, for: .normal)
+        button.titleLabel?.font = Appearance.shared.fonts.buttonFont3
+        button.tintColor = Appearance.shared.colors.blueGray
+//        button.sizeToFit()
+        button.setInsets(forContentPadding: UIEdgeInsets(
+            top: 8, left: 16, bottom: 8, right: 16), imageTitlePadding: 0)
+        button.backgroundColor = Appearance.shared.colors.gray1
+        button.setHeightConstraint(with: 40)
+        button.setWidthConstraint(with: 56)
+        button.cornerRadius(with: 8)
+        button.addTarget(self, action: #selector(sellBtnClicked), for: .touchUpInside)
+        return button
+    }()
+    open private(set) lazy var emptyView: LMView = {
+        let view = LMView().translatesAutoresizingMaskIntoConstraints()
+        return view
+    }()
+    open private(set) lazy var companyStack: LMStackView = {
+        let view = LMStackView().translatesAutoresizingMaskIntoConstraints()
+        view.axis = .horizontal
+        view.distribution = .fill
+        view.alignment = .trailing
+        view.spacing = 4
+        view.addArrangedSubview(emptyView)
+        view.addArrangedSubview(companyInfoButton)
+        view.addArrangedSubview(buyButton)
+        view.addArrangedSubview(sellButton)
+        view.setHeightConstraint(with: 48)
         return view
     }()
 
@@ -151,9 +273,13 @@ open class LMChatMessageContentView: LMView {
         bubble.addArrangeSubview(usernameLabel)
         bubble.addArrangeSubview(replyMessageView)
         bubble.addArrangeSubview(textLabel)
+        bubble.addArrangeSubview(stockInfo)
+        bubble.addArrangeSubview(companyStack)
         backgroundColor = .clear
         reactionsView.isHidden = true
         replyMessageView.isHidden = true
+        stockInfo.isHidden = true
+        companyStack.isHidden = true
         reactionsView.delegate = self
         
         let tapImageGesture = UITapGestureRecognizer(target: self, action: #selector(didTapOnProfileLink))
@@ -178,10 +304,11 @@ open class LMChatMessageContentView: LMView {
             bubbleView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             bubbleView.heightAnchor.constraint(greaterThanOrEqualToConstant: 48),
             bubbleView.bottomAnchor.constraint(equalTo: chatProfileImageContainerStackView.bottomAnchor, constant: -2),
+            companyStack.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -8)
         ])
         
          bubbleLeadingConstraint = bubbleView.leadingAnchor.constraint(equalTo: chatProfileImageContainerStackView.trailingAnchor)
-         bubbleTrailingConstraint = bubbleView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -40)
+         bubbleTrailingConstraint = bubbleView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -35)
         
         outgoingbubbleLeadingConstraint = bubbleView.leadingAnchor.constraint(greaterThanOrEqualTo: chatProfileImageContainerStackView.trailingAnchor, constant: 40)
         outgoingbubbleTrailingConstraint = bubbleView.trailingAnchor.constraint(equalTo: trailingAnchor)
@@ -206,6 +333,70 @@ open class LMChatMessageContentView: LMView {
         formattedString.applyBoldFormat()
 
         self.textLabel.attributedText = formattedString
+        
+        
+        if let widgetData = data.message.widget {
+            let metaData = widgetData.metadata
+            if let isCustom = metaData?["customWidgetType"] as? String, isCustom == "FinXRecommendation" {
+                let dataDict = metaData?["searchRsp"] as? [String: Any]
+                if let stockName = dataDict?["SecName"] as? String {
+                    let tempFormatString =  GetAttributedTextWithRoutes.getAttributedText(from: stockName, font: textLabelFont, withHighlightedColor: Appearance.Colors.shared.linkColor, withTextColor: textLabelColor);
+                    tempFormatString.applyBoldFormat()
+                    self.textLabel.attributedText = tempFormatString
+                }
+                if let stopLossPrice = metaData?["slPrice"] as? String {
+                    let tempFormatString =  GetAttributedTextWithRoutes.getAttributedText(from: "Stop Loss".trimmingCharacters(in: .whitespacesAndNewlines), font: Appearance.shared.fonts.subHeadingFont1, withHighlightedColor: Appearance.Colors.shared.linkColor, withTextColor: textLabelColor);
+                    tempFormatString.applyBoldFormat()
+                    let tempFormatString2 =  GetAttributedTextWithRoutes.getAttributedText(from: "\(stopLossPrice)".trimmingCharacters(in: .whitespacesAndNewlines), font: Appearance.shared.fonts.buttonFont3, withHighlightedColor: Appearance.Colors.shared.linkColor, withTextColor: textLabelColor);
+                    tempFormatString2.applyBoldFormat()
+                    let combinedAttText = NSMutableAttributedString()
+                    combinedAttText.append(tempFormatString)
+                    combinedAttText.append(NSAttributedString(string: "\n"))
+                    combinedAttText.append(tempFormatString2)
+                    self.stopLossLbl.attributedText = combinedAttText
+                    self.stopLossLbl.isHidden = self.stopLossLbl.text.isEmpty
+                    self.stockInfo.isHidden = false
+                }
+                if let entryPrice = metaData?["entryPrice"] as? String {
+                    let tempFormatString =  GetAttributedTextWithRoutes.getAttributedText(from: "Entry Price".trimmingCharacters(in: .whitespacesAndNewlines), font: Appearance.shared.fonts.subHeadingFont1, withHighlightedColor: Appearance.Colors.shared.linkColor, withTextColor: textLabelColor);
+                    tempFormatString.applyBoldFormat()
+                    let tempFormatString2 =  GetAttributedTextWithRoutes.getAttributedText(from: "\(entryPrice)".trimmingCharacters(in: .whitespacesAndNewlines), font: Appearance.shared.fonts.buttonFont3, withHighlightedColor: Appearance.Colors.shared.linkColor, withTextColor: textLabelColor);
+                    tempFormatString2.applyBoldFormat()
+                    let combinedAttText = NSMutableAttributedString()
+                    combinedAttText.append(tempFormatString)
+                    combinedAttText.append(NSAttributedString(string: "\n"))
+                    combinedAttText.append(tempFormatString2)
+                    self.entryPriceLbl.attributedText = combinedAttText
+                    self.entryPriceLbl.isHidden = self.entryPriceLbl.text.isEmpty
+                    self.stockInfo.isHidden = false
+                }
+                if let targetPrice = metaData?["targetPrice"] as? String {
+                    let tempFormatString =  GetAttributedTextWithRoutes.getAttributedText(from: "Target Price".trimmingCharacters(in: .whitespacesAndNewlines), font: Appearance.shared.fonts.subHeadingFont1, withHighlightedColor: Appearance.Colors.shared.linkColor, withTextColor: textLabelColor);
+                    tempFormatString.applyBoldFormat()
+                    let tempFormatString2 =  GetAttributedTextWithRoutes.getAttributedText(from: "\(targetPrice)".trimmingCharacters(in: .whitespacesAndNewlines), font: Appearance.shared.fonts.buttonFont3, withHighlightedColor: Appearance.Colors.shared.linkColor, withTextColor: textLabelColor);
+                    tempFormatString2.applyBoldFormat()
+                    let combinedAttText = NSMutableAttributedString()
+                    combinedAttText.append(tempFormatString)
+                    combinedAttText.append(NSAttributedString(string: "\n"))
+                    combinedAttText.append(tempFormatString2)
+                    self.targetPriceLbl.attributedText = combinedAttText
+                    self.targetPriceLbl.isHidden = self.targetPriceLbl.text.isEmpty
+                    self.stockInfo.isHidden = false
+                }
+                if let isBuy = metaData?["isBuy"] as? Bool {
+                    if isBuy {
+                        buyButton.isHidden = false
+                        sellButton.isHidden = true
+                    } else {
+                        buyButton.isHidden = true
+                        sellButton.isHidden = false
+                    }
+                    companyInfoButton.isHidden = false
+                    companyStack.isHidden = false
+                }
+            }
+        }
+        
         self.textLabel.isHidden = self.textLabel.text.isEmpty
         setTimestamps(data)
         let isIncoming = data.message.isIncoming ?? true
@@ -317,6 +508,17 @@ extension LMChatMessageContentView: LMChatMessageReactionsViewDelegate {
     
     public func clickedOnReaction(_ reaction: String) {
         delegate?.clickedOnReaction(reaction)
+    }
+}
+extension LMChatMessageContentView {
+    @objc func buyBtnClicked(_ sender: UIButton) {
+        delegate?.didTapButton(btnName: CustomEventNames.buyStock.rawValue, metaData: dataView?.message.widget?.metadata ?? [:])
+    }
+    @objc func companyInfoClicked(_ sender: UIButton) {
+        delegate?.didTapButton(btnName: CustomEventNames.companyInfo.rawValue, metaData: dataView?.message.widget?.metadata ?? [:])
+    }
+    @objc func sellBtnClicked(_ sender: UIButton) {
+        delegate?.didTapButton(btnName: CustomEventNames.sellStock.rawValue, metaData: dataView?.message.widget?.metadata ?? [:])
     }
 }
 

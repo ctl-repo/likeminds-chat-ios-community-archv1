@@ -33,7 +33,7 @@ open class LMChatMessageBubbleView: LMView {
         view.axis = .vertical
         view.alignment = .leading
         view.distribution = .fill
-        view.spacing = 6
+        view.spacing = 8
         view.backgroundColor = Appearance.shared.colors.clear
         return view
     }()

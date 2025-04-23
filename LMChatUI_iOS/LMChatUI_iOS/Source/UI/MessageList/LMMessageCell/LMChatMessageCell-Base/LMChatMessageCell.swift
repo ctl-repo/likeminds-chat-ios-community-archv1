@@ -68,6 +68,9 @@ public protocol LMChatMessageCellDelegate: LMChatMessageBaseProtocol {
     /// This method allows the delegate to handle retry attempts for failed message sends.
     /// - Parameter conversation: The conversation data containing the message to retry
     func onRetryButtonClicked(conversation: ConversationViewData)
+    
+    // Custom delegate Method for buy sell company Button
+    func didTapOnCustomCellButton(btnName: String, metaData: [String: Any])
 }
 
 /// A custom table view cell that displays chat messages with various interactive features.
@@ -407,5 +410,8 @@ extension LMChatMessageCell: LMChatMessageContentViewDelegate {
     public func clickedOnAttachment(_ url: String) {
         delegate?.onClickAttachmentOfMessage(
             url: url, indexPath: currentIndexPath)
+    }
+    public func didTapButton(btnName: String, metaData: [String : Any]) {
+        delegate?.didTapOnCustomCellButton(btnName: btnName, metaData: metaData)
     }
 }

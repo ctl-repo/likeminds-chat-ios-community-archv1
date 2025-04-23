@@ -26,6 +26,7 @@ public protocol LMChatBottomMessageComposerDelegate: AnyObject {
     func cancelLinkPreview()
     func showToastMessage(message: String?)
     func isOtherUserAIChatbotInChatroom() -> Bool
+    func composeStockShare()
 }
 
 @IBDesignable
@@ -101,6 +102,13 @@ open class LMChatBottomMessageComposerView: LMView {
         button.setImage(attachmentButtonIcon, for: .normal)
         button.widthAnchor.constraint(equalToConstant: 34.0).isActive = true
         button.addTarget(self, action: #selector(attachmentButtonClicked), for: .touchUpInside)
+        return button
+    }()
+    open private(set) lazy var stockShareButton: LMButton = {
+        let button = LMButton().translatesAutoresizingMaskIntoConstraints()
+        button.setImage(stockShareButtonIcon, for: .normal)
+        button.widthAnchor.constraint(equalToConstant: 34.0).isActive = true
+        button.addTarget(self, action: #selector(stockShareButtonClicked), for: .touchUpInside)
         return button
     }()
     
@@ -257,6 +265,7 @@ open class LMChatBottomMessageComposerView: LMView {
     public let micButtonIcon = Constants.shared.images.micIcon.withSystemImageConfig(pointSize: 24)
     public let sendButtonIcon = Constants.shared.images.sendButton.withSystemImageConfig(pointSize: 30)
     let attachmentButtonIcon = Constants.shared.images.plusIcon.withSystemImageConfig(pointSize: 24)
+    let stockShareButtonIcon = Constants.shared.images.stockShareIcon.withSystemImageConfig(pointSize: 24)
     let gifBadgeIcon = Constants.shared.images.gifBadgeIcon
     
     let sendButtonHeightConstant: CGFloat = 40
@@ -289,12 +298,12 @@ open class LMChatBottomMessageComposerView: LMView {
         inputTextAndGifHorizontalStackView.addArrangedSubview(inputTextView)
         inputTextAndGifHorizontalStackView.addArrangedSubview(gifButton)
         
-        horizontalStackView.addArrangedSubview(attachmentButton)
-        horizontalStackView.addArrangedSubview(inputTextContainerView)
         
+        horizontalStackView.addArrangedSubview(inputTextContainerView)
+        horizontalStackView.addArrangedSubview(attachmentButton)
         addOnVerticleStackView.addArrangedSubview(linkPreviewView)
         addOnVerticleStackView.addArrangedSubview(replyMessageViewContainer)
-        
+        horizontalStackView.addArrangedSubview(stockShareButton)
         audioContainerView.addSubview(micFlickerButton)
         audioContainerView.addSubview(recordDuration)
         audioContainerView.addSubview(audioStack)
@@ -442,6 +451,9 @@ open class LMChatBottomMessageComposerView: LMView {
     
     @objc func attachmentButtonClicked(_ sender: UIButton) {
         delegate?.composeAttachment()
+    }
+    @objc func stockShareButtonClicked(_ sender: UIButton){
+        delegate?.composeStockShare()
     }
     
     @objc func gifButtonClicked(_ sender: UIButton) {

@@ -121,5 +121,7 @@ public extension Constants {
         
         public var equalIcon = loadSystemImage(with: "equal")
         public var plusCircleIcon = loadSystemImage(with: "plus.circle")
+        public var stockShareIcon = loadSystemImage(with: "chevron.up.circle")
+        public var chartIcon = loadSystemImage(with: "chart.bar.xaxis")
     }
 }

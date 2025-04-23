@@ -151,6 +151,7 @@ class HomeViewController: UIViewController {
     @objc private func chatButtonTapped() {
         do {
             let chatFeedVC = try LMChatFeedViewModel.createModule()
+            LMChatCore.shared.setCallback(self)
             navigationController?.pushViewController(chatFeedVC, animated: true)
         } catch {
             let alert = UIAlertController(
@@ -162,4 +163,30 @@ class HomeViewController: UIViewController {
             present(alert, animated: true)
         }
     }
+}
+
+extension HomeViewController: LMChatCoreCallback {
+    func onCustomButtonCLicked(eventName: LikeMindsChatCore.LMChatAnalyticsEventName, eventData: [String : Any]) {
+        debugPrint(eventName.rawValue)
+        debugPrint(eventData)
+    }
+    
+    func onAccessTokenExpiredAndRefreshed(accessToken: String, refreshToken: String) {
+        
+    }
+    
+    func onRefreshTokenExpired(_ completionHandler: (((accessToken: String, refreshToken: String)?) -> Void)?) {
+        
+    }
+    
+    func userProfileViewHandle(withRoute route: String) {
+        
+    }
+    
+    func onEventTriggered(eventName: LikeMindsChatCore.LMChatAnalyticsEventName, eventProperties: [String : AnyHashable]) {
+        debugPrint(eventName)
+        debugPrint(eventProperties)
+    }
+    
+    
 }

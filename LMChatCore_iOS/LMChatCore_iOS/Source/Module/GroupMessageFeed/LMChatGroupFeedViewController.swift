@@ -18,7 +18,8 @@ open class LMChatGroupFeedViewController: LMViewController {
         view.backgroundColor = .systemGroupedBackground
         return view
     }()
-
+    fileprivate var lastKnowScrollViewContentOfsset: CGFloat = 0
+    open var fabButtonWidthConstraints: NSLayoutConstraint?
     open private(set) lazy var profileIcon: LMImageView = {
         let image = LMImageView().translatesAutoresizingMaskIntoConstraints()
         image.clipsToBounds = true
@@ -28,7 +29,17 @@ open class LMChatGroupFeedViewController: LMViewController {
         image.cornerRadius(with: 18)
         return image
     }()
-
+    open var fabButtonTitle = "PORTFOLIO REVIEW"
+    open private(set) lazy var newDMFabButton: LMButton = {
+        let button = LMButton().translatesAutoresizingMaskIntoConstraints()
+        button.setImage(Constants.shared.images.chartIcon, for: .normal)
+        button.setTitle(fabButtonTitle, for: .normal)
+        button.titleLabel?.font = Appearance.shared.fonts.buttonFont3
+        button.tintColor = .white
+        button.backgroundColor = Appearance.shared.colors.linkColor
+        return button
+    }()
+    
     open override func viewDidLoad() {
         super.viewDidLoad()
         self.setNavigationTitleAndSubtitle(
@@ -74,14 +85,71 @@ open class LMChatGroupFeedViewController: LMViewController {
     open override func setupViews() {
         super.setupViews()
         self.view.addSubview(feedListView)
+        self.view.addSubview(newDMFabButton)
     }
 
     // MARK: setupLayouts
     open override func setupLayouts() {
         super.setupLayouts()
         self.view.safeAreaPinSubView(subView: feedListView)
+        newDMFabButton.addConstraint(
+            bottom: (view.safeAreaLayoutGuide.bottomAnchor, -16),
+            trailing: (view.trailingAnchor, -16))
+        newDMFabButton.setHeightConstraint(with: 50)
+        setupNewFabButton()
     }
-
+    open func setupNewFabButton() {
+        newDMFabButton.sizeToFit()
+        newDMFabButton.setInsets(
+            forContentPadding: UIEdgeInsets(
+                top: 8, left: 16, bottom: 8, right: 16), imageTitlePadding: 8)
+        newDMFabButton.layer.cornerRadius = 25
+        newDMFabButton.addTarget(
+            self, action: #selector(newFabButtonClicked), for: .touchUpInside)
+        newDMFabButton.isHidden = true
+    }
+    @objc open func newFabButtonClicked() {
+        debugPrint("PORT CLICKED")
+        LMChatCore.shared.coreCallback?.onEventTriggered(eventName: .chatRoomOpened, eventProperties: ["Data": "Portfolio Clicked"])
+    }
+    open func showDMFabButton(showFab: Bool) {
+        newDMFabButton.isHidden = !showFab
+    }
+    open func newDMButtonExapndAndCollapes(_ offsetY: CGFloat) {
+        if offsetY > self.lastKnowScrollViewContentOfsset {
+            self.view.layoutIfNeeded()
+            UIView.animate(withDuration: 0.2) { [weak self] in
+                guard let weakSelf = self else { return }
+                weakSelf.newDMFabButton.setTitle(nil, for: .normal)
+                weakSelf.newDMFabButton.setInsets(
+                    forContentPadding: UIEdgeInsets(
+                        top: 8, left: 8, bottom: 8, right: 8),
+                    imageTitlePadding: 0)
+                self?.fabButtonWidthConstraints?.isActive = false
+                self?.fabButtonWidthConstraints = self?.newDMFabButton
+                    .widthAnchor.constraint(equalToConstant: 50.0)
+                self?.fabButtonWidthConstraints?.isActive = true
+                weakSelf.view.layoutIfNeeded()
+            }
+        } else {
+            self.view.layoutIfNeeded()
+            UIView.animate(withDuration: 0.2) { [weak self] in
+                guard let weakSelf = self else { return }
+                weakSelf.newDMFabButton.setTitle(
+                    weakSelf.fabButtonTitle, for: .normal)
+                weakSelf.newDMFabButton.setInsets(
+                    forContentPadding: UIEdgeInsets(
+                        top: 8, left: 16, bottom: 8, right: 16),
+                    imageTitlePadding: 10)
+                self?.fabButtonWidthConstraints?.isActive = false
+//                self?.fabButtonWidthConstraints = self?.newDMFabButton
+//                    .widthAnchor.constraint(equalToConstant: 120.0)
+//                self?.fabButtonWidthConstraints?.isActive = true
+                self?.newDMFabButton.sizeToFit()
+                weakSelf.view.layoutIfNeeded()
+            }
+        }
+    }
     func setupRightItemBars() {
         let profileItem = UIBarButtonItem(customView: profileIcon)
         let searchItem = UIBarButtonItem(
@@ -118,6 +186,10 @@ open class LMChatGroupFeedViewController: LMViewController {
 }
 
 extension LMChatGroupFeedViewController: LMChatGroupFeedViewModelProtocol {
+    public func checkDMStatus(showDM: Bool) {
+        showDMFabButton(showFab: showDM)
+    }
+    
 
     public func updateHomeFeedChatroomsData() {
         let chatrooms = (viewModel?.chatrooms ?? []).compactMap({ chatroom in
@@ -185,6 +257,10 @@ extension LMChatGroupFeedViewController: LMChatGroupFeedViewModelProtocol {
 }
 
 extension LMChatGroupFeedViewController: LMHomFeedListViewDelegate {
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        newDMButtonExapndAndCollapes(offsetY)
+    }
     public func didTapOnCell(indexPath: IndexPath) {
         switch feedListView.tableSections[indexPath.section].sectionType {
         case .exploreTab:
