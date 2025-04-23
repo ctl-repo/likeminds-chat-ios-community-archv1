@@ -48,7 +48,7 @@ class AIChatBotViewController: LMViewController {
     func moveToNextScreen() {
         self.showHideLoaderView(isShow: false, backgroundColor: .clear)
         
-        let aiChatBotVC = LMAIChatBotViewController()
+        let aiChatBotVC = AIChatBotInitiationViewController()
         
         let navigation = UINavigationController(rootViewController: aiChatBotVC)
         navigation.modalPresentationStyle = .overFullScreen
@@ -74,11 +74,11 @@ class AIChatBotViewController: LMViewController {
             return
         }
 
-        let userDefalut = UserDefaults.standard
-        userDefalut.setValue(apiKey, forKey: "apiKey")
-        userDefalut.setValue(userId, forKey: "userId")
-        userDefalut.setValue(username, forKey: "username")
-        userDefalut.synchronize()
+        let userDefaluts = UserDefaults.standard
+        userDefaluts.setValue(apiKey, forKey: "apiKey")
+        userDefaluts.setValue(userId, forKey: "userId")
+        userDefaluts.setValue(username, forKey: "username")
+        userDefaluts.synchronize()
         callInitiateApi(userId: userId, username: username, apiKey: apiKey)
     }
 

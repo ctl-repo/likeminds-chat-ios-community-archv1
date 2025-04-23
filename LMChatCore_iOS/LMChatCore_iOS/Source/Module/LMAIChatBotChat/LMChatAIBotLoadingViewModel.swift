@@ -23,7 +23,7 @@ public protocol LMAIChatBotChatViewModelProtocol: AnyObject {
 /// `LMAIChatBotChatViewModel` serves as the data and business logic layer
 /// for `LMAIChatBotViewController`. It handles chatbot initialization and
 /// chatroom creation/access.
-public class LMChatAIBotInitiationViewModel: LMChatBaseViewModel {
+public class LMChatAIBotLoadingViewModel: LMChatBaseViewModel {
     
     // MARK: - Properties
     
@@ -53,7 +53,7 @@ public class LMChatAIBotInitiationViewModel: LMChatBaseViewModel {
         }
         
         
-        if let existingChatroomId = LMSharedPreferences.getString(forKey: Constants.shared.strings.aiChatBotRoomKey) {
+        if let existingChatroomId = LMSharedPreferences.getString(forKey: LMSharedPreferencesKeys.aiChatBotRoomKey) {
             // If we have an existing chatroom ID, navigate directly to the chat screen
             return try LMChatMessageListViewModel.createModule(
                 withChatroomId: existingChatroomId,
@@ -62,7 +62,7 @@ public class LMChatAIBotInitiationViewModel: LMChatBaseViewModel {
         } else {
             // If no existing chatroom, show the initiation screen
             let viewController = LMCoreComponents.shared.aiChatBotIntiationScreen.init()
-            viewController.viewModel = LMChatAIBotInitiationViewModel(viewController)
+            viewController.viewModel = LMChatAIBotLoadingViewModel(viewController)
             return viewController
         }
         
@@ -155,7 +155,7 @@ public class LMChatAIBotInitiationViewModel: LMChatBaseViewModel {
     private func saveAndNavigateToChatroom(_ chatroomId: String) {
         
         // Save chatroom ID to local prefs
-        LMSharedPreferences.setString(chatroomId, forKey: Constants.shared.strings.aiChatBotRoomKey)
+        LMSharedPreferences.setString(chatroomId, forKey: LMSharedPreferencesKeys.aiChatBotRoomKey)
         
         // Notify completion with chatroom ID
         delegate?.didCompleteInitialization(chatroomId: chatroomId)

@@ -11,10 +11,10 @@ import UIKit
 import LikeMindsChatCore
 import LikeMindsChatUI
 
-class LMAIChatBotViewController: LMViewController {
+class AIChatBotInitiationViewController: LMViewController {
     
     
-    var viewModel: LMChatAIBotInitiationViewModel?
+    var viewModel: LMChatAIBotLoadingViewModel?
     // MARK: - UI Components
     private lazy var notificationButton: UIButton = {
         let button = UIButton(type: .system)
@@ -164,7 +164,7 @@ class LMAIChatBotViewController: LMViewController {
             case .success:
                 do {
                     
-                    let vc = try LMChatAIBotInitiationViewModel.createModule()
+                    let vc = try LMChatAIBotLoadingViewModel.createModule()
                     
                     // If it's a chat screen (LMChatMessageListViewController), push it
                     if vc is LMChatMessageListViewController {
@@ -191,7 +191,7 @@ class LMAIChatBotViewController: LMViewController {
 
 
 // MARK: - UICollectionViewDataSource
-extension LMAIChatBotViewController: UICollectionViewDataSource {
+extension AIChatBotInitiationViewController: UICollectionViewDataSource {
     open func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 4 // Show exactly 4 placeholder cards
     }
@@ -204,7 +204,7 @@ extension LMAIChatBotViewController: UICollectionViewDataSource {
 
 
 // MARK: - UICollectionViewDelegateFlowLayout
-extension LMAIChatBotViewController: UICollectionViewDelegateFlowLayout {
+extension AIChatBotInitiationViewController: UICollectionViewDelegateFlowLayout {
     open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = (collectionView.bounds.width - 16) / 2
         return CGSize(width: width, height: width)
@@ -212,7 +212,7 @@ extension LMAIChatBotViewController: UICollectionViewDelegateFlowLayout {
 }
 
 // MARK: - LMChatAIButtonDelegate
-extension LMAIChatBotViewController: LMChatAIButtonDelegate {
+extension AIChatBotInitiationViewController: LMChatAIButtonDelegate {
     public func didTapAIButton(_ button: LMChatAIButton,props: LMChatAIButtonProps) {
         guard let props = button.props,
               let apiKey = props.apiKey,

@@ -29,3 +29,7 @@ Pods
 LMChatMMFramework
 ProdLMChatMMFramework
 BetaLMChatMMFramework
+ai-chat/ai-chat/GoogleService-Info.plist
+community-chat/community-chat/GoogleService-Info.plist
+community-hybrid-chat/community-hybrid-chat/GoogleService-Info.plist
+networking-chat/networking-chat/GoogleService-Info.plist

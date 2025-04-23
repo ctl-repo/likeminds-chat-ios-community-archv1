@@ -53,5 +53,5 @@ public struct LMCoreComponents {
     
     //MARK : AI CHAT BOT
 
-    public var aiChatBotIntiationScreen : LMChatAIBotInitiationViewController.Type = LMChatAIBotInitiationViewController.self
+    public var aiChatBotIntiationScreen : LMChatAIBotLoadingViewController.Type = LMChatAIBotLoadingViewController.self
 }

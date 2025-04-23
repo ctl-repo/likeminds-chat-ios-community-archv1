@@ -385,7 +385,7 @@ public class LMChatCore {
                     .failure(.logoutFailed(error: response.errorMessage)))
             }
         }
-        LMSharedPreferences.removeValue(forKey: Constants.shared.strings.aiChatBotRoomKey)
+        LMSharedPreferences.removeValue(forKey: LMSharedPreferencesKeys.aiChatBotRoomKey)
         
         
     }

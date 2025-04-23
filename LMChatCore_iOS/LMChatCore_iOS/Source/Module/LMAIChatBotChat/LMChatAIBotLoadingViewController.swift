@@ -10,11 +10,11 @@ import UIKit
 import Lottie
 import LikeMindsChatUI
 
-open class LMChatAIBotInitiationViewController: LMViewController, LMAIChatBotChatViewModelProtocol {
+open class LMChatAIBotLoadingViewController: LMViewController, LMAIChatBotChatViewModelProtocol {
     
     
     // MARK: - Data Properties
-    var viewModel: LMChatAIBotInitiationViewModel?
+    var viewModel: LMChatAIBotLoadingViewModel?
     
     // MARK: - UI Components
     private lazy var containerView: LMView = {
