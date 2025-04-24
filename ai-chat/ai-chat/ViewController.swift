@@ -48,7 +48,7 @@ class AIChatBotViewController: LMViewController {
     func moveToNextScreen() {
         self.showHideLoaderView(isShow: false, backgroundColor: .clear)
         
-        let aiChatBotVC = AIChatBotInitiationViewController()
+        let aiChatBotVC = AIChatBotChatViewController()
         
         let navigation = UINavigationController(rootViewController: aiChatBotVC)
         navigation.modalPresentationStyle = .overFullScreen

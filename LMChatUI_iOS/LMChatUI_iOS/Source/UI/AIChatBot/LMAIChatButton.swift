@@ -64,7 +64,7 @@ open class LMChatAIButton: LMButton {
     private let defaultSpacing: CGFloat = 8
     
     // MARK: - Initialization
-    public override init(frame: CGRect) {
+    public required override init(frame: CGRect) {
         super.init(frame: frame)
         setupDefaultAppearance()
     }

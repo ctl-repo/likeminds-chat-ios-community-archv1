@@ -10,28 +10,28 @@ import UIKit
 import Lottie
 import LikeMindsChatUI
 
-open class LMChatAIBotLoadingViewController: LMViewController, LMAIChatBotChatViewModelProtocol {
+open class LMChatAIBotInitiaitionViewController: LMViewController, LMAIChatBotChatViewModelProtocol {
     
     
     // MARK: - Data Properties
-    var viewModel: LMChatAIBotLoadingViewModel?
+    var viewModel: LMChatAIBotInitiaitionViewModel?
     
     // MARK: - UI Components
-    private lazy var containerView: LMView = {
+    open lazy var containerView: LMView = {
         let view = LMView()
         view.backgroundColor = Appearance.shared.colors.white
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    private lazy var animationContainerView: LMView = {
+    open lazy var animationContainerView: LMView = {
         let view = LMView()
         view.backgroundColor = .clear
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    private lazy var previewLabel: LMLabel = {
+    open lazy var previewLabel: LMLabel = {
         let label = LMLabel()
         label.text = Constants.shared.strings.aiSetupText
         label.textAlignment = .center
@@ -41,7 +41,7 @@ open class LMChatAIBotLoadingViewController: LMViewController, LMAIChatBotChatVi
         return label
     }()
     
-    private var animationView: LottieAnimationView?
+    open var animationView: LottieAnimationView?
     
     // MARK: - Initialization
     required public init() {
@@ -51,7 +51,7 @@ open class LMChatAIBotLoadingViewController: LMViewController, LMAIChatBotChatVi
     
     required public init?(coder: NSCoder) {
         super.init(coder: coder)
-        }
+    }
     
     
     // MARK: - View Lifecycle
@@ -98,7 +98,7 @@ open class LMChatAIBotLoadingViewController: LMViewController, LMAIChatBotChatVi
     
     // MARK: - Private Methods
     
-    private func stopAnimation() {
+    open func stopAnimation() {
         animationView?.stop()
     }
     
@@ -133,27 +133,22 @@ open class LMChatAIBotLoadingViewController: LMViewController, LMAIChatBotChatVi
         ])
     }
     
-    private func setupAnimation() {
-        
-        
-        // Try loading from framework bundle
+    open func setupAnimation() {
         let frameworkBundle = Bundle(for: type(of: self))
         if let animation = LottieAnimation.named(Constants.shared.strings.aiSetupAnimationName, bundle: frameworkBundle) {
             setupAnimationView(with: animation)
             return
         }
-        // Try loading from file path
+        
         if let path = frameworkBundle.path(forResource: Constants.shared.strings.aiSetupAnimationName, ofType: "json") {
             let animation = LottieAnimation.filepath(path)
-            guard let animation = animation else {
-                return
-            }
+            guard let animation = animation else { return }
             setupAnimationView(with: animation)
             return
         }
     }
     
-    private func setupAnimationView(with animation: LottieAnimation) {
+    open func setupAnimationView(with animation: LottieAnimation) {
         animationView = LottieAnimationView(animation: animation)
         
         guard let animationView = animationView else { return }
@@ -173,7 +168,7 @@ open class LMChatAIBotLoadingViewController: LMViewController, LMAIChatBotChatVi
         ])
     }
     
-    private func startAnimation() {
+    open func startAnimation() {
         animationView?.play()
     }
 }

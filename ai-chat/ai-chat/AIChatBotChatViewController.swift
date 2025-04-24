@@ -11,10 +11,10 @@ import UIKit
 import LikeMindsChatCore
 import LikeMindsChatUI
 
-class AIChatBotInitiationViewController: LMViewController {
+class AIChatBotChatViewController: LMViewController {
     
     
-    var viewModel: LMChatAIBotLoadingViewModel?
+    var viewModel: LMChatAIBotInitiaitionViewModel?
     // MARK: - UI Components
     private lazy var notificationButton: UIButton = {
         let button = UIButton(type: .system)
@@ -41,10 +41,9 @@ class AIChatBotInitiationViewController: LMViewController {
     }()
     
     private lazy var aiChatButton: LMChatAIButton = {
-        let button = LMChatAIButton(frame: .zero)
+        let button = LMUIComponents.shared.lmChatAIButton.init(frame: .zero)
         button.delegate = self
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.clipsToBounds = true
         return button
     }()
     
@@ -164,7 +163,7 @@ class AIChatBotInitiationViewController: LMViewController {
             case .success:
                 do {
                     
-                    let vc = try LMChatAIBotLoadingViewModel.createModule()
+                    let vc = try LMChatAIBotInitiaitionViewModel.createModule()
                     
                     // If it's a chat screen (LMChatMessageListViewController), push it
                     if vc is LMChatMessageListViewController {
@@ -191,7 +190,7 @@ class AIChatBotInitiationViewController: LMViewController {
 
 
 // MARK: - UICollectionViewDataSource
-extension AIChatBotInitiationViewController: UICollectionViewDataSource {
+extension AIChatBotChatViewController: UICollectionViewDataSource {
     open func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 4 // Show exactly 4 placeholder cards
     }
@@ -204,7 +203,7 @@ extension AIChatBotInitiationViewController: UICollectionViewDataSource {
 
 
 // MARK: - UICollectionViewDelegateFlowLayout
-extension AIChatBotInitiationViewController: UICollectionViewDelegateFlowLayout {
+extension AIChatBotChatViewController: UICollectionViewDelegateFlowLayout {
     open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = (collectionView.bounds.width - 16) / 2
         return CGSize(width: width, height: width)
@@ -212,7 +211,7 @@ extension AIChatBotInitiationViewController: UICollectionViewDelegateFlowLayout 
 }
 
 // MARK: - LMChatAIButtonDelegate
-extension AIChatBotInitiationViewController: LMChatAIButtonDelegate {
+extension AIChatBotChatViewController: LMChatAIButtonDelegate {
     public func didTapAIButton(_ button: LMChatAIButton,props: LMChatAIButtonProps) {
         guard let props = button.props,
               let apiKey = props.apiKey,

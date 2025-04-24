@@ -23,7 +23,7 @@ public protocol LMAIChatBotChatViewModelProtocol: AnyObject {
 /// `LMAIChatBotChatViewModel` serves as the data and business logic layer
 /// for `LMAIChatBotViewController`. It handles chatbot initialization and
 /// chatroom creation/access.
-public class LMChatAIBotLoadingViewModel: LMChatBaseViewModel {
+public class LMChatAIBotInitiaitionViewModel: LMChatBaseViewModel {
     
     // MARK: - Properties
     
@@ -62,7 +62,7 @@ public class LMChatAIBotLoadingViewModel: LMChatBaseViewModel {
         } else {
             // If no existing chatroom, show the initiation screen
             let viewController = LMCoreComponents.shared.aiChatBotIntiationScreen.init()
-            viewController.viewModel = LMChatAIBotLoadingViewModel(viewController)
+            viewController.viewModel = LMChatAIBotInitiaitionViewModel(viewController)
             return viewController
         }
         
