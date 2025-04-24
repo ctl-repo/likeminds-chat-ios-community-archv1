@@ -110,7 +110,7 @@ open class LMChatGroupFeedViewController: LMViewController {
     }
     @objc open func newFabButtonClicked() {
         debugPrint("PORT CLICKED")
-        LMChatCore.shared.coreCallback?.onEventTriggered(eventName: .chatRoomOpened, eventProperties: ["Data": "Portfolio Clicked"])
+        LMChatCore.shared.coreCallback?.onEventTriggered(eventName: .portfolioReview, eventProperties: ["Data": "Portfolio Clicked"])
     }
     open func showDMFabButton(showFab: Bool) {
         newDMFabButton.isHidden = !showFab

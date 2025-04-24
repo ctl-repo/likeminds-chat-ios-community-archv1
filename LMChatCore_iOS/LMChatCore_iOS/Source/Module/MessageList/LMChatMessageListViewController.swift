@@ -1439,7 +1439,7 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
 
 extension LMChatMessageListViewController: LMChatBottomMessageComposerDelegate {
     public func composeStockShare() {
-        LMChatCore.shared.coreCallback?.onEventTriggered(eventName: .thirdPartySharing, eventProperties: ["Share Stock": "New"])
+        LMChatCore.shared.coreCallback?.onEventTriggered(eventName: .stockShare, eventProperties: ["Share Stock": "New"])
     }
     
     /// Determines if the other user in the chatroom is an AI chatbot.

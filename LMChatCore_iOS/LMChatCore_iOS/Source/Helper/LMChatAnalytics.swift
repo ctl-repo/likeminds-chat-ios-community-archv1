@@ -155,6 +155,8 @@ public enum LMChatAnalyticsEventName: String {
     case buyStock = "Buy_Stock"
     case sellStock = "Sell_Stock"
     case defaultValue = "Default_Value"
+    case portfolioReview = "Portfolio_Review"
+    case stockShare = "Stock_Share"
 
 }
 
