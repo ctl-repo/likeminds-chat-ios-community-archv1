@@ -176,7 +176,7 @@ open class LMChatMessageContentView: LMView {
         view.axis = .horizontal
         view.distribution = .fill
         view.alignment = .trailing
-        view.spacing = 4
+        view.spacing = 8
         view.addArrangedSubview(emptyView)
         view.addArrangedSubview(companyInfoButton)
         view.addArrangedSubview(buyButton)
