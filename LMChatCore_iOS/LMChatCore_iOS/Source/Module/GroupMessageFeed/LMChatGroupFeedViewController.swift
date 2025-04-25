@@ -29,7 +29,7 @@ open class LMChatGroupFeedViewController: LMViewController {
         image.cornerRadius(with: 18)
         return image
     }()
-    open var fabButtonTitle = "PORTFOLIO REVIEW"
+    open var fabButtonTitle = "CHAT WITH EXPERTS"
     open private(set) lazy var newDMFabButton: LMButton = {
         let button = LMButton().translatesAutoresizingMaskIntoConstraints()
         button.setImage(Constants.shared.images.chartIcon, for: .normal)
@@ -110,7 +110,7 @@ open class LMChatGroupFeedViewController: LMViewController {
     }
     @objc open func newFabButtonClicked() {
         debugPrint("PORT CLICKED")
-        LMChatCore.shared.coreCallback?.onEventTriggered(eventName: .portfolioReview, eventProperties: ["Data": "Portfolio Clicked"])
+        LMChatCore.shared.coreCallback?.onEventTriggered(eventName: .chatWithExperts, eventProperties: ["Data": "Chat With Experts"])
     }
     open func showDMFabButton(showFab: Bool) {
         newDMFabButton.isHidden = !showFab
@@ -187,7 +187,7 @@ open class LMChatGroupFeedViewController: LMViewController {
 
 extension LMChatGroupFeedViewController: LMChatGroupFeedViewModelProtocol {
     public func checkDMStatus(showDM: Bool) {
-        showDMFabButton(showFab: false)
+        showDMFabButton(showFab: showDM)
     }
     
 
