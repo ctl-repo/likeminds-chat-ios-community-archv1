@@ -187,7 +187,7 @@ open class LMChatGroupFeedViewController: LMViewController {
 
 extension LMChatGroupFeedViewController: LMChatGroupFeedViewModelProtocol {
     public func checkDMStatus(showDM: Bool) {
-        showDMFabButton(showFab: showDM)
+        showDMFabButton(showFab: false)
     }
     
 
