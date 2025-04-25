@@ -304,6 +304,7 @@ open class LMChatBottomMessageComposerView: LMView {
         addOnVerticleStackView.addArrangedSubview(linkPreviewView)
         addOnVerticleStackView.addArrangedSubview(replyMessageViewContainer)
         horizontalStackView.addArrangedSubview(stockShareButton)
+        stockShareButton.isHidden = true
         audioContainerView.addSubview(micFlickerButton)
         audioContainerView.addSubview(recordDuration)
         audioContainerView.addSubview(audioStack)

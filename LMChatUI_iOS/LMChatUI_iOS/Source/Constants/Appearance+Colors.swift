@@ -46,5 +46,9 @@ public extension Appearance {
         public var linkColor: UIColor = .link
         public var hashtagColor: UIColor = .blue
         public var systemYellow: UIColor = .systemYellow
+        public var buyButtonColor: UIColor = UIColor(hex: 0xC9DDFC)
+        public var buyButtonTextColor: UIColor = UIColor(hex: 0x2777F3)
+        public var sellButtonColor: UIColor = UIColor(hex: 0xEE9A95)
+        public var sellButtonTextColor: UIColor = UIColor(hex: 0xDE493B)
     }
 }

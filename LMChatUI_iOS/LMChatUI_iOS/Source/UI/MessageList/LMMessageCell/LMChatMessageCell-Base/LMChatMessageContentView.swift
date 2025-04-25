@@ -121,11 +121,12 @@ open class LMChatMessageContentView: LMView {
         let button = LMButton().translatesAutoresizingMaskIntoConstraints()
         button.setTitle(companyInfoButtonTitle, for: .normal)
         button.titleLabel?.font = Appearance.shared.fonts.buttonFont3
-        button.tintColor = .black
+        button.tintColor = Appearance.shared.colors.blueGray
 //        button.sizeToFit()
         button.setInsets(forContentPadding: UIEdgeInsets(
             top: 8, left: 16, bottom: 8, right: 16), imageTitlePadding: 0)
-        button.backgroundColor = Appearance.shared.colors.gray1
+        button.backgroundColor = Appearance.shared.colors.gray155
+        button.setTitleColor(Appearance.shared.colors.black, for: .normal)
         button.cornerRadius(with: 8)
         button.setHeightConstraint(with: 40)
         button.setWidthConstraint(with: 116)
@@ -141,7 +142,8 @@ open class LMChatMessageContentView: LMView {
 //        button.sizeToFit()
         button.setInsets(forContentPadding: UIEdgeInsets(
             top: 8, left: 16, bottom: 8, right: 16), imageTitlePadding: 0)
-        button.backgroundColor = Appearance.shared.colors.gray1
+        button.backgroundColor = Appearance.shared.colors.buyButtonColor
+        button.setTitleColor(Appearance.shared.colors.buyButtonTextColor, for: .normal)
         button.cornerRadius(with: 8)
         button.setHeightConstraint(with: 40)
         button.setWidthConstraint(with: 56)
@@ -157,7 +159,8 @@ open class LMChatMessageContentView: LMView {
 //        button.sizeToFit()
         button.setInsets(forContentPadding: UIEdgeInsets(
             top: 8, left: 16, bottom: 8, right: 16), imageTitlePadding: 0)
-        button.backgroundColor = Appearance.shared.colors.gray1
+        button.backgroundColor = Appearance.shared.colors.sellButtonColor
+        button.setTitleColor(Appearance.shared.colors.sellButtonTextColor, for: .normal)
         button.setHeightConstraint(with: 40)
         button.setWidthConstraint(with: 56)
         button.cornerRadius(with: 8)
