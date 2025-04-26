@@ -10,9 +10,10 @@ target 'community-chat' do
   use_frameworks!
 
   # Pods for community-chat
- pod 'LikeMindsChatData', path: '../../likeminds-chat-ios-data/LikeMindsChatData.podspec'
- pod 'LikeMindsChatUI', path: '../LikeMindsChatUI.podspec'
- pod 'LikeMindsChatCore', path: '../LikeMindsChatCore.podspec'
+  pod 'LikeMindsChatData', path: '../../likeminds-chat-ios-data/LikeMindsChatData.podspec'
+  pod 'LikeMindsChatUI', path: '../LikeMindsChatUI.podspec'
+  pod 'LikeMindsChatCore', path: '../LikeMindsChatCore.podspec'
+#  pod 'LikeMindsChatCore', path: '../LikeMindsChatCore.podspec'
  
 end
 

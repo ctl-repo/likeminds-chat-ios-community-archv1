@@ -7,14 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4ADC0D7AEFB2723C3AC994F9 /* Pods_networking_chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBBC12538FAA591108623E7 /* Pods_networking_chat.framework */; };
+		99F9E9AFC0F3D427B5F1A241 /* Pods_networking_chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A698A2604F06B8D474CCD6F /* Pods_networking_chat.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		47427177DCE106535CA150C2 /* Pods-networking-chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-networking-chat.release.xcconfig"; path = "Target Support Files/Pods-networking-chat/Pods-networking-chat.release.xcconfig"; sourceTree = "<group>"; };
+		152F36FAA2F946A242E37272 /* Pods-networking-chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-networking-chat.release.xcconfig"; path = "Target Support Files/Pods-networking-chat/Pods-networking-chat.release.xcconfig"; sourceTree = "<group>"; };
+		4A698A2604F06B8D474CCD6F /* Pods_networking_chat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_networking_chat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9104FEE92DA002F300B2A337 /* networking-chat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "networking-chat.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		ABBBC12538FAA591108623E7 /* Pods_networking_chat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_networking_chat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		B162168E88F156E042188A9E /* Pods-networking-chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-networking-chat.debug.xcconfig"; path = "Target Support Files/Pods-networking-chat/Pods-networking-chat.debug.xcconfig"; sourceTree = "<group>"; };
+		B063FA76A9BEB5D7B7CA6BAB /* Pods-networking-chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-networking-chat.debug.xcconfig"; path = "Target Support Files/Pods-networking-chat/Pods-networking-chat.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -43,7 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4ADC0D7AEFB2723C3AC994F9 /* Pods_networking_chat.framework in Frameworks */,
+				99F9E9AFC0F3D427B5F1A241 /* Pods_networking_chat.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,18 +53,10 @@
 		15AFAFBE88B06539A512B1A3 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				B162168E88F156E042188A9E /* Pods-networking-chat.debug.xcconfig */,
-				47427177DCE106535CA150C2 /* Pods-networking-chat.release.xcconfig */,
+				B063FA76A9BEB5D7B7CA6BAB /* Pods-networking-chat.debug.xcconfig */,
+				152F36FAA2F946A242E37272 /* Pods-networking-chat.release.xcconfig */,
 			);
 			path = Pods;
-			sourceTree = "<group>";
-		};
-		865BB445E70ECF0D74F76092 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				ABBBC12538FAA591108623E7 /* Pods_networking_chat.framework */,
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		9104FEE02DA002F300B2A337 = {
@@ -73,7 +65,7 @@
 				9104FEEB2DA002F300B2A337 /* networking-chat */,
 				9104FEEA2DA002F300B2A337 /* Products */,
 				15AFAFBE88B06539A512B1A3 /* Pods */,
-				865BB445E70ECF0D74F76092 /* Frameworks */,
+				AFC227D3100049E480D85545 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -85,6 +77,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		AFC227D3100049E480D85545 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4A698A2604F06B8D474CCD6F /* Pods_networking_chat.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -92,11 +92,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9104FEFC2DA002F600B2A337 /* Build configuration list for PBXNativeTarget "networking-chat" */;
 			buildPhases = (
-				6233AAB347C70AC741EDA044 /* [CP] Check Pods Manifest.lock */,
+				B345E7C81A49627469FB792A /* [CP] Check Pods Manifest.lock */,
 				9104FEE52DA002F300B2A337 /* Sources */,
 				9104FEE62DA002F300B2A337 /* Frameworks */,
 				9104FEE72DA002F300B2A337 /* Resources */,
-				8892A0CA66BB31E9ECADA483 /* [CP] Embed Pods Frameworks */,
+				4458854CC320CD9D387B0A8F /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -155,7 +155,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		6233AAB347C70AC741EDA044 /* [CP] Check Pods Manifest.lock */ = {
+		4458854CC320CD9D387B0A8F /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-networking-chat/Pods-networking-chat-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-networking-chat/Pods-networking-chat-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-networking-chat/Pods-networking-chat-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B345E7C81A49627469FB792A /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -177,23 +194,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		8892A0CA66BB31E9ECADA483 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-networking-chat/Pods-networking-chat-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-networking-chat/Pods-networking-chat-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-networking-chat/Pods-networking-chat-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -209,7 +209,7 @@
 /* Begin XCBuildConfiguration section */
 		9104FEFD2DA002F600B2A337 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B162168E88F156E042188A9E /* Pods-networking-chat.debug.xcconfig */;
+			baseConfigurationReference = B063FA76A9BEB5D7B7CA6BAB /* Pods-networking-chat.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -240,7 +240,7 @@
 		};
 		9104FEFE2DA002F600B2A337 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 47427177DCE106535CA150C2 /* Pods-networking-chat.release.xcconfig */;
+			baseConfigurationReference = 152F36FAA2F946A242E37272 /* Pods-networking-chat.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
