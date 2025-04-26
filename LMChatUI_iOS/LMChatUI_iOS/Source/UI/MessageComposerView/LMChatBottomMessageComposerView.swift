@@ -421,17 +421,7 @@ open class LMChatBottomMessageComposerView: LMView {
     }
     
     @objc func sendMessageButtonClicked(_ sender: UIButton) {
-        // For AI chatbots, always send message regardless of button tag
-        if delegate?.isOtherUserAIChatbotInChatroom() ?? false {
-            let message = inputTextView.getText()
-            guard !message.isEmpty, message != inputTextView.placeHolderText else {
-                return
-            }
-            delegate?.composeMessage(message: message, composeLink: detectedFirstLink)
-            return
-        }
-        
-        // Original logic for non-AI chats
+       
         if sender.tag == audioButtonTag {
             audioButtonClicked(sender)
             return
