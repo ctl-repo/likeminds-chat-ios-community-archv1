@@ -41,9 +41,10 @@ class AIChatBotChatViewController: LMViewController {
     }()
     
     private lazy var aiChatButton: LMChatAIButton = {
-        let button = LMUIComponents.shared.lmChatAIButton.init(frame: .zero)
+        let button = LMUIComponents.shared.lmChatAIButton.createButton()
         button.delegate = self
         button.translatesAutoresizingMaskIntoConstraints = false
+    
         return button
     }()
     
@@ -141,11 +142,8 @@ class AIChatBotChatViewController: LMViewController {
             uuid: userId,
             userName: username
         )
-        aiChatButton.props = props
-        
-        // Additional styling for capsule shape
-        aiChatButton.layer.cornerRadius = 20 // Half of the height (40/2)
-        aiChatButton.clipsToBounds = true
+        aiChatButton.setProps(props)
+
     }
     
     private func startAIChatBot(apiKey: String, username: String, userId: String) {

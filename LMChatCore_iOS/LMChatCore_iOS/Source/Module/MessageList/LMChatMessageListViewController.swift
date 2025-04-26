@@ -2093,38 +2093,65 @@ extension LMChatMessageListViewController: LMChatMessageCellDelegate,
             indexPath.row]
         didRetryUploading(message: item)
     }
-
+    
     public func didTappedOnSelectionButton(indexPath: IndexPath?) {
         guard let indexPath else { return }
-        let item = messageListView.tableSections[indexPath.section].data[
-            indexPath.row]
-        let itemIndex = messageListView.selectedItems.firstIndex(where: {
-            $0.id == item.id
-        })
-        if let itemIndex {
+        let item = messageListView.tableSections[indexPath.section].data[indexPath.row]
+        
+        // Toggle selection
+        if let itemIndex = messageListView.selectedItems.firstIndex(where: { $0.id == item.id }) {
             messageListView.selectedItems.remove(at: itemIndex)
         } else {
             messageListView.selectedItems.append(item)
         }
+        
+        // Update UI based on selection
         if messageListView.selectedItems.isEmpty {
             cancelSelectedMessageAction()
             return
         }
+        
+        // Configure bar buttons
         deleteMessageBarItem.isEnabled = false
-        copySelectedMessagesBarItem.isEnabled = messageListView.selectedItems
-            .contains(where: { !$0.answer.isEmpty })
-        if viewModel?.chatroomViewData?.isSecret == true
-            && viewModel?.chatroomViewData?.followStatus == false
-        {
+        copySelectedMessagesBarItem.isEnabled = shouldEnableCopyButton()
+        
+        // Additional permission checks
+        if viewModel?.chatroomViewData?.isSecret == true &&
+           viewModel?.chatroomViewData?.followStatus == false {
             return
         }
+        
         if viewModel?.memberState?.state != 1 {
-            deleteMessageBarItem.isEnabled = !messageListView.selectedItems
-                .contains(where: { $0.isIncoming == true })
+            deleteMessageBarItem.isEnabled = !messageListView.selectedItems.contains { $0.isIncoming == true }
         } else {
             deleteMessageBarItem.isEnabled = true
         }
+    }
 
+    private func shouldEnableCopyButton() -> Bool {
+        // Only enable if ALL selected items are copyable (text-only or links)
+        return !messageListView.selectedItems.contains { message in
+            // If message has non-text attachments, it's not copyable
+            if hasNonTextAttachments(message) {
+                return true
+            }
+            
+            // If message is empty (no text and no attachments), it's not copyable
+            if message.answer.isEmpty && (message.attachments?.isEmpty ?? true) {
+                return true
+            }
+            
+            return false
+        }
+    }
+    private func hasNonTextAttachments(_ message: ConversationViewData) -> Bool {
+        // Check if message has any non-text attachments
+        guard let attachments = message.attachments else { return false }
+        
+        return attachments.contains { attachment in
+            let type = attachment.type?.rawValue.lowercased() ?? ""
+            return !type.isEmpty && type != "link" && type != "og_tags"
+        }
     }
 
     public func onClickReplyOfMessage(indexPath: IndexPath?) {

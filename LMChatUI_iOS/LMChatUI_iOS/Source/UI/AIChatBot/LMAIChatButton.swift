@@ -1,5 +1,5 @@
 //
-//  LMAIChatButton.swift
+//  LMChatAIButton.swift
 //  LikeMindsChatCore
 //
 //  Created by Arpit Verma on 11/04/25.
@@ -8,7 +8,13 @@
 import UIKit
 import LikeMindsChatUI
 
-// Props class for LMChatAIButton
+// MARK: - Supporting Types
+public enum LMChatAIButtonIconPlacement {
+    case start
+    case end
+}
+
+// MARK: - Props Configuration
 public class LMChatAIButtonProps {
     public var apiKey: String?
     public var uuid: String?
@@ -37,36 +43,22 @@ public class LMChatAIButtonProps {
     }
 }
 
-// Supporting Types
-public enum LMIconPlacement {
-    case start
-    case end
-}
-
-// Delegate Protocol
+// MARK: - Delegate Protocol
 public protocol LMChatAIButtonDelegate: AnyObject {
     func didTapAIButton(_ button: LMChatAIButton, props: LMChatAIButtonProps)
 }
 
+// MARK: - Button Implementation
 @IBDesignable
 open class LMChatAIButton: LMButton {
-    // MARK: - Properties
+    // MARK: Properties
     public weak var delegate: LMChatAIButtonDelegate?
-    public var props: LMChatAIButtonProps?
+    public private(set) var props: LMChatAIButtonProps?
     
-    // Default values
-    private let defaultText = Constants.shared.strings.aiChatBotButtonText
-    private let defaultTextSize: CGFloat = 14
-    private let defaultTextColor = Appearance.shared.colors.white
-    private let defaultBackgroundColor = Appearance.shared.colors.aiChatBotButtonColor
-    private let defaultBorderRadius: CGFloat = 28
-    private let defaultIcon = Constants.shared.images.aiChatBotButton
-    private let defaultSpacing: CGFloat = 8
-    
-    // MARK: - Initialization
-    public required override init(frame: CGRect) {
+    // MARK: Initialization
+    public override init(frame: CGRect) {
         super.init(frame: frame)
-        setupDefaultAppearance()
+        setupButton()
     }
     
     @available(*, unavailable, renamed: "init(frame:)")
@@ -74,65 +66,73 @@ open class LMChatAIButton: LMButton {
         fatalError("\(#function) not implemented in \(#filePath)")
     }
     
-    // MARK: - Setup
-    private func setupDefaultAppearance() {
-        setTitle(defaultText, for: .normal)
-        setFont(.systemFont(ofSize: defaultTextSize))
-        setTitleColor(defaultTextColor, for: .normal)
-        backgroundColor = defaultBackgroundColor
-        layer.cornerRadius = defaultBorderRadius
-        
-        // Set default icon with proper spacing
-        
-        if let icon = defaultIcon {
-            let resizedIcon = resizeImage(icon, targetSize: CGSize(width: 20, height: 20))
-            setImage(resizedIcon, for: .normal)
-        }
-       
-            
-        configureIconPlacement(.start, spacing: defaultSpacing)
-        
-        // Add target for tap
+    // MARK: Setup
+    private func setupButton() {
+        // Add tap action
         addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
     }
-    private func resizeImage(_ image: UIImage, targetSize: CGSize) -> UIImage {
-        let renderer = UIGraphicsImageRenderer(size: targetSize)
-        return renderer.image { _ in
-            image.draw(in: CGRect(origin: .zero, size: targetSize))
-        }
-    }
     
-    
-    private func configureIconPlacement(_ placement: LMIconPlacement, spacing: CGFloat) {
-        switch placement {
-        case .start:
-            semanticContentAttribute = .forceLeftToRight
-            setInsets(forContentPadding: .zero, imageTitlePadding: spacing)
-        case .end:
-            semanticContentAttribute = .forceRightToLeft
-            setInsets(forContentPadding: .zero, imageTitlePadding: spacing)
-        }
-        
-        // Adjust content insets to maintain proper padding around the content
-        let horizontalInset = max(spacing, 16)
-        setContentInsets(with: UIEdgeInsets(top: 8, left: horizontalInset, bottom: 8, right: horizontalInset))
-    }
-    
-    // MARK: - Props Methods
-    open func setProps(_ props: LMChatAIButtonProps) {
+    // MARK: Configuration Methods
+    public func setProps(_ props: LMChatAIButtonProps) {
         self.props = props
     }
     
-    // MARK: - Actions
-    @objc private func buttonTapped() {
-        guard let props = props else {
-              
-                return
-            }
-        delegate?.didTapAIButton(self,props: props)
+    public func configureIconPlacement(_ placement: LMChatAIButtonIconPlacement) {
+        switch placement {
+        case .start:
+            semanticContentAttribute = .forceLeftToRight
+        case .end:
+            semanticContentAttribute = .forceRightToLeft
+        }
     }
     
-    // MARK: - Layout
+    // MARK: Button Creation
+    public static func createButton(
+        with title: String? = Constants.shared.strings.aiChatBotButtonText,
+        image: UIImage? = Constants.shared.images.aiChatBotButton,
+        textColor: UIColor? = Appearance.shared.colors.white,
+        textFont: UIFont = .systemFont(ofSize: 14),
+        backgroundColor: UIColor? = Appearance.shared.colors.aiChatBotButtonColor,
+        cornerRadius: CGFloat = 20,
+        iconPlacement: LMChatAIButtonIconPlacement = .start,
+        spacing: CGFloat = 8,
+        contentInsets: UIEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16),
+        iconSize: CGSize = CGSize(width: 20, height: 20)
+    ) -> LMChatAIButton {
+        let button = LMChatAIButton()
+        
+        // Basic Setup
+        button.setTitle(title, for: .normal)
+        button.setTitleColor(textColor, for: .normal)
+        button.titleLabel?.font = textFont
+        button.backgroundColor = backgroundColor
+        button.layer.cornerRadius = cornerRadius
+        button.clipsToBounds = true
+        
+        // Image Configuration
+        if let image = image {
+            let resizedIcon = resizeImage(image, targetSize: iconSize)
+            button.setImage(resizedIcon, for: .normal)
+            button.imageView?.contentMode = .scaleAspectFit
+            button.configureIconPlacement(iconPlacement)
+        }
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setInsets(forContentPadding: contentInsets, imageTitlePadding: spacing)
+
+        return button
+    }
+    // MARK: Actions
+    @objc private func buttonTapped() {
+        guard let props = props else { return }
+        delegate?.didTapAIButton(self, props: props)
+    }
+    private static func resizeImage(_ image: UIImage, targetSize: CGSize) -> UIImage {
+            let renderer = UIGraphicsImageRenderer(size: targetSize)
+            return renderer.image { _ in
+                image.draw(in: CGRect(origin: .zero, size: targetSize))
+            }
+        }
+    // MARK: Layout
     open override var intrinsicContentSize: CGSize {
         let size = super.intrinsicContentSize
         return CGSize(width: size.width, height: max(44, size.height))
@@ -140,7 +140,6 @@ open class LMChatAIButton: LMButton {
     
     open override func layoutSubviews() {
         super.layoutSubviews()
-        // Ensure the image and title are properly aligned
         contentHorizontalAlignment = .center
     }
 }

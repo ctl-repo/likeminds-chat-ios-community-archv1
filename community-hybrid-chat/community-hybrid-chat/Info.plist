@@ -40,5 +40,9 @@
 		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
+    <key>NSCameraUsageDescription</key>
+    <string>This app needs the camera to scan documents and take photos.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>This app needs microphone access for video recording.</string>
 </dict>
 </plist>
