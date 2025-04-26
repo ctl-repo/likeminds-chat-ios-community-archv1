@@ -62,5 +62,18 @@ public extension Constants {
         public var rejectSecretChatroomInvitationDesc = "Are you sure you want to reject the invitation to join this chatroom?"
         public var confirmAllCaps = "CONFIRM"
         public var cancelAllCaps = "CANCEL"
+        
+        public var  aiSetupText = "Setting up AI chatbot..."
+        public var aiSetupAnimationName = "ai_chatBot_setup_lottie"
+        public var aiChatBotButtonText = "AI Bot"
+        
+        
+        
+        public var chatBotNotAvailable = "No chatbots available"
+        public var invalidChatBotUUID = "Invalid chatbot UUID"
+        public var dmNotAllowed  = "Direct messaging is not enabled"
+        public var chatroomCreateFail = "Failed to create chatroom"
+        
+        
     }
 }
