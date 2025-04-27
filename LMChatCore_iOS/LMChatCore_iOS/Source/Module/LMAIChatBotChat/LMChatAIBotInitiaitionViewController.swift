@@ -134,18 +134,22 @@ open class LMChatAIBotInitiaitionViewController: LMViewController, LMAIChatBotCh
     }
     
     open func setupAnimation() {
-        let frameworkBundle = Bundle(for: type(of: self))
-        if let animation = LottieAnimation.named(Constants.shared.strings.aiSetupAnimationName, bundle: frameworkBundle) {
-            setupAnimationView(with: animation)
-            return
-        }
         
-        if let path = frameworkBundle.path(forResource: Constants.shared.strings.aiSetupAnimationName, ofType: "json") {
-            let animation = LottieAnimation.filepath(path)
-            guard let animation = animation else { return }
+        if let hostAppAnimation = LottieAnimation.named(Constants.shared.strings.aiSetupAnimationName, bundle: Bundle.main) {
+                setupAnimationView(with: hostAppAnimation)
+                return
+            }
+        // Get the framework bundle
+        let frameworkBundle = Bundle(for: type(of: self))
+        guard let resourceBundlePath = frameworkBundle.path(forResource: "LikeMindsChatCore", ofType: "bundle"),
+              let resourceBundle = Bundle(path: resourceBundlePath) else {
+            return
+        }
+        if let animation = LottieAnimation.named(Constants.shared.strings.aiSetupAnimationName, bundle: resourceBundle) {
             setupAnimationView(with: animation)
             return
         }
+        print("Animation not found in bundle")
     }
     
     open func setupAnimationView(with animation: LottieAnimation) {
