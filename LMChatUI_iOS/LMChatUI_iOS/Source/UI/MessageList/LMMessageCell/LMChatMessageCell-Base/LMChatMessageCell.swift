@@ -159,7 +159,7 @@ open class LMChatMessageCell: LMTableViewCell {
     weak var pollDelegate: LMChatPollViewDelegate?
 
     /// The current data model containing the message and selection state
-    var data: ContentModel?
+    public var data: ContentModel?
 
     /// The current index path of the cell in the table view
     var currentIndexPath: IndexPath?

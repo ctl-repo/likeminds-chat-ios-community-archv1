@@ -11,24 +11,6 @@ import LikeMindsChatData
 import LikeMindsChatUI
 import UIKit
 
-public class LMChatReplyPrivatelyExtra {
-    // MARK: - Properties
-    public let sourceChatroomName: String
-    public let sourceChatroomId: String
-    public let sourceConversation: ConversationViewData
-
-    // MARK: - Initialization
-    public init(
-        sourceChatroomName: String,
-        sourceChatroomId: String,
-        sourceConversation: ConversationViewData
-    ) {
-        self.sourceChatroomName = sourceChatroomName
-        self.sourceChatroomId = sourceChatroomId
-        self.sourceConversation = sourceConversation
-    }
-}
-
 open class LMChatMessageListViewController: LMViewController {
     // MARK: UI Elements
     open private(set) lazy var bottomMessageBoxView:
