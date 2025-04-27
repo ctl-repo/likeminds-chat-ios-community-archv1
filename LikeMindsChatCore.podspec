@@ -9,7 +9,7 @@ Pod::Spec.new do |spec|
 
   spec.source_files = 'LMChatCore_iOS/LMChatCore_iOS/Source/**/*.swift'
   spec.resource_bundles = {
-     'LikeMindsChatCore' => ['LMChatCore_iOS/LMChatCore_iOS/Source/Assets/*.{xcassets}']
+    'LikeMindsChatCore' => ['LMChatCore_iOS/LMChatCore_iOS/Source/Assets/**/*']
   }
 
   spec.ios.deployment_target = '13.0'
