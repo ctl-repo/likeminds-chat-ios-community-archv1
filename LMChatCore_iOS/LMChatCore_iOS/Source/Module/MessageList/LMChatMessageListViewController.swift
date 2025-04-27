@@ -13,18 +13,18 @@ import UIKit
 
 open class LMChatMessageListViewController: LMViewController {
     // MARK: UI Elements
-    open private(set) lazy var bottomMessageBoxView:
-        LMChatBottomMessageComposerView = { [unowned self] in
-            let view = LMChatBottomMessageComposerView()
-                .translatesAutoresizingMaskIntoConstraints()
-            view.layer.cornerRadius = 16
-            view.layer.maskedCorners = [
-                .layerMinXMinYCorner, .layerMaxXMinYCorner,
-            ]
-            view.delegate = self
-            view.inputTextView.mentionDelegate = self
-            return view
-        }()
+    open private(set) lazy var bottomMessageBoxView: LMChatBottomMessageComposerView = {
+        [unowned self] in
+        let view = LMChatBottomMessageComposerView()
+            .translatesAutoresizingMaskIntoConstraints()
+        view.layer.cornerRadius = 16
+        view.layer.maskedCorners = [
+            .layerMinXMinYCorner, .layerMaxXMinYCorner,
+        ]
+        view.delegate = self
+        view.inputTextView.mentionDelegate = self
+        return view
+    }()
 
     open private(set) lazy var scrollToBottomButton: LMButton = {
         [unowned self] in
@@ -143,6 +143,9 @@ open class LMChatMessageListViewController: LMViewController {
 
         viewModel?.getInitialData()
         viewModel?.syncConversation()
+
+        // Update send button state after getting initial data
+        bottomMessageBoxView.updateSendButtonState()
 
         setRightNavigationWithAction(
             title: nil, image: Constants.shared.images.ellipsisCircleIcon,
@@ -435,8 +438,6 @@ open class LMChatMessageListViewController: LMViewController {
     public func updateChatroomSubtitles() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            // Optionally sort your tableSections if needed:
-            // self.tableSections.sort { $0.timestamp < $1.timestamp }
             navigationTitleView.isHidden = false
         }
 
@@ -450,6 +451,8 @@ open class LMChatMessageListViewController: LMViewController {
         setNavigationTitleAndSubtitle(
             with: viewModel?.chatroomViewData?.header, subtitle: subtitle)
         memberRightsCheck()
+        // Update send button state after updating chatroom subtitles
+        bottomMessageBoxView.updateSendButtonState()
     }
 
     func topicBarClicked(topicId: String) {
@@ -500,6 +503,8 @@ open class LMChatMessageListViewController: LMViewController {
                     withMessage: "", isEnable: true)
             }
         }
+        // Update send button state after updating direct message status
+        bottomMessageBoxView.updateSendButtonState()
     }
 
     public func directMessageValidation() {
@@ -594,6 +599,8 @@ open class LMChatMessageListViewController: LMViewController {
                 break
             }
         }
+        // Update send button state after updating direct message status
+        bottomMessageBoxView.updateSendButtonState()
     }
 
     func updateBottomBar(footerView: UITableViewHeaderFooterView) {
@@ -681,6 +688,8 @@ extension LMChatMessageListViewController: LMMessageListViewModelProtocol {
         bottomMessageBoxView.inputTextView.chatroomId =
             viewModel?.chatroomViewData?.id ?? ""
         hideShowTopicBarView()
+        // Update send button state after reloading messages
+        bottomMessageBoxView.updateSendButtonState()
     }
 
     func modifyMessageWithTapToUndo() {
@@ -860,6 +869,8 @@ extension LMChatMessageListViewController: LMMessageListViewModelProtocol {
 
     public func directMessageStatus() {
         directMessageValidation()
+        // Update send button state after updating direct message status
+        bottomMessageBoxView.updateSendButtonState()
     }
 }
 
@@ -1039,25 +1050,6 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
                 self?.handleReplyPrivately(for: item)
             }
             actions.append(replyPrivatelyAction)
-        }
-
-        if viewModel?.isChatroomType(type: .directMessage) == false,
-            item.isIncoming == true,
-            item.messageType != LMChatMessageListView.chatroomHeader
-        {
-            if (viewModel?.showList == 1)
-                || (viewModel?.showList == 2 && item.member?.state == 1)
-            {
-                let replyPrivatelyAction = UIAction(
-                    title: Constants.shared.strings.replyPrivately,
-                    image: Constants.shared.images.replyIcon
-                ) { [weak self] action in
-                    self?.contextMenuItemClicked(
-                        withType: .replyPrivately, atIndex: indexPath,
-                        message: item)
-                }
-                actions.append(replyPrivatelyAction)
-            }
         }
 
         if !item.answer.isEmpty {
@@ -1743,8 +1735,8 @@ extension LMChatMessageListViewController: LMChatBottomMessageComposerDelegate {
         if viewModel?.checkMemberRight(.createPolls) == true,
             viewModel?.isChatroomType(type: .directMessage) == false
         {
-            let microPollAction = UIAlertAction(title: "Poll", style: .default)
-            { [weak self] alertView in
+            let microPollAction = UIAlertAction(title: "Poll", style: .default) {
+                [weak self] alertView in
                 guard let self else { return }
                 NavigationScreen.shared.perform(
                     .createPoll(delegate: self), from: self, params: nil)
@@ -2153,8 +2145,10 @@ extension LMChatMessageListViewController: LMChatMessageCellDelegate,
     public func didTapOnReplyPrivatelyCell(indexPath: IndexPath) {
         let item = messageListView.tableSections[indexPath.section].data[
             indexPath.row]
-        
-        guard let chatroomId = item.widget?.lmMeta?.sourceChatroomId, let conversationId = item.widget?.lmMeta?.sourceConversation?.id else {
+
+        guard let chatroomId = item.widget?.lmMeta?.sourceChatroomId,
+            let conversationId = item.widget?.lmMeta?.sourceConversation?.id
+        else {
             return
         }
         DispatchQueue.main.async {
@@ -2168,7 +2162,6 @@ extension LMChatMessageListViewController: LMChatMessageCellDelegate,
             )
         }
     }
-
 
     public func onRetryButtonClicked(conversation: ConversationViewData) {
         viewModel?.retryConversation(conversation: conversation)
@@ -2223,35 +2216,62 @@ extension LMChatMessageListViewController: LMChatMessageCellDelegate,
 
     public func didTappedOnSelectionButton(indexPath: IndexPath?) {
         guard let indexPath else { return }
-        let item = messageListView.tableSections[indexPath.section].data[
-            indexPath.row]
-        let itemIndex = messageListView.selectedItems.firstIndex(where: {
-            $0.id == item.id
-        })
-        if let itemIndex {
+        let item = messageListView.tableSections[indexPath.section].data[indexPath.row]
+
+        // Toggle selection
+        if let itemIndex = messageListView.selectedItems.firstIndex(where: { $0.id == item.id }) {
             messageListView.selectedItems.remove(at: itemIndex)
         } else {
             messageListView.selectedItems.append(item)
         }
+
+        // Update UI based on selection
         if messageListView.selectedItems.isEmpty {
             cancelSelectedMessageAction()
             return
         }
+
+        // Configure bar buttons
         deleteMessageBarItem.isEnabled = false
-        copySelectedMessagesBarItem.isEnabled = messageListView.selectedItems
-            .contains(where: { !$0.answer.isEmpty })
+        copySelectedMessagesBarItem.isEnabled = shouldEnableCopyButton()
+
+        // Additional permission checks
         if viewModel?.chatroomViewData?.isSecret == true
             && viewModel?.chatroomViewData?.followStatus == false
         {
             return
         }
+
         if viewModel?.memberState?.state != 1 {
-            deleteMessageBarItem.isEnabled = !messageListView.selectedItems
-                .contains(where: { $0.isIncoming == true })
+            deleteMessageBarItem.isEnabled = !messageListView.selectedItems.contains {
+                $0.isIncoming == true
+            }
         } else {
             deleteMessageBarItem.isEnabled = true
         }
+    }
 
+    private func shouldEnableCopyButton() -> Bool {
+        // Only enable if ALL selected items are copyable (text-only or links)
+        return !messageListView.selectedItems.contains { message in
+            // If message has non-text attachments, it's not copyable
+            if hasNonTextAttachments(message) {
+                return true
+            }
+
+            // If message is empty (no text and no attachments), it's not copyable
+            if message.answer.isEmpty && (message.attachments?.isEmpty ?? true) {
+                return true
+            }
+
+            return false
+        }
+    }
+    private func hasNonTextAttachments(_ message: ConversationViewData) -> Bool {
+        // Check if message has any non-text attachments
+        guard let attachments = message.attachments else { return false }
+
+        return !attachments.isEmpty
     }
 
     public func onClickReplyOfMessage(indexPath: IndexPath?) {

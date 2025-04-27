@@ -8,6 +8,7 @@
 import FirebaseMessaging
 import Foundation
 import LikeMindsChatData
+import LikeMindsChatUI
 
 /// Protocol defining callback methods for handling token-related events in LMChat.
 public protocol LMChatCoreCallback: AnyObject {
@@ -403,6 +404,9 @@ public class LMChatCore {
                     .failure(.logoutFailed(error: response.errorMessage)))
             }
         }
+        LMSharedPreferences.removeValue(forKey: LMSharedPreferencesKeys.aiChatBotRoomKey)
+        
+        
     }
 
     /// Returns the reply privately configuration if available
