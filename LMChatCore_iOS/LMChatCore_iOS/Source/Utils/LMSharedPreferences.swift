@@ -10,6 +10,7 @@ import Foundation
 enum LMSharedPreferencesKeys: String {
     case tempDeeplinkUrl = "$_deeplink_url"
     case isDMWithRequestEnabled = "$_isDMWithRequestEnabled"
+   case aiChatBotRoomKey = "chatroomIdWithAIChatbot"
 }
 
 class LMSharedPreferences {

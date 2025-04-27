@@ -32,6 +32,7 @@ public protocol LMChatBottomMessageComposerDelegate: AnyObject {
 open class LMChatBottomMessageComposerView: LMView {
     
     open weak var delegate: LMChatBottomMessageComposerDelegate?
+    
     public let audioButtonTag = 10
     public let messageButtonTag = 11
     
@@ -140,8 +141,9 @@ open class LMChatBottomMessageComposerView: LMView {
     // MARK: Send Button
     open private(set) lazy var sendButton: LMButton = {
         let button = LMButton().translatesAutoresizingMaskIntoConstraints()
-        button.setImage(micButtonIcon, for: .normal)
+        // Initialize with default values
         button.tag = audioButtonTag
+        button.setImage(micButtonIcon, for: .normal)
         button.contentMode = .scaleToFill
         return button
     }()
@@ -419,13 +421,13 @@ open class LMChatBottomMessageComposerView: LMView {
     }
     
     @objc func sendMessageButtonClicked(_ sender: UIButton) {
+       
         if sender.tag == audioButtonTag {
             audioButtonClicked(sender)
             return
         }
         let message = inputTextView.getText()
-        guard !message.isEmpty,
-              message != inputTextView.placeHolderText else {
+        guard !message.isEmpty, message != inputTextView.placeHolderText else {
             return
         }
         delegate?.composeMessage(message: message, composeLink: detectedFirstLink)
@@ -481,6 +483,18 @@ open class LMChatBottomMessageComposerView: LMView {
         replyMessageView.setDataForEdit(data)
         replyMessageViewContainer.isHidden = false
     }
+    
+    // Add method to update send button state
+    public func updateSendButtonState() {
+        if delegate?.isOtherUserAIChatbotInChatroom() ?? false {
+            sendButton.tag = messageButtonTag
+            sendButton.setImage(sendButtonIcon, for: .normal)
+            sendButtonLongPressGesture.isEnabled = false
+            sendButtonPanPressGesture.isEnabled = false
+        } else {
+            checkSendButtonGestures()
+        }
+    }
 }
 
 // MARK: UIGestureRecognizerDelegate
@@ -495,6 +509,9 @@ extension LMChatBottomMessageComposerView: UIGestureRecognizerDelegate {
 extension LMChatBottomMessageComposerView {
     @objc
     open func sendButtonLongPressed(_ sender: UILongPressGestureRecognizer) {
+        if delegate?.isOtherUserAIChatbotInChatroom() ?? false {
+            return
+        }
         guard inputTextView.text == inputTextView.placeHolderText || inputTextView.text.isEmpty else { return }
         
         if #available(iOS 17, *) {
@@ -515,6 +532,7 @@ extension LMChatBottomMessageComposerView {
             }
         }
     }
+    
     
     public func handleLongPress(_ sender: UILongPressGestureRecognizer) {
         inputTextView.resignFirstResponder()
@@ -620,8 +638,8 @@ extension LMChatBottomMessageComposerView: LMBottomMessageLinkPreviewDelete {
 extension LMChatBottomMessageComposerView {
     // Resets Recording View and shows Text Input View
     public func resetRecordingView() {
-        sendButton.tag = (delegate?.isOtherUserAIChatbotInChatroom() ?? false)  ? messageButtonTag : audioButtonTag
-        resetSendButtonConstraints()
+        // For AI chatbots, always use send button
+        sendButton.tag = (delegate?.isOtherUserAIChatbotInChatroom() ?? false) ? messageButtonTag : audioButtonTag
         
         recordDuration.text = "00:00"
         
@@ -631,15 +649,14 @@ extension LMChatBottomMessageComposerView {
         resetSendButtonConstraints()
         checkSendButtonGestures()
         
-        sendButton.setImage(micButtonIcon, for: .normal)
-        sendButtonPanPressGesture.isEnabled = true
-        sendButtonLongPressGesture.isEnabled = true
+        sendButton.setImage((delegate?.isOtherUserAIChatbotInChatroom() ?? false) ? sendButtonIcon : micButtonIcon, for: .normal)
+        sendButtonPanPressGesture.isEnabled = !(delegate?.isOtherUserAIChatbotInChatroom() ?? false)
+        sendButtonLongPressGesture.isEnabled = !(delegate?.isOtherUserAIChatbotInChatroom() ?? false)
         
         isPlayingAudio = false
         isLockedIn = false
         showHideLockContainer(isShow: false)
     }
-    
     
     // Shows Initial Recording View
     public func showRecordingView() {
@@ -668,13 +685,23 @@ extension LMChatBottomMessageComposerView {
     
     // Checks if Long and Pan Gestures should be enabled or not
     public func checkSendButtonGestures() {
-        let isText = (inputTextView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || inputTextView.text.trimmingCharacters(in: .whitespacesAndNewlines) == inputTextView.placeHolderText)
+        // For AI chatbots, always use send button and disable mic functionality
+        if delegate?.isOtherUserAIChatbotInChatroom() ?? false {
+            sendButton.tag = messageButtonTag
+            sendButton.setImage(sendButtonIcon, for: .normal)
+            sendButtonLongPressGesture.isEnabled = false
+            sendButtonPanPressGesture.isEnabled = false
+            return
+        }
         
-        // Making sure that the text field is empty and the user isn't locked in
+        // Original logic for non-AI chats
+        let isText = (inputTextView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+                    inputTextView.text.trimmingCharacters(in: .whitespacesAndNewlines) == inputTextView.placeHolderText)
+        
         sendButtonLongPressGesture.isEnabled = isText && !isLockedIn
         sendButtonPanPressGesture.isEnabled = isText && !isLockedIn
-        sendButton.tag = isText && !(delegate?.isOtherUserAIChatbotInChatroom() ?? false) ? audioButtonTag : messageButtonTag
-        sendButton.setImage(isText && !(delegate?.isOtherUserAIChatbotInChatroom() ?? false) ? micButtonIcon : sendButtonIcon, for: .normal)
+        sendButton.tag = isText ? audioButtonTag : messageButtonTag
+        sendButton.setImage(isText ? micButtonIcon : sendButtonIcon, for: .normal)
     }
     
     // Sets the visibility of Slide To Cancel, Stop Audio Recording, Delete Audio Recording

@@ -75,6 +75,8 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         guard LMChatCore.isInitialized else {
             throw LMChatError.chatNotInitialized
         }
+    
+        
 
         let viewcontroller = LMCoreComponents.shared.messageListScreen.init()
         let viewmodel = Self.init(
@@ -96,12 +98,16 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         let chatroomRequest = GetChatroomRequest.Builder().chatroomId(
             chatroomId
         ).build()
+        
+        
+       
         guard
             let chatroom = LMChatClient.shared.getChatroom(
                 request: chatroomRequest)?.data?.chatroom
         else {
             return
         }
+    
         chatroomViewData = chatroom
         if isChatroomType(type: .directMessage) == true {
             delegate?.directMessageStatus()
@@ -153,13 +159,17 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         ).build()
         let response = LMChatClient.shared.getChatroom(
             request: chatroomRequest)
-
+        
         if !(response?.success ?? true) {
-            delegate?.showToastMessage(
-                message: response?.errorMessage
-                    ?? "Unable to load conversations")
-            delegate?.showHideLoaderView(isShow: false)
+            // Only show error if sync is completed
+            if self.isConversationSyncCompleted == true {
+                delegate?.showToastMessage(
+                    message: response?.errorMessage
+                        ?? "Unable to load conversations")
+                delegate?.showHideLoaderView(isShow: false)
+            }
         }
+       
 
         guard
             let chatroom = response?.data?.chatroom,
@@ -168,6 +178,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             chatroomWasNotLoaded = true
             return
         }
+        
         //2nd case -> chatroom is deleted, if yes return
         if chatroom.deletedBy != nil {
             (delegate as? LMChatMessageListViewController)?
@@ -199,6 +210,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         } else {
             medianConversationId = nil
         }
+       
         //3rd case -> open a conversation directly through search/deep links
         if let medianConversationId {
             // fetch list from searched or specific conversationid
@@ -221,7 +233,9 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         //            // showshimmer
         //        }
         //7th case -> chatroom is present but conversations are not stored in chatroom
+        
         else if !chatroom.isConversationStored {
+            
             // showshimmer
         }
         //8th case -> chatroom is present and conversation is present, chatroom has no unseen conversations
@@ -230,6 +244,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         //        }
         //9th case -> chatroom is present and conversation is present, chatroom has unseen conversations
         else {
+            
             //            fetchIntermediateConversations(chatroom: chatroom, conversationId: chatroom.lastSeenConversation?.id ?? "")
             fetchBottomConversations()
         }
@@ -237,7 +252,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             delegate?.directMessageStatus()
             checkDMStatus()
         } else {
-            checkDMStatus(requestFrom: "group_channel")
+            checkDMStatus(requestFrom: .groupChannel)
         }
         fetchChatroomActions()
         markChatroomAsRead()
@@ -246,6 +261,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
     }
 
     func syncLatestConversations(withConversationId conversationId: String) {
+        print("here 8")
         LMChatClient.shared.loadLatestConversations(
             withConversationId: conversationId, chatroomId: chatroomId)
     }
@@ -468,11 +484,15 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         let chatroomRequest = GetChatroomRequest.Builder().chatroomId(
             chatroomId
         ).build()
+    
         let response = LMChatClient.shared.getChatroom(request: chatroomRequest)
         if response?.data?.chatroom?.isConversationStored == true {
+        
             LMChatClient.shared.loadConversations(
+               
                 withChatroomId: chatroomId, loadType: .reopen)
         } else {
+            
             LMChatClient.shared.loadConversations(
                 withChatroomId: chatroomId, loadType: .firstTime)
         }
@@ -859,7 +879,7 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         (chatroomViewData?.type == type)
     }
 
-    func checkDMStatus(requestFrom: String = "chatroom") {
+    func checkDMStatus(requestFrom: DMStatusRequestFrom = .chatroom) {
         let request = CheckDMStatusRequest.builder()
             .requestFrom(requestFrom)
             .chatroomId(chatroomId)
