@@ -76,8 +76,10 @@ import Foundation
                         return
                     }
                     if let vc = topMostController as? UINavigationController, let homeFeedVC = vc.topViewController as? LMChatGroupFeedViewController {
-                        homeFeedVC.navigationController?.pushViewController(viewController, animated: true)
                         homeFeedVC.hidesBottomBarWhenPushed = true
+                        viewController.hidesBottomBarWhenPushed = true
+                        homeFeedVC.navigationController?.pushViewController(viewController, animated: true)
+                        
                     } else {
                         let chatMessageViewController = UINavigationController(rootViewController: viewController)
                         chatMessageViewController.modalPresentationStyle = .fullScreen
