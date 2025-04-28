@@ -20,6 +20,7 @@ open class LMChatDMFeedViewController: LMViewController {
     open private(set) lazy var feedListView: LMChatHomeFeedListView = {
         let view = LMChatHomeFeedListView()
             .translatesAutoresizingMaskIntoConstraints()
+        view.inputViewController?.hidesBottomBarWhenPushed = true
         view.backgroundColor = .systemGroupedBackground
         view.delegate = self
         return view
