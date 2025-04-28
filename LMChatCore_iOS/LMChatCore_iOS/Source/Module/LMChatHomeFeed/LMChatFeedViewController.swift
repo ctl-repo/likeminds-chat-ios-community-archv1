@@ -38,6 +38,7 @@ open class LMChatFeedViewController: LMViewController {
     
     private lazy var pageController: UIPageViewController = {
         let pg = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
+        pg.hidesBottomBarWhenPushed = true
         return pg
     }()
     
@@ -123,9 +124,11 @@ open class LMChatFeedViewController: LMViewController {
     
     open func addControllers() {
         guard let homefeedvc = try? LMChatGroupFeedViewModel.createModule() else { return }
+        homefeedvc.hidesBottomBarWhenPushed = true
         viewControllers.append(homefeedvc)
         
         guard let homefeedvc2 = try? LMChatDMFeedViewModel.createModule() else { return }
+        homefeedvc2.hidesBottomBarWhenPushed = true
         viewControllers.append(homefeedvc2)
     }
 
