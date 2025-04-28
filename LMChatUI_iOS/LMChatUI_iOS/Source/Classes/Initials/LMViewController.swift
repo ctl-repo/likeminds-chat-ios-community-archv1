@@ -328,14 +328,13 @@ open class LMViewController: UIViewController {
         titleStackView.alignment = alignment
 
         navigationHeaderTitleLabel.text = title
-        navigationHeaderTitleLabel.textColor = Appearance.shared.colors.black
+//        navigationHeaderTitleLabel.textColor = Appearance.shared.colors.black
         navigationHeaderTitleLabel.font =
             Appearance.shared.fonts.navigationTitleFont
         navigationHeaderTitleLabel.isHidden = (title ?? "").isEmpty
 
         navigationHeaderSubtitleLabel.text = subtitle
-        navigationHeaderSubtitleLabel.textColor =
-            Appearance.shared.colors.textColor
+//        navigationHeaderSubtitleLabel.textColor = Appearance.shared.colors.textColor
         navigationHeaderSubtitleLabel.font =
             Appearance.shared.fonts.navigationSubtitleFont
         navigationHeaderSubtitleLabel.isHidden = (subtitle ?? "").isEmpty
