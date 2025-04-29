@@ -73,8 +73,9 @@ open class LMChatMessageBubbleView: LMView {
     
     open override func setupAppearance() {
         super.setupAppearance()
-        backgroundColor = Appearance.shared.colors.white
-        layer.cornerRadius = 8
+        // FIXME: Pratik
+        backgroundColor = Appearance.shared.colors.clear
+//        layer.cornerRadius = 8
     }
     
     // MARK: setupViews
