@@ -75,9 +75,6 @@ open class LMChatMessageBubbleView: LMView {
         super.setupAppearance()
         backgroundColor = Appearance.shared.colors.white
         layer.cornerRadius = 8
-        if !isIncoming {
-            backgroundColor = Appearance.shared.colors.linkColor
-        }
     }
     
     // MARK: setupViews
