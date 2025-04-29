@@ -307,7 +307,9 @@ open class LMChatMessageContentView: LMView {
             bubbleView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             bubbleView.heightAnchor.constraint(greaterThanOrEqualToConstant: 48),
             bubbleView.bottomAnchor.constraint(equalTo: chatProfileImageContainerStackView.bottomAnchor, constant: -2),
-            companyStack.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -8)
+            companyStack.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -8),
+            stockInfo.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -8),
+            stockInfo.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 8)
         ])
         
          bubbleLeadingConstraint = bubbleView.leadingAnchor.constraint(equalTo: chatProfileImageContainerStackView.trailingAnchor)
