@@ -9,7 +9,7 @@ Pod::Spec.new do |spec|
   
   spec.source_files = 'LMChatUI_iOS/LMChatUI_iOS/Source/**/*.swift'
   spec.resource_bundles = {
-      'LikeMindsChatUI' => ['LMChatUI_iOS/LMChatUI_iOS/Source/**/*.xcassets']
+      'LikeMindsChatUI' => ['LMChatUI_iOS/LMChatUI_iOS/Source/**/*.{xcassets}']
   }
   
   spec.ios.deployment_target = '13.0'
