@@ -1,5 +1,5 @@
 //
-//  LMChatGroupFeedViewController.swift
+//  LMCommunityChatViewController.swift
 //  LikeMindsChatCore
 //
 //  Created by Pushpendra Singh on 12/02/24.
@@ -8,9 +8,9 @@
 import Foundation
 import LikeMindsChatUI
 
-open class LMChatGroupFeedViewController: LMViewController {
+open class LMCommunityChatViewController: LMViewController {
 
-    var viewModel: LMChatGroupFeedViewModel?
+    var viewModel: LMCommunityChatViewModel?
 
     open private(set) lazy var feedListView: LMChatHomeFeedListView = {
         let view = LMChatHomeFeedListView()
@@ -186,11 +186,15 @@ open class LMChatGroupFeedViewController: LMViewController {
     }
 }
 
+<<<<<<< HEAD:LMChatCore_iOS/LMChatCore_iOS/Source/Module/GroupMessageFeed/LMChatGroupFeedViewController.swift
 extension LMChatGroupFeedViewController: LMChatGroupFeedViewModelProtocol {
     public func checkDMStatus(showDM: Bool) {
         showDMFabButton(showFab: showDM)
     }
     
+=======
+extension LMCommunityChatViewController: LMCommunityChatViewModelProtocol {
+>>>>>>> lmcv__25Apr30__updstream:LMChatCore_iOS/LMChatCore_iOS/Source/Module/LMCommunityChat/LMCommunityChatViewController.swift
 
     public func updateHomeFeedChatroomsData() {
         let chatrooms = (viewModel?.chatrooms ?? []).compactMap({ chatroom in
@@ -257,11 +261,15 @@ extension LMChatGroupFeedViewController: LMChatGroupFeedViewModelProtocol {
     public func reloadData() {}
 }
 
+<<<<<<< HEAD:LMChatCore_iOS/LMChatCore_iOS/Source/Module/GroupMessageFeed/LMChatGroupFeedViewController.swift
 extension LMChatGroupFeedViewController: LMHomFeedListViewDelegate {
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offsetY = scrollView.contentOffset.y
         newDMButtonExapndAndCollapes(offsetY)
     }
+=======
+extension LMCommunityChatViewController: LMHomFeedListViewDelegate {
+>>>>>>> lmcv__25Apr30__updstream:LMChatCore_iOS/LMChatCore_iOS/Source/Module/LMCommunityChat/LMCommunityChatViewController.swift
     public func didTapOnCell(indexPath: IndexPath) {
         switch feedListView.tableSections[indexPath.section].sectionType {
         case .exploreTab:

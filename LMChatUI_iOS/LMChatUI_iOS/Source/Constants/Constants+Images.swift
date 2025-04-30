@@ -124,5 +124,8 @@ public extension Constants {
         public var plusCircleIcon = loadSystemImage(with: "plus.circle")
         public var stockShareIcon = loadSystemImage(with: "chevron.up.circle")
         public var chartIcon = loadSystemImage(with: "chart.bar.xaxis")
+        
+        public var aiChatBotButton = UIImage(named:"lm_ai_chat_bot")
+    
     }
 }

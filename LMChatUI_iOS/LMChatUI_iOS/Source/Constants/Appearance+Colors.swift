@@ -50,5 +50,7 @@ public extension Appearance {
         public var buyButtonTextColor: UIColor = UIColor(hex: 0x2777F3)
         public var sellButtonColor: UIColor = UIColor(hex: 0xEE9A95)
         public var sellButtonTextColor: UIColor = UIColor(hex: 0xDE493B)
+        
+        public var aiChatBotButtonColor = UIColor(red: 2/255, green: 13/255, blue: 66/255, alpha: 1.0)
     }
 }
