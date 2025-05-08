@@ -150,6 +150,14 @@ public enum LMChatAnalyticsEventName: String {
     case pollOptionCreated = "poll_option_created"
     case pollAnswersViewed = "poll_answers_viewed"
     case pollResultsToggled = "poll_results_toggled"
+    
+    case companyInfo = "Company_Info"
+    case buyStock = "Buy_Stock"
+    case sellStock = "Sell_Stock"
+    case defaultValue = "Default_Value"
+    case portfolioReview = "Portfolio_Review"
+    case stockShare = "Stock_Share"
+    case chatWithExperts = "Chat_With_Experts"
 
 }
 

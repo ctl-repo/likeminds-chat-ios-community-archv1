@@ -409,6 +409,7 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
             cell.setData(
                 with: LMChatCustomCell.ContentModel(message: item),
                 index: indexPath)
+            cell.delegate = cellDelegate
             tableViewCell = cell
         } else {
             switch item.messageType {

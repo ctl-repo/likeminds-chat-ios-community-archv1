@@ -43,6 +43,8 @@ public protocol LMChatCoreCallback: AnyObject {
         eventName: LMChatAnalyticsEventName,
         eventProperties: [String: AnyHashable]
     )
+    // Custom Button Handling
+    func onCustomButtonCLicked(eventName: LMChatAnalyticsEventName, eventData: [String: Any])
 }
 public class LMChatCore {
 

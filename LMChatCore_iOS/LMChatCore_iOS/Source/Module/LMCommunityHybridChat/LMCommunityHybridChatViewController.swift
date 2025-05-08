@@ -38,6 +38,8 @@ open class LMCommunityHybridChatViewController: LMViewController {
     
     private lazy var pageController: UIPageViewController = {
         let pg = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
+        pg.hidesBottomBarWhenPushed = true
+        pg.inputViewController?.hidesBottomBarWhenPushed = true
         return pg
     }()
     
@@ -162,7 +164,7 @@ extension LMCommunityHybridChatViewController: UIPageViewControllerDataSource, U
     
     open func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool,  previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         segmentControl.isEnabled = true
-        self.tabBarController?.tabBar.isHidden = false
+        self.tabBarController?.tabBar.isHidden = true
         guard completed else { return }
         if let toFind = pageViewController.viewControllers?.first,
            let currIndex = viewControllers.firstIndex(of: toFind) {

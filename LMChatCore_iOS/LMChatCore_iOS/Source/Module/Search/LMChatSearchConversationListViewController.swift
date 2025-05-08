@@ -123,7 +123,7 @@ public class LMChatSearchConversationListViewController: LMViewController {
         let textFieldInsideSearchBar =
             searchController.searchBar.value(forKey: "searchField")
             as? UITextField
-        textFieldInsideSearchBar?.textColor = .black
+//        textFieldInsideSearchBar?.textColor = .black
     }
 
     /**

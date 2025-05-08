@@ -117,6 +117,7 @@ public extension Constants {
         public var gifBadge = loadImage(with: "gifBadge")
         public var addMoreEmojiIcon = loadImage(with: "addMoreEmoticons")
         public var circleFill = loadSystemImage(with: "circle.fill")
+        // FIXME: Pratik
         public var newDMIcon = loadImage(with: "newdm-icon")
         
         public var equalIcon = loadSystemImage(with: "equal")
@@ -124,5 +125,7 @@ public extension Constants {
         
         public var aiChatBotButton = UIImage(named:"lm_ai_chat_bot")
     
+        public var stockShareIcon = loadSystemImage(with: "chevron.up.circle")
+        public var chartIcon = loadSystemImage(with: "chart.bar.xaxis")
     }
 }

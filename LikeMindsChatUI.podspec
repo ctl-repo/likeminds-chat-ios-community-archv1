@@ -5,7 +5,7 @@ Pod::Spec.new do |spec|
   spec.version      = '1.8.2'
   spec.license      = { :type => 'MIT', :file => 'LICENSE' }
   spec.authors      = { 'pushpendrasingh' => 'pushpendra.singh@likeminds.community' }
-  spec.source       = { :git => "https://github.com/LikeMindsCommunity/likeminds-chat-ios.git", :tag => spec.version }
+  spec.source       = { :git => 'https://github.com/ctl-repo/likeminds-chat-ios-community-archv1.git', :branch => 'lmcv_dev_0.1' }
   
   spec.source_files = 'LMChatUI_iOS/LMChatUI_iOS/Source/**/*.swift'
   spec.resource_bundles = {

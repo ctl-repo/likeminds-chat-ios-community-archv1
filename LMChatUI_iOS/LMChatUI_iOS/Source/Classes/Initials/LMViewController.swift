@@ -154,8 +154,7 @@ open class LMViewController: UIViewController {
         }
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor =
-            Appearance.shared.colors.navigationBackgroundColor
+//        appearance.backgroundColor = Appearance.shared.colors.navigationBackgroundColor
         navigationBar.standardAppearance = appearance
         navigationBar.scrollEdgeAppearance = navigationBar.standardAppearance
     }
@@ -300,8 +299,7 @@ open class LMViewController: UIViewController {
         navigationController?.navigationBar.isTranslucent = true
         if #available(iOS 15, *) {
             let appearance = UINavigationBarAppearance()
-            appearance.backgroundColor =
-                Appearance.shared.colors.navigationBackgroundColor
+//            appearance.backgroundColor = Appearance.shared.colors.navigationBackgroundColor
             navigationController?.navigationBar.scrollEdgeAppearance =
                 appearance
         }
@@ -330,14 +328,13 @@ open class LMViewController: UIViewController {
         titleStackView.alignment = alignment
 
         navigationHeaderTitleLabel.text = title
-        navigationHeaderTitleLabel.textColor = Appearance.shared.colors.black
+//        navigationHeaderTitleLabel.textColor = Appearance.shared.colors.black
         navigationHeaderTitleLabel.font =
             Appearance.shared.fonts.navigationTitleFont
         navigationHeaderTitleLabel.isHidden = (title ?? "").isEmpty
 
         navigationHeaderSubtitleLabel.text = subtitle
-        navigationHeaderSubtitleLabel.textColor =
-            Appearance.shared.colors.textColor
+//        navigationHeaderSubtitleLabel.textColor = Appearance.shared.colors.textColor
         navigationHeaderSubtitleLabel.font =
             Appearance.shared.fonts.navigationSubtitleFont
         navigationHeaderSubtitleLabel.isHidden = (subtitle ?? "").isEmpty

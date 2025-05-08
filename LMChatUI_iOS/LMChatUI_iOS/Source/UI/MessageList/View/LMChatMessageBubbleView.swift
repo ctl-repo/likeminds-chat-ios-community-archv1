@@ -33,7 +33,7 @@ open class LMChatMessageBubbleView: LMView {
         view.axis = .vertical
         view.alignment = .leading
         view.distribution = .fill
-        view.spacing = 6
+        view.spacing = 8
         view.backgroundColor = Appearance.shared.colors.clear
         return view
     }()
@@ -73,7 +73,9 @@ open class LMChatMessageBubbleView: LMView {
     
     open override func setupAppearance() {
         super.setupAppearance()
+        // FIXME: Pratik
         backgroundColor = Appearance.shared.colors.clear
+//        layer.cornerRadius = 8
     }
     
     // MARK: setupViews

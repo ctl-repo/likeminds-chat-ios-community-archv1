@@ -13,6 +13,7 @@ import UIKit
 
 open class LMChatMessageListViewController: LMViewController {
     // MARK: UI Elements
+    var isKeyBoardShown: Bool = false
     open private(set) lazy var bottomMessageBoxView:
     LMChatBottomMessageComposerView = { [unowned self] in
         let view = LMChatBottomMessageComposerView()
@@ -278,6 +279,11 @@ open class LMChatMessageListViewController: LMViewController {
     
     @objc
     open override func keyboardWillShow(_ sender: Notification) {
+        if isKeyBoardShown {
+            isKeyBoardShown = false
+            return
+        }
+        isKeyBoardShown = true
         guard let userInfo = sender.userInfo,
               let frame =
                 (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?
@@ -1449,6 +1455,10 @@ extension LMChatMessageListViewController: LMChatMessageListViewDelegate {
 }
 
 extension LMChatMessageListViewController: LMChatBottomMessageComposerDelegate {
+    public func composeStockShare() {
+        LMChatCore.shared.coreCallback?.onEventTriggered(eventName: .stockShare, eventProperties: ["Share Stock": "New"])
+    }
+    
     /// Determines if the other user in the chatroom is an AI chatbot.
     /// - Returns: `true` if the other user is an AI chatbot, `false` otherwise.
     public func isOtherUserAIChatbotInChatroom() -> Bool {
@@ -2042,7 +2052,17 @@ extension LMChatMessageListViewController: LMChatAudioProtocol {
 extension LMChatMessageListViewController: LMChatMessageCellDelegate,
                                            LMChatroomHeaderMessageCellDelegate
 {
-    
+    public func didTapOnCustomCellButton(btnName: String, metaData: [String : Any]) {
+        var event: LMChatAnalyticsEventName?
+        if btnName == LMChatAnalyticsEventName.companyInfo.rawValue {
+            event = .companyInfo
+        } else if btnName == LMChatAnalyticsEventName.buyStock.rawValue {
+            event = .buyStock
+        } else if btnName == LMChatAnalyticsEventName.sellStock.rawValue {
+            event = .sellStock
+        }
+        LMChatCore.shared.coreCallback?.onCustomButtonCLicked(eventName: event ?? .defaultValue, eventData: metaData)
+    }
     public func onRetryButtonClicked(conversation: ConversationViewData) {
         viewModel?.retryConversation(conversation: conversation)
     }
