@@ -415,7 +415,16 @@ open class LMChatMessageContentView: LMView {
             outgoingbubbleLeadingConstraint?.isActive = true
             outgoingbubbleTrailingConstraint?.isActive = true
         } else {
-            chatProfileImageView.imageView.kf.setImage(with: URL(string: data.message.member?.imageUrl ?? ""), placeholder: UIImage.generateLetterImage(name: data.message.createdBy?.components(separatedBy: " ").first ?? ""))
+            let names =  data.message.createdBy?.components(separatedBy: " ") ?? ["Test"]
+            var nameCombined = ""
+            if names.count > 2 {
+                nameCombined = "\(names[0]) \(names[2])"
+            } else if names.count > 1 {
+                nameCombined = "\(names[0]) \(names[1])"
+            } else {
+                nameCombined = data.message.createdBy ?? ""
+            }
+            chatProfileImageView.imageView.kf.setImage(with: URL(string: data.message.member?.imageUrl ?? ""), placeholder: UIImage.generateLetterImage(name: nameCombined))
             chatProfileImageView.isHidden = false
             messageByName(data)
             usernameLabel.isHidden = false

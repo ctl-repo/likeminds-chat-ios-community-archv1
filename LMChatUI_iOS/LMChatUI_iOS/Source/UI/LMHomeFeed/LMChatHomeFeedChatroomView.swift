@@ -272,7 +272,16 @@ open class LMChatHomeFeedChatroomView: LMView {
         chatroomCountBadgeLabel.isHidden = data.unreadCount <= 0
         chatroomCountBadgeLabel.text = data.unreadCount > 99 ? "99+" : "\(data.unreadCount)"
         timestampLabel.text = data.timestamp
-        let placeholder = UIImage.generateLetterImage(name: data.chatroomName.components(separatedBy: " ").first ?? "")
+        let names =   data.chatroomName.components(separatedBy: " ")
+        var nameCombined = ""
+        if names.count > 2 {
+            nameCombined = "\(names[0]) \(names[2])"
+        } else if names.count > 1 {
+            nameCombined = "\(names[0]) \(names[1])"
+        } else {
+            nameCombined = data.chatroomName
+        }
+        let placeholder = UIImage.generateLetterImage(name: nameCombined)
         if let imageUrl = data.chatroomImageUrl, let url = URL(string: imageUrl) {
             chatroomImageView.kf.setImage(with: url, placeholder: placeholder, options: [.fromMemoryCacheOrRefresh])
         } else {

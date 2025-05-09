@@ -197,7 +197,16 @@ open class LMChatParticipantView: LMView {
         nameLabel.text = data.name
         designationLabel.text = data.designationDetail
         customTitle.text =  data.customTitle != nil ? "\(Constants.Strings.shared.dot) " + (data.customTitle ?? "") : nil
-        let placeholder = UIImage.generateLetterImage(name: data.name.components(separatedBy: " ").first ?? "")
+        let names =   data.name.components(separatedBy: " ")
+        var nameCombined = ""
+        if names.count > 2 {
+            nameCombined = "\(names[0]) \(names[2])"
+        } else if names.count > 1 {
+            nameCombined = "\(names[0]) \(names[1])"
+        } else {
+            nameCombined = data.name
+        }
+        let placeholder = UIImage.generateLetterImage(name: nameCombined)
         if let imageUrl = data.profileImageUrl, let url = URL(string: imageUrl) {
             profileImageView.kf.setImage(with: url, placeholder: placeholder)
         } else {
