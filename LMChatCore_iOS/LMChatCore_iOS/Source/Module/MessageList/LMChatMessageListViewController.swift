@@ -530,14 +530,21 @@ open class LMChatMessageListViewController: LMViewController {
             setNavigationTitleAndSubtitle(
                 with: viewModel?.chatroomViewData?.chatWithUser?.name,
                 subtitle: nil)
+            let names = viewModel?.directMessageUserName().components(separatedBy: " ") ?? []
+            var nameCombined = ""
+            if names.count > 2 {
+                nameCombined = "\(names[0]) \(names[2])"
+            } else if names.count > 1 {
+                nameCombined = "\(names[0]) \(names[1])"
+            } else {
+                nameCombined = viewModel?.directMessageUserName() ?? ""
+            }
             backButtonItem.imageView.kf.setImage(
                 with: URL(
                     string: viewModel?.chatroomViewData?.chatWithUser?.imageUrl
                     ?? ""),
                 placeholder: UIImage.generateLetterImage(
-                    name: viewModel?.directMessageUserName().components(
-                        separatedBy: " "
-                    ).first ?? ""))
+                    name: nameCombined))
         }
         if viewModel?.dmStatus?.showDM == false {
             bottomMessageBoxView.enableOrDisableMessageBox(
