@@ -54,13 +54,29 @@ open class LMChatHomeFeedExploreTabView: LMView {
         view.spacing = 10
         return view
     }()
+    open private(set) lazy var exploreNameVerticalStack: LMStackView = { [unowned self] in
+        let view = LMStackView().translatesAutoresizingMaskIntoConstraints()
+        view.axis = .vertical
+        view.distribution = .fillProportionally
+        view.spacing = 10
+        return view
+    }()
     
     
     open private(set) lazy var exploreTitleLabel: LMLabel = {
         let label = LMLabel().translatesAutoresizingMaskIntoConstraints()
-        label.text = "Explore"
+        label.text = "Explore Groups"
         label.font = Appearance.shared.fonts.headingFont1
         label.textColor = Appearance.shared.colors.black
+        label.numberOfLines = 1
+        label.setContentHuggingPriority(.required, for: .horizontal)
+        return label
+    }()
+    open private(set) lazy var exploreSubheading: LMLabel = {
+        let label = LMLabel().translatesAutoresizingMaskIntoConstraints()
+        label.text = "Connect, chat, and grow together"
+        label.font = Appearance.shared.fonts.subHeadingFont1
+        label.textColor = Appearance.shared.colors.previewSubtitleTextColor
         label.numberOfLines = 1
         label.setContentHuggingPriority(.required, for: .horizontal)
         return label
@@ -117,11 +133,15 @@ open class LMChatHomeFeedExploreTabView: LMView {
         addSubview(containerView)
         containerView.addSubview(exploreContainerStackView)
         exploreContainerStackView.addArrangedSubview(exploreIconImageView)
-        exploreContainerStackView.addArrangedSubview(exploreNameContainerStackView)
+//        exploreContainerStackView.addArrangedSubview(exploreNameContainerStackView)
         exploreNameContainerStackView.addArrangedSubview(exploreTitleLabel)
         exploreNameContainerStackView.addArrangedSubview(spacerBetweenTitleAndArrowIcon)
         exploreNameContainerStackView.addArrangedSubview(chatroomCountBadgeLabel)
-        exploreNameContainerStackView.addArrangedSubview(rightArrowIconImageView)
+//        exploreNameContainerStackView.addArrangedSubview(rightArrowIconImageView)
+        exploreContainerStackView.addArrangedSubview(exploreNameVerticalStack)
+        exploreNameVerticalStack.addArrangedSubview(exploreNameContainerStackView)
+        exploreNameVerticalStack.addArrangedSubview(exploreSubheading)
+        exploreContainerStackView.addArrangedSubview(rightArrowIconImageView)
     }
     
     // MARK: setupLayouts
