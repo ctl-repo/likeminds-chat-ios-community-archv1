@@ -88,8 +88,6 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         guard LMChatCore.isInitialized else {
             throw LMChatError.chatNotInitialized
         }
-    
-        
 
         let viewcontroller = LMCoreComponents.shared.messageListScreen.init()
         let viewmodel = Self.init(
@@ -914,13 +912,15 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
 
     func sendDMRequest(
         text: String?, requestState: ChatRequestState,
-        isAutoApprove: Bool = false, reason: String? = nil
+        isAutoApprove: Bool = false, reason: String? = nil, metadata: [String: Any]? = nil
     ) {
         let request = SendDMRequest.builder()
             .text(text)
             .chatRequestState(requestState.rawValue)
             .chatroomId(chatroomId)
+            .metadata(metadata)
             .build()
+        
         LMChatClient.shared.sendDMRequest(request: request) {
             [weak self] response in
             guard response.success else {
@@ -932,9 +932,13 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
                     .chatRequestState(requestState.rawValue)
                     .chatRequestedById(UserPreferences.shared.getLMMemberId())
                     .build()
-                conversation = conversation.toBuilder().conversationStatus(
-                    .sent
-                ).build()
+                var conversationBuilder = conversation.toBuilder()
+                conversationBuilder = conversationBuilder
+                    .conversationStatus(.sent)
+                
+                
+                
+                conversation = conversationBuilder.build()
                 self?.insertOrUpdateConversationIntoList(conversation)
                 self?.delegate?.reloadChatMessageList()
             }
@@ -1488,6 +1492,27 @@ extension LMChatMessageListViewModel {
             self?.delegate?.showToastMessage(message: errorMessage)
         }
     }
+    
+    public func createMetadataForReplyPrivately(_ metadata: [String:Any]? = nil) -> [String:Any]? {
+        
+        if let replyPrivatelyExtras = chatroomDetailsExtra.replyPrivatelyExtras {
+            var metadata: [String:Any] = metadata ?? [:]
+            
+            if let replyPrivatelyExtras = chatroomDetailsExtra.replyPrivatelyExtras, self.chatroomViewData?.type == .directMessage {
+                let keys = Constants.shared.keys
+                
+                metadata[keys.type] = keys.replyPrivately
+                metadata[keys.sourceChatroomId] = replyPrivatelyExtras.sourceChatroomId
+                metadata[keys.sourceChatroomName] = replyPrivatelyExtras.sourceChatroomName
+                metadata[keys.sourceConversation] = replyPrivatelyExtras.sourceConversation
+                    .toConversation()
+            }
+            
+            return metadata
+        }
+        
+        return metadata
+    }
 
     // MARK: Post Conversation
     /**
@@ -1571,6 +1596,8 @@ extension LMChatMessageListViewModel {
                 .ogTags(currentDetectedOgTags)
             currentDetectedOgTags = nil
         }
+        
+        var metadata = createMetadataForReplyPrivately(metadata)
 
         // Add metadata for widget creation if provided
         requestBuilder = requestBuilder.metadata(metadata)

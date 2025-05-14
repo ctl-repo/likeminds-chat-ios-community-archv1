@@ -122,6 +122,8 @@ public class LMConversationUtils {
                 return selectedConversation.member?.state == 1
             case .ALL_MEMBERS:
                 return true
+            @unknown default:
+                return false
             }
         }
 
