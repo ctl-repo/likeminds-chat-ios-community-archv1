@@ -7,14 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D8697118447495F98DF0DC36 /* Pods_ai_chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2DAAA50F43300128E595607 /* Pods_ai_chat.framework */; };
+		0CAF6164443036F00A82B68E /* Pods_ai_chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C5D88B6B2C5F755952894B /* Pods_ai_chat.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3FCD2416C52DFEA5AB20C52F /* Pods-ai-chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ai-chat.debug.xcconfig"; path = "Target Support Files/Pods-ai-chat/Pods-ai-chat.debug.xcconfig"; sourceTree = "<group>"; };
+		00C5D88B6B2C5F755952894B /* Pods_ai_chat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ai_chat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8410B8BF2DA90D7400749F4A /* ai-chat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ai-chat.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		A367069A2D7479147B50E1A4 /* Pods-ai-chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ai-chat.release.xcconfig"; path = "Target Support Files/Pods-ai-chat/Pods-ai-chat.release.xcconfig"; sourceTree = "<group>"; };
-		D2DAAA50F43300128E595607 /* Pods_ai_chat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ai_chat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		99961B8DA245CEDCF7211FA1 /* Pods-ai-chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ai-chat.debug.xcconfig"; path = "Target Support Files/Pods-ai-chat/Pods-ai-chat.debug.xcconfig"; sourceTree = "<group>"; };
+		DF7E8E15D3D969A19747689B /* Pods-ai-chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ai-chat.release.xcconfig"; path = "Target Support Files/Pods-ai-chat/Pods-ai-chat.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -43,17 +43,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8697118447495F98DF0DC36 /* Pods_ai_chat.framework in Frameworks */,
+				0CAF6164443036F00A82B68E /* Pods_ai_chat.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4217FC78A30AE7F749A01A7E /* Frameworks */ = {
+		250ECC08B8BB0724EA803B4A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D2DAAA50F43300128E595607 /* Pods_ai_chat.framework */,
+				00C5D88B6B2C5F755952894B /* Pods_ai_chat.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -64,7 +64,7 @@
 				8410B8C12DA90D7400749F4A /* ai-chat */,
 				8410B8C02DA90D7400749F4A /* Products */,
 				E4BC1B968B00364CD73A21D0 /* Pods */,
-				4217FC78A30AE7F749A01A7E /* Frameworks */,
+				250ECC08B8BB0724EA803B4A /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -79,8 +79,8 @@
 		E4BC1B968B00364CD73A21D0 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3FCD2416C52DFEA5AB20C52F /* Pods-ai-chat.debug.xcconfig */,
-				A367069A2D7479147B50E1A4 /* Pods-ai-chat.release.xcconfig */,
+				99961B8DA245CEDCF7211FA1 /* Pods-ai-chat.debug.xcconfig */,
+				DF7E8E15D3D969A19747689B /* Pods-ai-chat.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -92,11 +92,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8410B8D22DA90D7700749F4A /* Build configuration list for PBXNativeTarget "ai-chat" */;
 			buildPhases = (
-				F1B5ED28E3F30688956D4EF8 /* [CP] Check Pods Manifest.lock */,
+				E368CB50CC746BA308599F41 /* [CP] Check Pods Manifest.lock */,
 				8410B8BB2DA90D7400749F4A /* Sources */,
 				8410B8BC2DA90D7400749F4A /* Frameworks */,
 				8410B8BD2DA90D7400749F4A /* Resources */,
-				5254952AC392BD9B18066902 /* [CP] Embed Pods Frameworks */,
+				000EF38CF49B5FAF50356FAD /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -155,7 +155,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		5254952AC392BD9B18066902 /* [CP] Embed Pods Frameworks */ = {
+		000EF38CF49B5FAF50356FAD /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -172,7 +172,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ai-chat/Pods-ai-chat-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		F1B5ED28E3F30688956D4EF8 /* [CP] Check Pods Manifest.lock */ = {
+		E368CB50CC746BA308599F41 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -209,7 +209,7 @@
 /* Begin XCBuildConfiguration section */
 		8410B8D32DA90D7700749F4A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3FCD2416C52DFEA5AB20C52F /* Pods-ai-chat.debug.xcconfig */;
+			baseConfigurationReference = 99961B8DA245CEDCF7211FA1 /* Pods-ai-chat.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -242,7 +242,7 @@
 		};
 		8410B8D42DA90D7700749F4A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A367069A2D7479147B50E1A4 /* Pods-ai-chat.release.xcconfig */;
+			baseConfigurationReference = DF7E8E15D3D969A19747689B /* Pods-ai-chat.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
