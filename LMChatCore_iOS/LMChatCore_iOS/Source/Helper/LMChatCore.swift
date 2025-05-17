@@ -80,7 +80,7 @@ public class LMChatCore {
     public func setupChat(
         deviceId: String? = nil,
         excludedConversationStates: [ConversationState]? = nil,
-        theme: LMChatTheme = .COMMUNITY_HYBRID_CHAT
+        theme: LMChatTheme = .COMMUNITY_CHAT
     ) {
         _ = LMChatClient.Builder()
             .excludedConversationStates(excludedConversationStates)
