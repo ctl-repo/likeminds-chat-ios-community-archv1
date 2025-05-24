@@ -59,9 +59,6 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
     var showList: Int?
     var loggedInUserData: User?
     var isMarkReadProgress: Bool = false
-    private var replyPrivatelyMetadata: [String: Any] = [
-        "type": "REPLY_PRIVATELY"
-    ]
 
     init(
         delegate: LMMessageListViewModelProtocol?,
@@ -70,14 +67,6 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         self.delegate = delegate
         self.chatroomId = chatroomExtra.chatroomId
         self.chatroomDetailsExtra = chatroomExtra
-    }
-
-    private func updateReplyPrivatelyMetadata(with extras: LMChatReplyPrivatelyExtra?) {
-        guard let extras = extras else { return }
-        
-        replyPrivatelyMetadata["source_chatroom_id"] = extras.sourceChatroomId
-        replyPrivatelyMetadata["source_chatroom_name"] = extras.sourceChatroomName
-        replyPrivatelyMetadata["source_conversation"] = extras.sourceConversation
     }
 
     public static func createModule(
@@ -263,9 +252,6 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         if chatroomViewData?.type == ChatroomType.directMessage {
             delegate?.directMessageStatus()
             checkDMStatus()
-            if let replyPrivatelyExtras = chatroomDetailsExtra.replyPrivatelyExtras {
-                updateReplyPrivatelyMetadata(with: replyPrivatelyExtras)
-            }
         } else {
             checkDMStatus(requestFrom: .groupChannel)
         }
@@ -914,33 +900,30 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         text: String?, requestState: ChatRequestState,
         isAutoApprove: Bool = false, reason: String? = nil, metadata: [String: Any]? = nil
     ) {
+        // Generate or use provided temporary ID for message tracking
+        let temporaryId = ValueUtils.getTemporaryId()
+
+        // Create and insert temporary conversation for immediate UI feedback
         let request = SendDMRequest.builder()
             .text(text)
             .chatRequestState(requestState.rawValue)
             .chatroomId(chatroomId)
             .metadata(metadata)
+            .temporaryId(temporaryId)
             .build()
+            
+        let tempConversation = saveTemporaryDMConversation(
+            uuid: UserPreferences.shared.getClientUUID() ?? "",
+            communityId: chatroomViewData?.communityId ?? "",
+            request: request)
+        insertOrUpdateConversationIntoList(tempConversation)
+        delegate?.scrollToBottom(forceToBottom: true)
         
         LMChatClient.shared.sendDMRequest(request: request) {
             [weak self] response in
             guard response.success else {
                 self?.delegate?.showToastMessage(message: response.errorMessage)
                 return
-            }
-            if var conversation = response.data?.conversation {
-                self?.chatroomViewData = self?.chatroomViewData?.toBuilder()
-                    .chatRequestState(requestState.rawValue)
-                    .chatRequestedById(UserPreferences.shared.getLMMemberId())
-                    .build()
-                var conversationBuilder = conversation.toBuilder()
-                conversationBuilder = conversationBuilder
-                    .conversationStatus(.sent)
-                
-                
-                
-                conversation = conversationBuilder.build()
-                self?.insertOrUpdateConversationIntoList(conversation)
-                self?.delegate?.reloadChatMessageList()
             }
             self?.markChatroomAsRead()
             self?.trackEventSendDMRequest(
@@ -1261,6 +1244,46 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
                 eventName: .pollVotingEdited, pollId: messageId)
         }
     }
+
+    private func saveTemporaryDMConversation(
+        uuid: String,
+        communityId: String,
+        request: SendDMRequest
+    ) -> Conversation {
+        // Get current timestamp for message sorting
+        let miliseconds = Int(Date().millisecondsSince1970)
+        
+        // Get current member for the conversation
+        let member = LMChatClient.shared.getCurrentMember()?.data?.member
+        
+        // Create the conversation with DM specific state
+        let conversation = Conversation.builder()
+            .id(request.temporaryId)
+            .chatroomId(request.chatroomId)
+            .communityId(communityId)
+            .answer(request.text ?? "")
+            .state(ConversationState.directMessageMemberRequestInitiated.rawValue)
+            .createdEpoch(miliseconds)
+            .memberId(uuid)
+            .member(member)
+            .createdAt(LMCoreTimeUtils.generateCreateAtDate(miliseconds: Double(miliseconds), format: "HH:mm"))
+            .date(LMCoreTimeUtils.generateCreateAtDate(miliseconds: Double(miliseconds)))
+            .localCreatedEpoch(miliseconds)
+            .temporaryId(request.temporaryId)
+            .isEdited(false)
+            .conversationStatus(.sending)
+            .metadata(request.metadata)
+            .build()
+
+        // Save the temporary conversation
+        let saveConversationRequest = SaveConversationRequest.builder()
+            .conversation(conversation)
+            .build()
+        LMChatClient.shared.saveTemporaryConversation(
+            request: saveConversationRequest)
+            
+        return conversation
+    }
 }
 
 extension LMChatMessageListViewModel: ConversationClientObserver {
@@ -1319,28 +1342,52 @@ extension LMChatMessageListViewModel: ConversationChangeDelegate {
 
     public func getPostedConversations(conversations: [Conversation]?) {
         guard let conversations, !fetchingInitialBottomData else { return }
+        
+        if conversations.isEmpty{
+            return
+        }else{
+            if conversations.first?.chatroomId != self.chatroomId {
+                return
+            }
+        }
+        
         for item in conversations {
             insertOrUpdateConversationIntoList(item)
         }
-        if !conversations.isEmpty {
-            delegate?.reloadChatMessageList()
-            self.markChatroomAsRead()
-        }
+        
+        delegate?.reloadChatMessageList()
+        self.markChatroomAsRead()
     }
 
     public func getChangedConversations(conversations: [Conversation]?) {
         guard let conversations, !fetchingInitialBottomData else { return }
+        if conversations.isEmpty{
+            return
+        }else{
+            if conversations.first?.chatroomId != self.chatroomId {
+                return
+            }
+        }
+        
         for item in conversations {
             insertOrUpdateConversationIntoList(item)
         }
-        if !conversations.isEmpty {
-            delegate?.reloadChatMessageList()
-            self.markChatroomAsRead()
-        }
+        
+        delegate?.reloadChatMessageList()
+        self.markChatroomAsRead()
     }
 
     public func getNewConversations(conversations: [Conversation]?) {
         guard let conversations, !fetchingInitialBottomData else { return }
+        
+        if conversations.isEmpty{
+            return
+        }else{
+            if conversations.first?.chatroomId != self.chatroomId {
+                return
+            }
+        }
+        
         for item in conversations {
             if (item.attachmentCount ?? 0) > 0 {
                 if item.attachmentUploaded == true {
@@ -1350,10 +1397,9 @@ extension LMChatMessageListViewModel: ConversationChangeDelegate {
                 insertOrUpdateConversationIntoList(item)
             }
         }
-        if !conversations.isEmpty {
-            delegate?.scrollToBottom(forceToBottom: false)
-            self.markChatroomAsRead()
-        }
+    
+        delegate?.scrollToBottom(forceToBottom: false)
+        self.markChatroomAsRead()
     }
 
 }
@@ -1563,7 +1609,7 @@ extension LMChatMessageListViewModel {
         replyConversationId: String?,
         replyChatRoomId: String?,
         temporaryId: String? = nil,
-        metadata: [String: Any]? = nil
+        metadata: [String: Any]? = nil,
     ) {
         // Clear any existing draft message for this chatroom
         LMSharedPreferences.removeValue(forKey: chatroomId)

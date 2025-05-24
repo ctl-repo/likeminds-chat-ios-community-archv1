@@ -1951,24 +1951,25 @@ extension LMChatMessageListViewController: LMChatBottomMessageComposerDelegate {
                 bottomMessageLabel.isHidden = true
             }
             return
-        }
-        bottomMessageBoxView.resetInputTextView()
-        if let chatMessage = viewModel?.editChatMessage {
-            viewModel?.editChatMessage = nil
-            viewModel?.postEditedConversation(
-                text: message,
-                shareLink: composeLink,
-                conversation: chatMessage
-            )
-        } else {
-            viewModel?.postMessage(
-                message: message,
-                filesUrls: nil,
-                shareLink: composeLink,
-                replyConversationId: viewModel?.replyChatMessage?.id,
-                replyChatRoomId: viewModel?.replyChatroom,
-                temporaryId: nil
-            )
+        }else{
+            bottomMessageBoxView.resetInputTextView()
+            if let chatMessage = viewModel?.editChatMessage {
+                viewModel?.editChatMessage = nil
+                viewModel?.postEditedConversation(
+                    text: message,
+                    shareLink: composeLink,
+                    conversation: chatMessage
+                )
+            } else {
+                viewModel?.postMessage(
+                    message: message,
+                    filesUrls: nil,
+                    shareLink: composeLink,
+                    replyConversationId: viewModel?.replyChatMessage?.id,
+                    replyChatRoomId: viewModel?.replyChatroom,
+                    temporaryId: nil,
+                )
+            }
         }
         cancelReply()
         cancelLinkPreview()
