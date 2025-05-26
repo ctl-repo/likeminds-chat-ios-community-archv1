@@ -912,28 +912,12 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             .temporaryId(temporaryId)
             .build()
         
-        if let text = text, !text.isEmpty {
-            let tempConversation = saveTemporaryDMConversation(
-                uuid: UserPreferences.shared.getClientUUID() ?? "",
-                communityId: chatroomViewData?.communityId ?? "",
-                request: request)
-            
-            insertOrUpdateConversationIntoList(tempConversation)
-            delegate?.reloadChatMessageList()
-        }
-            
-        
-        
         LMChatClient.shared.sendDMRequest(request: request) {
             [weak self] response in
             guard response.success else {
                 self?.delegate?.showToastMessage(message: response.errorMessage)
                 return
             }
-            self?.onConversationPosted(
-                response: response.data?.conversation,
-                updatedFileUrls: [],
-            )
             self?.markChatroomAsRead()
             self?.trackEventSendDMRequest(
                 requestState: requestState, reason: reason)
@@ -946,6 +930,8 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             self?.fetchChatroomActions()
             self?.syncConversation()
         }
+        
+        chatroomDetailsExtra.replyPrivatelyExtras = nil
     }
 
     func blockDMMember(status: BlockMemberRequest.BlockState, source: String?) {
@@ -1706,6 +1692,8 @@ extension LMChatMessageListViewModel {
             fileUrls: filesUrls)
         insertOrUpdateConversationIntoList(tempConversation)
         delegate?.scrollToBottom(forceToBottom: true)
+        
+        chatroomDetailsExtra.replyPrivatelyExtras = nil
 
         // Configure bot trigger if needed
         if self.chatroomViewData != nil {
@@ -2050,6 +2038,8 @@ extension LMChatMessageListViewModel {
         else {
             return
         }
+        
+        chatroomDetailsExtra.replyPrivatelyExtras = nil
 
         trackEventDMSent()
         if !isRetry {
