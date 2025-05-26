@@ -911,13 +911,18 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             .metadata(metadata)
             .temporaryId(temporaryId)
             .build()
+        
+        if let text = text, !text.isEmpty {
+            let tempConversation = saveTemporaryDMConversation(
+                uuid: UserPreferences.shared.getClientUUID() ?? "",
+                communityId: chatroomViewData?.communityId ?? "",
+                request: request)
             
-        let tempConversation = saveTemporaryDMConversation(
-            uuid: UserPreferences.shared.getClientUUID() ?? "",
-            communityId: chatroomViewData?.communityId ?? "",
-            request: request)
-        insertOrUpdateConversationIntoList(tempConversation)
-        delegate?.scrollToBottom(forceToBottom: true)
+            insertOrUpdateConversationIntoList(tempConversation)
+            delegate?.reloadChatMessageList()
+        }
+            
+        
         
         LMChatClient.shared.sendDMRequest(request: request) {
             [weak self] response in
@@ -925,6 +930,10 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
                 self?.delegate?.showToastMessage(message: response.errorMessage)
                 return
             }
+            self?.onConversationPosted(
+                response: response.data?.conversation,
+                updatedFileUrls: [],
+            )
             self?.markChatroomAsRead()
             self?.trackEventSendDMRequest(
                 requestState: requestState, reason: reason)
@@ -1256,13 +1265,43 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
         // Get current member for the conversation
         let member = LMChatClient.shared.getCurrentMember()?.data?.member
         
+        var widget: Widget? = nil
+        
+        if let metadata = request.metadata {
+            var widgetBuilder: Widget.Builder = Widget.Builder()
+            if metadata[Constants.shared.keys.type] as? String == Constants.shared.keys.replyPrivately {
+                var lmMetaBuilder = LMMeta.Builder()
+                lmMetaBuilder = lmMetaBuilder
+                    .type(
+                        metadata[Constants.shared.keys.type] as? String
+                    )
+                lmMetaBuilder = lmMetaBuilder
+                    .sourceConversation(
+                        metadata[Constants.shared.keys.sourceConversation] as? Conversation
+                    )
+                lmMetaBuilder = lmMetaBuilder
+                    .sourceChatroomName(
+                        metadata[Constants.shared.keys.sourceChatroomName] as? String
+                    )
+                lmMetaBuilder = lmMetaBuilder
+                    .sourceChatroomId(
+                        metadata[Constants.shared.keys.sourceChatroomId] as? String
+                    )
+                widgetBuilder = widgetBuilder.lmMeta(lmMetaBuilder.build())
+            } else {
+                widgetBuilder = widgetBuilder.metadata(metadata)
+            }
+            widgetBuilder = widgetBuilder.id(request.temporaryId)
+            widget = widgetBuilder.build()
+        }
+        
         // Create the conversation with DM specific state
-        let conversation = Conversation.builder()
+        var conversation = Conversation.builder()
             .id(request.temporaryId)
             .chatroomId(request.chatroomId)
             .communityId(communityId)
             .answer(request.text ?? "")
-            .state(ConversationState.directMessageMemberRequestInitiated.rawValue)
+            .state(ConversationState.normal.rawValue)
             .createdEpoch(miliseconds)
             .memberId(uuid)
             .member(member)
@@ -1272,15 +1311,27 @@ public final class LMChatMessageListViewModel: LMChatBaseViewModel {
             .temporaryId(request.temporaryId)
             .isEdited(false)
             .conversationStatus(.sending)
-            .metadata(request.metadata)
+            .widget(widget)
             .build()
 
-        // Save the temporary conversation
         let saveConversationRequest = SaveConversationRequest.builder()
             .conversation(conversation)
             .build()
+        
         LMChatClient.shared.saveTemporaryConversation(
             request: saveConversationRequest)
+        
+        if let replyId = conversation.replyConversationId {
+            let replyConversationRequest = GetConversationRequest.builder()
+                .conversationId(replyId).build()
+            if let replyConver = LMChatClient.shared.getConversation(
+                request: replyConversationRequest)?.data?.conversation
+            {
+                conversation = conversation.toBuilder()
+                    .replyConversation(replyConver)
+                    .build()
+            }
+        }
             
         return conversation
     }
@@ -1970,6 +2021,7 @@ extension LMChatMessageListViewModel {
         let saveConversationRequest = SaveConversationRequest.builder()
             .conversation(conversation)
             .build()
+        
         LMChatClient.shared.saveTemporaryConversation(
             request: saveConversationRequest)
         if let replyId = conversation.replyConversationId {
