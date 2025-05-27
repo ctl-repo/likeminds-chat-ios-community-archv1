@@ -24,7 +24,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Messaging.messaging().delegate = self
         registerForPushNotifications(application: application)
         let deviceId = UIDevice.current.identifierForVendor?.uuidString
-        LMChatCore.shared.setupChat(deviceId: deviceId)
+        LMChatCore.shared
+            .setupChat(
+                deviceId: deviceId,
+                theme: LMChatTheme.COMMUNITY_HYBRID_CHAT
+            )
         return true
     }
 
@@ -113,5 +117,4 @@ extension AppDelegate: MessagingDelegate {
     ) {
         print("Firebase registration token: \(String(describing: fcmToken))")
     }
-
 }
