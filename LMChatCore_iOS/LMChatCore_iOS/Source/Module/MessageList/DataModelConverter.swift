@@ -35,9 +35,29 @@ class DataModelConverter {
         var widget: Widget? = nil
         
         if let metadata = request.metadata {
-            
             var widgetBuilder: Widget.Builder = Widget.Builder()
-            widgetBuilder = widgetBuilder.metadata(metadata)
+            if metadata[Constants.shared.keys.type] as? String == Constants.shared.keys.replyPrivately {
+                var lmMetaBuilder = LMMeta.Builder()
+                lmMetaBuilder = lmMetaBuilder
+                    .sourceChatroomId(
+                        metadata[Constants.shared.keys.sourceChatroomId] as? String
+                    )
+                lmMetaBuilder = lmMetaBuilder
+                    .sourceConversation(
+                        metadata[Constants.shared.keys.sourceConversation] as? Conversation
+                    )
+                lmMetaBuilder = lmMetaBuilder
+                    .sourceChatroomName(
+                        metadata[Constants.shared.keys.sourceChatroomName] as? String
+                    )
+                lmMetaBuilder = lmMetaBuilder
+                    .sourceChatroomId(
+                        metadata[Constants.shared.keys.sourceChatroomId] as? String
+                    )
+                widgetBuilder = widgetBuilder.lmMeta(lmMetaBuilder.build())
+            } else {
+                widgetBuilder = widgetBuilder.metadata(metadata)
+            }
             widgetBuilder = widgetBuilder.id(UUID().uuidString)
             widget = widgetBuilder.build()
         }
