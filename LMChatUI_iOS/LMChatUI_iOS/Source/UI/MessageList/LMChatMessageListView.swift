@@ -836,6 +836,8 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
                 withCapInsets: UIEdgeInsets.zero
             )
         else { return nil }
+        
+        let conversationViewData = messageCell?.data?.message
 
         let reactionView = LMChatReactionPopupView()
         reactionView.onReaction = { [weak self] reactionType in
@@ -849,6 +851,10 @@ extension LMChatMessageListView: UITableViewDataSource, UITableViewDelegate {
         reactionView.layer.cornerRadius = 10
         reactionView.layer.masksToBounds = true
         reactionView.translatesAutoresizingMaskIntoConstraints = false
+        if conversationViewData != nil{
+            reactionView.isHidden = (
+                conversationViewData?.state != .normal && conversationViewData?.state != .microPoll)
+        }
 
         snapshot.layer.cornerRadius = 10
         snapshot.layer.masksToBounds = true
