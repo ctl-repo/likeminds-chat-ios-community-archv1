@@ -28,8 +28,7 @@ open class LMChatMessageReplyPreview: LMView {
             replyMessage: String?,
             attachmentsUrls: [(thumbnailUrl: String?, fileUrl: String?, fileType: AttachmentViewData.AttachmentType?)]?,
             messageType: Int?,
-            isDeleted: Bool = false,
-        ) {
+            isDeleted: Bool = false) {
             self.username = username
             self.replyMessage = replyMessage
             self.attachmentsUrls = attachmentsUrls
