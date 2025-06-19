@@ -1967,7 +1967,7 @@ extension LMChatMessageListViewController: LMChatBottomMessageComposerDelegate {
                     shareLink: composeLink,
                     replyConversationId: viewModel?.replyChatMessage?.id,
                     replyChatRoomId: viewModel?.replyChatroom,
-                    temporaryId: nil,
+                    temporaryId: nil
                 )
             }
         }
