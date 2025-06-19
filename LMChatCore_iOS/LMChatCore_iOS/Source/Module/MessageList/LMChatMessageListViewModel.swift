@@ -1646,7 +1646,7 @@ extension LMChatMessageListViewModel {
         replyConversationId: String?,
         replyChatRoomId: String?,
         temporaryId: String? = nil,
-        metadata: [String: Any]? = nil,
+        metadata: [String: Any]? = nil
     ) {
         // Clear any existing draft message for this chatroom
         LMSharedPreferences.removeValue(forKey: chatroomId)
