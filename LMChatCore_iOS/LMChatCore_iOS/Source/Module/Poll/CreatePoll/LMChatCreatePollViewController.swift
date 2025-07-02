@@ -14,6 +14,7 @@ public protocol LMChatCreatePollViewDelegate: AnyObject {
 }
 
 open class LMChatCreatePollViewController: LMViewController {
+    var isKeyBoardShown: Bool = false
     // MARK: UI Elements
     open private(set) lazy var containerView: LMView = {
         let view = LMView().translatesAutoresizingMaskIntoConstraints()
@@ -154,6 +155,11 @@ open class LMChatCreatePollViewController: LMViewController {
     
     @objc
     open override func keyboardWillShow(_ sender: Notification){
+        if isKeyBoardShown {
+            isKeyBoardShown = false
+            return
+        }
+        isKeyBoardShown = true
         //give room at the bottom of the scroll view, so it doesn't cover up anything the user needs to tap
         guard let userInfo = sender.userInfo,
               let nsVal = userInfo[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue else { return }
