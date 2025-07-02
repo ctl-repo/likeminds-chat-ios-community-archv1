@@ -71,6 +71,8 @@ public protocol LMChatMessageCellDelegate: LMChatMessageBaseProtocol {
     
     // Custom delegate Method for buy sell company Button
     func didTapOnCustomCellButton(btnName: String, metaData: [String: Any])
+
+    func didTapOnReplyPrivatelyCell(indexPath: IndexPath)
 }
 
 /// A custom table view cell that displays chat messages with various interactive features.
@@ -117,10 +119,16 @@ open class LMChatMessageCell: LMTableViewCell {
         let button = LMButton()
             .translatesAutoresizingMaskIntoConstraints()
         button.addTarget(
-            self, action: #selector(retrySendMessage), for: .touchUpInside)
+            self,
+            action: #selector(retrySendMessage),
+            for: .touchUpInside
+        )
         button.setImage(
             Constants.shared.images.retryIcon.withSystemImageConfig(
-                pointSize: 25), for: .normal)
+                pointSize: 25
+            ),
+            for: .normal
+        )
         button.backgroundColor = Appearance.shared.colors.clear
         button.tintColor = Appearance.shared.colors.red
         button.setWidthConstraint(with: 30)
@@ -135,7 +143,10 @@ open class LMChatMessageCell: LMTableViewCell {
         let button = LMButton()
             .translatesAutoresizingMaskIntoConstraints()
         button.addTarget(
-            self, action: #selector(selectedRowButton), for: .touchUpInside)
+            self,
+            action: #selector(selectedRowButton),
+            for: .touchUpInside
+        )
         button.isHidden = true
         button.backgroundColor = Appearance.shared.colors.clear
         return button
@@ -151,7 +162,7 @@ open class LMChatMessageCell: LMTableViewCell {
     weak var pollDelegate: LMChatPollViewDelegate?
 
     /// The current data model containing the message and selection state
-    var data: ContentModel?
+    public var data: ContentModel?
 
     /// The current index path of the cell in the table view
     var currentIndexPath: IndexPath?
@@ -195,7 +206,10 @@ open class LMChatMessageCell: LMTableViewCell {
         chatMessageView.textLabel.canPerformActionRestriction = true
         chatMessageView.textLabel.addGestureRecognizer(
             UITapGestureRecognizer(
-                target: self, action: #selector(tappedTextView)))
+                target: self,
+                action: #selector(tappedTextView)
+            )
+        )
     }
 
     /// Sets up the layout constraints for all subviews.
@@ -205,18 +219,26 @@ open class LMChatMessageCell: LMTableViewCell {
         contentView.pinSubView(subView: containerView)
         NSLayoutConstraint.activate([
             retryContainerStackView.trailingAnchor.constraint(
-                equalTo: containerView.trailingAnchor, constant: -8),
+                equalTo: containerView.trailingAnchor,
+                constant: -8
+            ),
             retryContainerStackView.centerYAnchor.constraint(
-                equalTo: chatMessageView.centerYAnchor),
+                equalTo: chatMessageView.centerYAnchor
+            ),
 
             chatMessageView.topAnchor.constraint(
-                equalTo: containerView.topAnchor),
+                equalTo: containerView.topAnchor
+            ),
             chatMessageView.leadingAnchor.constraint(
-                equalTo: containerView.leadingAnchor, constant: 8),
+                equalTo: containerView.leadingAnchor,
+                constant: 8
+            ),
             chatMessageView.trailingAnchor.constraint(
-                equalTo: retryContainerStackView.leadingAnchor),
+                equalTo: retryContainerStackView.leadingAnchor
+            ),
             chatMessageView.bottomAnchor.constraint(
-                equalTo: containerView.bottomAnchor),
+                equalTo: containerView.bottomAnchor
+            ),
         ])
         contentView.pinSubView(subView: selectedButton)
     }
@@ -238,7 +260,8 @@ open class LMChatMessageCell: LMTableViewCell {
     open func tappedTextView(tapGesture: UITapGestureRecognizer) {
         guard let textView = tapGesture.view as? LMTextView,
             let position = textView.closestPosition(
-                to: tapGesture.location(in: textView)),
+                to: tapGesture.location(in: textView)
+            ),
             let text = textView.textStyling(at: position, in: .forward)
         else { return }
         if let url = text[.link] as? URL {
@@ -308,7 +331,8 @@ open class LMChatMessageCell: LMTableViewCell {
                 toggleRetryButtonView(isHidden: false)
 
                 delegate?.onRetryButtonClicked(
-                    conversation: data.message)
+                    conversation: data.message
+                )
             }
         } else {
             if currentTimeStampEpoch
@@ -338,7 +362,8 @@ open class LMChatMessageCell: LMTableViewCell {
     @objc open func retrySendMessage(_ sender: UIButton) {
         guard let data else { return }
         data.message.localCreatedEpoch = Int(
-            Date().timeIntervalSince1970 * 1000)
+            Date().timeIntervalSince1970 * 1000
+        )
         delegate?.onRetryButtonClicked(conversation: data.message)
     }
 
@@ -383,6 +408,13 @@ extension LMChatMessageCell: LMAttachmentUploadRetryViewDelegate {
 /// Extension that handles chat message content view delegate methods.
 /// This extension manages various interactions with the message content.
 extension LMChatMessageCell: LMChatMessageContentViewDelegate {
+    public func didTapOnReplyPrivatelyCell() {
+        if let indexPath = currentIndexPath {
+            delegate?.didTapOnReplyPrivatelyCell(indexPath: indexPath)
+        }
+
+    }
+
     /// Called when the user taps on a reply preview.
     /// This method delegates the reply interaction to the cell delegate.
     public func didTapOnReplyPreview() {
@@ -401,7 +433,9 @@ extension LMChatMessageCell: LMChatMessageContentViewDelegate {
     /// - Parameter reaction: The reaction string that was tapped
     public func clickedOnReaction(_ reaction: String) {
         delegate?.onClickReactionOfMessage(
-            reaction: reaction, indexPath: currentIndexPath)
+            reaction: reaction,
+            indexPath: currentIndexPath
+        )
     }
 
     /// Called when the user taps on an attachment.
@@ -409,7 +443,9 @@ extension LMChatMessageCell: LMChatMessageContentViewDelegate {
     /// - Parameter url: The URL of the attachment that was tapped
     public func clickedOnAttachment(_ url: String) {
         delegate?.onClickAttachmentOfMessage(
-            url: url, indexPath: currentIndexPath)
+            url: url,
+            indexPath: currentIndexPath
+        )
     }
     public func didTapButton(btnName: String, metaData: [String : Any]) {
         delegate?.didTapOnCustomCellButton(btnName: btnName, metaData: metaData)
