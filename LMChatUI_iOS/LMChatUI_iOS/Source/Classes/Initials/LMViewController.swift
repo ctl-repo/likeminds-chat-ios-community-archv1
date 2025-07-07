@@ -66,7 +66,6 @@ public protocol LMBaseViewControllerProtocol: AnyObject {
 /// Base LM View Controller Class with LM Life Cycle Methods
 @IBDesignable
 open class LMViewController: UIViewController {
-    var isKeyBoardShown: Bool = false
     // MARK: UI Elements
     open private(set) lazy var loaderScreen: LMView = {
         let view = LMView(frame: view.bounds)
@@ -209,11 +208,6 @@ open class LMViewController: UIViewController {
 
     @objc
     open func keyboardWillShow(_ sender: Notification) {
-        if isKeyBoardShown {
-            isKeyBoardShown = false
-            return
-        }
-        isKeyBoardShown = true
         UIView.animate(withDuration: 0.3) {
             self.view.layoutIfNeeded()
         }

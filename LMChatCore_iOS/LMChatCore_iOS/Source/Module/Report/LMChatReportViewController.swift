@@ -26,7 +26,6 @@ public extension LMChatReportViewDelegate {
 }
 
 open class LMChatReportViewController: LMViewController {
-    var isKeyBoardShown: Bool = false
     // MARK: UI Elements
     open private(set) lazy var containerView: LMView = {
         let view = LMView().translatesAutoresizingMaskIntoConstraints()
@@ -234,11 +233,6 @@ open class LMChatReportViewController: LMViewController {
     
     @objc
     open override func keyboardWillShow(_ notification: Notification) {
-        if isKeyBoardShown {
-            isKeyBoardShown = false
-            return
-        }
-        isKeyBoardShown = true
         guard let keyboardFrameKey = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
         
         let keyboardFrame = view.convert(keyboardFrameKey.cgRectValue, from: nil)

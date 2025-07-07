@@ -27,7 +27,6 @@
 import UIKit
 
 class LMInputTextViewController: UIViewController {
-    var isKeyBoardShown: Bool = false
     private static let toolViewHeight: CGFloat = 70
     
     private let image: UIImage?
@@ -283,11 +282,6 @@ class LMInputTextViewController: UIViewController {
     }
     
     @objc private func keyboardWillShow(_ notify: Notification) {
-        if isKeyBoardShown {
-            isKeyBoardShown = false
-            return
-        }
-        isKeyBoardShown = true
         let rect = notify.userInfo?[UIApplication.keyboardFrameEndUserInfoKey] as? CGRect
         let keyboardH = rect?.height ?? 366
         let duration: TimeInterval = notify.userInfo?[UIApplication.keyboardAnimationDurationUserInfoKey] as? TimeInterval ?? 0.25
