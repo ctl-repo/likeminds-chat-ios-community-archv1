@@ -332,22 +332,17 @@ open class LMChatMessageListViewController: LMViewController {
 
     @objc
     open override func keyboardWillShow(_ sender: Notification) {
-        if isKeyBoardShown {
-            isKeyBoardShown = false
-            return
-        }
-        isKeyBoardShown = true
-        guard let userInfo = sender.userInfo,
-            let frame =
-                (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?
-                .cgRectValue
-        else {
-            return
-        }
-        self.bottomTextViewContainerBottomConstraints?.isActive = false
-        self.bottomTextViewContainerBottomConstraints?.constant =
-            -((frame.size.height - self.view.safeAreaInsets.bottom))
-        self.bottomTextViewContainerBottomConstraints?.isActive = true
+//        guard let userInfo = sender.userInfo,
+//            let frame =
+//                (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?
+//                .cgRectValue
+//        else {
+//            return
+//        }
+//        self.bottomTextViewContainerBottomConstraints?.isActive = false
+//        self.bottomTextViewContainerBottomConstraints?.constant =
+//            -((frame.size.height - self.view.safeAreaInsets.bottom))
+//        self.bottomTextViewContainerBottomConstraints?.isActive = true
         UIView.animate(withDuration: 0.3) { [weak self] in
             self?.view.layoutIfNeeded()
         }
