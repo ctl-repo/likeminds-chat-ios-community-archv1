@@ -78,7 +78,12 @@ open class LMChatParticipantCell: LMTableViewCell {
     
     // MARK: configure
     open func configure(with data: ContentModel) {
+#if DEBUG
+        participantView.setData(.init(name: data.name, designationDetail: data.id, profileImageUrl: data.profileImageUrl, customTitle: data.customTitle, isPending: false))
+        
+#else
         participantView.setData(.init(name: data.name, designationDetail: data.designationDetail, profileImageUrl: data.profileImageUrl, customTitle: data.customTitle, isPending: false))
+#endif
     }
 }
 
