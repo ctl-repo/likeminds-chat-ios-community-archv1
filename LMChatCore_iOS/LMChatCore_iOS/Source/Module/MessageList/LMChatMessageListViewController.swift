@@ -380,8 +380,11 @@ open class LMChatMessageListViewController: LMViewController {
     @objc
     open func chatroomActions() {
         self.view.endEditing(true)
-        guard let actions = viewModel?.chatroomActionData?.chatroomActions
+        guard var actions = viewModel?.chatroomActionData?.chatroomActions
         else { return }
+        actions.removeAll {
+            $0.id == .viewProfile
+        }
         let alert = UIAlertController(
             title: nil,
             message: nil,
