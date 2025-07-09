@@ -75,6 +75,6 @@ open class LMChatHomeFeedExploreTabCell: LMTableViewCell {
     
     // MARK: configure
     open func configure(with data: ContentModel) {
-        exploreTabView.setData(LMChatHomeFeedExploreTabView.ContentModel(tilesName: "Explore", tilesIcon: "", unreadCount: data.unseenChatroomsCount ?? 0, totalCount: data.totalChatroomsCount ?? 0))
+        exploreTabView.setData(LMChatHomeFeedExploreTabView.ContentModel(tilesName: "Explore Groups", tilesIcon: "", unreadCount: data.unseenChatroomsCount ?? 0, totalCount: data.totalChatroomsCount ?? 0))
     }
 }

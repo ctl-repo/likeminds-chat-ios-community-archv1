@@ -85,11 +85,12 @@ open class LMChatHomeFeedExploreTabView: LMView {
     open private(set) lazy var exploreIconImageView: LMImageView = {
         let image = LMImageView().translatesAutoresizingMaskIntoConstraints()
         image.clipsToBounds = true
-        image.setWidthConstraint(with: 54)
-        image.setHeightConstraint(with: 54)
+        image.setWidthConstraint(with: 40)
+        image.setHeightConstraint(with: 40)
         image.contentMode = .center
-        image.image = Constants.shared.images.personCircleFillIcon.withSystemImageConfig(pointSize: 30)
-        image.cornerRadius(with: 27)
+        image.image = Constants.shared.images.exploreGroupIcon
+        image.backgroundColor = Appearance.shared.colors.exploreIconBgColor
+        image.cornerRadius(with: 10)
         return image
     }()
     

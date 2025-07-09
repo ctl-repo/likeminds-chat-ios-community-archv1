@@ -127,5 +127,7 @@ public extension Constants {
     
         public var stockShareIcon = loadSystemImage(with: "chevron.up.circle")
         public var chartIcon = loadSystemImage(with: "chart.bar.xaxis")
+        
+        public var exploreGroupIcon = loadImage(with: "explore_Icon")
     }
 }
