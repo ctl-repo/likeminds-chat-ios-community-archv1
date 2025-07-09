@@ -816,6 +816,7 @@ extension LMChatMessageListViewController: LMMessageListViewModelProtocol {
         messageListView.tableSections.sort(by: { $0.timestamp < $1.timestamp })
         modifyMessageWithTapToUndo()
         messageListView.reloadData()
+        messageListView.scrollToBottom()
         bottomMessageBoxView.inputTextView.chatroomId =
             viewModel?.chatroomViewData?.id ?? ""
         hideShowTopicBarView()
