@@ -198,6 +198,10 @@ open class LMChatMessageContentView: LMView {
         return view
     }()
 
+    var companyTrailingConstraint: NSLayoutConstraint?
+    var stockTrailingConstraint: NSLayoutConstraint?
+    var stockLeadingConstraint: NSLayoutConstraint?
+    
     var textLabel: LMTextView = {
         let label = LMTextView()
             .translatesAutoresizingMaskIntoConstraints()
@@ -347,11 +351,15 @@ open class LMChatMessageContentView: LMView {
             ),
             bubbleView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             bubbleView.heightAnchor.constraint(greaterThanOrEqualToConstant: 48),
-            bubbleView.bottomAnchor.constraint(equalTo: chatProfileImageContainerStackView.bottomAnchor, constant: -2),
-            companyStack.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -8),
-            stockInfo.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -8),
-            stockInfo.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 8)
+            bubbleView.bottomAnchor.constraint(equalTo: chatProfileImageContainerStackView.bottomAnchor, constant: -2)
         ])
+        companyTrailingConstraint = companyStack.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -8)
+        stockTrailingConstraint = stockInfo.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -8)
+        stockLeadingConstraint = stockInfo.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 8)
+        
+        companyTrailingConstraint?.isActive = false
+        stockTrailingConstraint?.isActive = false
+        stockTrailingConstraint?.isActive = false
         
          bubbleLeadingConstraint = bubbleView.leadingAnchor.constraint(equalTo: chatProfileImageContainerStackView.trailingAnchor)
          bubbleTrailingConstraint = bubbleView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -35)
@@ -412,6 +420,8 @@ open class LMChatMessageContentView: LMView {
                     self.stopLossLbl.attributedText = combinedAttText
                     self.stopLossLbl.isHidden = self.stopLossLbl.text.isEmpty
                     self.stockInfo.isHidden = false
+                    self.stockTrailingConstraint?.isActive = true
+                    self.stockLeadingConstraint?.isActive = true
                 }
                 if let entryPrice = metaData?["entryPrice"] as? String {
                     let tempFormatString =  GetAttributedTextWithRoutes.getAttributedText(from: "Entry Price".trimmingCharacters(in: .whitespacesAndNewlines), font: Appearance.shared.fonts.subHeadingFont1, withHighlightedColor: Appearance.Colors.shared.linkColor, withTextColor: textLabelColor);
@@ -425,6 +435,8 @@ open class LMChatMessageContentView: LMView {
                     self.entryPriceLbl.attributedText = combinedAttText
                     self.entryPriceLbl.isHidden = self.entryPriceLbl.text.isEmpty
                     self.stockInfo.isHidden = false
+                    self.stockTrailingConstraint?.isActive = true
+                    self.stockLeadingConstraint?.isActive = true
                 }
                 if let targetPrice = metaData?["targetPrice"] as? String {
                     let tempFormatString =  GetAttributedTextWithRoutes.getAttributedText(from: "Target Price".trimmingCharacters(in: .whitespacesAndNewlines), font: Appearance.shared.fonts.subHeadingFont1, withHighlightedColor: Appearance.Colors.shared.linkColor, withTextColor: textLabelColor);
@@ -438,6 +450,8 @@ open class LMChatMessageContentView: LMView {
                     self.targetPriceLbl.attributedText = combinedAttText
                     self.targetPriceLbl.isHidden = self.targetPriceLbl.text.isEmpty
                     self.stockInfo.isHidden = false
+                    self.stockTrailingConstraint?.isActive = true
+                    self.stockLeadingConstraint?.isActive = true
                 }
                 if let isBuy = metaData?["isBuy"] as? Bool {
                     if isBuy {
@@ -449,6 +463,7 @@ open class LMChatMessageContentView: LMView {
                     }
                     companyInfoButton.isHidden = false
                     companyStack.isHidden = false
+                    companyTrailingConstraint?.isActive = true
                 }
             }
         }
